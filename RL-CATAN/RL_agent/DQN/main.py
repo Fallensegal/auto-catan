@@ -8,18 +8,17 @@ from itertools import product
 
 import sys
 import os
-import sys
-print(sys.path)
-
-sys.path.append('/home/victor/maturarbeit/Catan')
-
+# Get the grandparent directory (two levels up) 
+grandparent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+# Add the grandparent directory to sys.path 
+sys.path.append(grandparent_dir)
 import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 
 from config import *
-from RL_agent.DQN.log import log, logging
+from RL_agent.DQN.log import Log
 
 from Catan_Env.state_changer import state_changer
 from replay_memory import ReplayMemory, Transition
@@ -27,13 +26,7 @@ from replay_memory import ReplayMemory, Transition
 from Catan_Env.action_selection import action_selecter
 from Catan_Env.random_action import random_assignment
 
-from Catan_Env.catan_env import game, phase, new_game
-
-#plotting
-import wandb 
-import plotly.graph_objects as go
-wandb.init(project="RL-Catan", name="RL_version_0.1.1", config={})
-import os
+from Catan_Env.catan_env import Catan_Env, create_env
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -44,9 +37,6 @@ from Neural_Networks.DQN_Small import DQN
 def weights_init(m):
     if isinstance(m, nn.Conv2d):
         torch.nn.init.xavier_uniform(m.weight.data)
-
-cur_boardstate = state_changer()[0]
-cur_vectorstate = state_changer()[1]
 
 agent2_policy_net = DQN().to(device)
 agent1_policy_net = DQN().to(device)
@@ -60,6 +50,14 @@ target_net.load_state_dict(agent1_policy_net.state_dict())
 optimizer = optim.Adam(agent1_policy_net.parameters(), lr = LR_START, amsgrad=True)
 memory = ReplayMemory(100000)
 
+#main script
+num_episodes = 3
+episode_durations = []
+log_called = 0
+start_time = time.time()
+
+log = Log()
+
 #different types of reward shaping: Immidiate rewards vps, immidiate rewards legal/illegal, immidiate rewards ressources produced, rewards at the end for winning/losing (+vps +legal/illegal)
 def select_action(boardstate, vectorstate):
     sample = random.random()
@@ -72,7 +70,7 @@ def select_action(boardstate, vectorstate):
         param_group['lr'] = lr
     if sample > eps_threshold:
         with torch.no_grad():
-            if game.cur_player == 0:
+            if env.game.cur_player == 0:
                 #phase.actionstarted += 1
                 action = agent1_policy_net(boardstate, vectorstate).max(1).indices.view(1,1)
                 if action >= 4*11*21:
@@ -100,22 +98,20 @@ def select_action(boardstate, vectorstate):
             #    action_counts[action] += 1
             #    return action
     else:
-        final_action,position_x,position_y = random_assignment()
+        final_action,position_x,position_y = random_assignment(env)
         if final_action > 4:
-            action = final_action + 4*11*21 - 5
+            action = final_action - 4*11*21 - 5
         else:
-            action = (final_action-1)*11*21 + position_y*21 + position_x 
+            action = (final_action-1)*11*21 + position_y*21 + position_x  
         log.random_action_counts[action] += 1
         action_tensor = torch.tensor([[action]], device=device, dtype=torch.long)
-        game.random_action_made = 1
+        env.game.random_action_made = 1
         return action_tensor
-    
-episode_durations = []
+
 
 def plotting():
     print()
 
-log_called = 0
 def optimize_model():
     if len(memory) < BATCH_SIZE:
         return
@@ -139,18 +135,18 @@ def optimize_model():
 
     loss = F.l1_loss(state_action_values, expected_state_action_values.unsqueeze(1))
 
-    game.average_q_value_loss.insert(0, loss.mean().item())
+    env.game.average_q_value_loss.insert(0, loss.mean().item())
     print(loss.mean().item())
-    while len(game.average_q_value_loss) > 1000:
-        game.average_q_value_loss.pop(1000)
+    while len(env.game.average_q_value_loss) > 1000:
+        env.game.average_q_value_loss.pop(1000)
 
-    game.average_reward_per_move.insert(0, phase.reward)
-    while len(game.average_reward_per_move) > 1000:
-        game.average_reward_per_move.pop(1000)
+    env.game.average_reward_per_move.insert(0, env.phase.reward)
+    while len(env.game.average_reward_per_move) > 1000:
+        env.game.average_reward_per_move.pop(1000)
 
-    game.average_expected_state_action_value.insert(0, expected_state_action_values.mean().item())
-    while len(game.average_expected_state_action_value) > 1000:
-        game.average_expected_state_action_value.pop(1000)
+    env.game.average_expected_state_action_value.insert(0, expected_state_action_values.mean().item())
+    while len(env.game.average_expected_state_action_value) > 1000:
+        env.game.average_expected_state_action_value.pop(1000)
 
     optimizer.zero_grad()
     start_time = time.time()
@@ -159,14 +155,10 @@ def optimize_model():
 
     optimizer.step()
 
-start_time = time.time()
-
-
-num_episodes = 1000
 for i_episode in range (num_episodes):
-    new_game()
+    env = create_env()
     time_new_start = time.time()
-    print(i_episode)
+    print("simulating episode: " + str(i_episode))
     if i_episode % 50 == 49:
         target_net.load_state_dict(agent1_policy_net.state_dict())
             
@@ -174,39 +166,40 @@ for i_episode in range (num_episodes):
         torch.save(agent1_policy_net.state_dict(), f'agent{i_episode}_policy_net_0_1_1.pth')
         #agent2_policy_net.load_state_dict(torch.load(f'agent{i_episode}_policy_net_0_0_4.pth'))
 
+    turnStart = True
+
     for t in count():
-        
-        if game.cur_player == 1:
+        if turnStart:
+            print("simulating turn: " + str(t))
+            turnStart = False
+        if env.game.cur_player == 1:
             
-            final_action,position_x,position_y = random_assignment()
+            final_action,position_x,position_y = random_assignment(env)
             if final_action > 4:
-                action = final_action + 4*11*21 - 5
+                action = final_action
+                # print("player 1 took action: " + str(final_action))
             else:
                 action = (final_action-1)*11*21 + position_y*21 + position_x 
-            log.random_action_counts[action] += 1
+                # print("player 1 took action: " + str(final_action) + " at x,y = " + str(position_x) + "," + str(position_y))
+            log.random_action_counts[final_action] += 1
             action = torch.tensor([[action]], device=device, dtype=torch.long)
-            game.random_action_made = 1
-            phase.actionstarted = 0
-            if phase.statechange == 1:
-               
-                #next_board_state, next_vector_state, reward, done = state_changer()[0], state_changer()[1], phase.reward, game.is_finished  #[this is were I need to perform an action and return the next state, reward, done
-                #reward = torch.tensor([reward], device = device)
-                #next_board_state = torch.tensor(next_board_state, device = device, dtype = torch.float).unsqueeze(0)
-                #next_vector_state = torch.tensor(next_vector_state, device = device, dtype = torch.float).unsqueeze(0)
-
-                if game.is_finished == 1: 
-                    game.cur_player = 0
-                    cur_boardstate =  state_changer()[0]
-                    cur_vectorstate = state_changer()[1]
+            env.game.random_action_made = 1
+            env.phase.actionstarted = 0
+            if env.phase.statechange == 1:
+                turnStart = True
+                if env.game.is_finished == 1: 
+                    env.game.cur_player = 0
+                    cur_boardstate =  state_changer(env)[0]
+                    cur_vectorstate = state_changer(env)[1]
                     cur_boardstate = cur_boardstate.clone().detach().unsqueeze(0).to(device).float()        
                     cur_vectorstate = cur_vectorstate.clone().detach().unsqueeze(0).to(device).float()
-                    next_board_state, next_vector_state, reward, done = state_changer()[0], state_changer()[1], phase.reward, game.is_finished  #[this is were I need to perform an action and return the next state, reward, done
+                    next_board_state, next_vector_state, reward, done = state_changer(env)[0], state_changer(env)[1], env.phase.reward, env.game.is_finished  #[this is were I need to perform an action and return the next state, reward, done
                     reward = torch.tensor([reward], device = device)
                     print(reward)
                     next_board_state = next_board_state.clone().detach().unsqueeze(0).to(device).float()
                     next_vector_state = next_vector_state.clone().detach().unsqueeze(0).to(device).float()
                     if done == 1:
-                        phase.gamemoves = t
+                        env.phase.gamemoves = t
                         print("done0")
                         next_board_state = None
                         next_vector_state = None
@@ -218,10 +211,9 @@ for i_episode in range (num_episodes):
                     next_vector_state = None
                 #cur_boardstate = next_board_state
                 #cur_vector_state = next_vector_state
-                if game.is_finished == 1:
-                    phase.gamemoves = t
+                    env.phase.gamemoves = t
                     print("done1")
-                    game.is_finished = 0
+                    env.game.is_finished = 0
                     episode_durations.append(t+1)
                     break
             #else:
@@ -233,20 +225,22 @@ for i_episode in range (num_episodes):
             #        next_board_state = torch.tensor(next_board_state, device = device, dtype = torch.float).unsqueeze(0)
             #        next_vector_state = torch.tensor(next_vector_state, device = device, dtype = torch.float).unsqueeze(0)
             #        memory.push(cur_boardstate, cur_vectorstate,action,next_board_state, next_vector_state,reward)
-        elif game.cur_player == 0:
-            cur_boardstate =  state_changer()[0]
-            cur_vectorstate = state_changer()[1]
+        elif env.game.cur_player == 0:
+            cur_boardstate =  state_changer(env)[0]
+            cur_vectorstate = state_changer(env)[1]
             cur_boardstate = cur_boardstate.clone().detach().unsqueeze(0).to(device).float()        
             cur_vectorstate = cur_vectorstate.clone().detach().unsqueeze(0).to(device).float()
             action = select_action(cur_boardstate, cur_vectorstate)
-            if phase.statechange == 1:
+            # print("player 0 took action: " + str(action.item()))
+            if env.phase.statechange == 1:
+                turnStart = True
                 #phase.reward += 0.0001
-                next_board_state, next_vector_state, reward, done = state_changer()[0], state_changer()[1], phase.reward, game.is_finished  #[this is were I need to perform an action and return the next state, reward, done
+                next_board_state, next_vector_state, reward, done = state_changer(env)[0], state_changer(env)[1], env.phase.reward, env.game.is_finished  #[this is were I need to perform an action and return the next state, reward, done
                 reward = torch.tensor([reward], device = device)
                 next_board_state = next_board_state.clone().detach().unsqueeze(0).to(device).float()
                 next_vector_state = next_vector_state.clone().detach().unsqueeze(0).to(device).float()
                 if done == 1:
-                    phase.gamemoves = t
+                    env.phase.gamemoves = t
                     print("done0")
                     next_board_state = None
                     next_vector_state = None
@@ -270,46 +264,43 @@ for i_episode in range (num_episodes):
 
 
                 if done == 1:
-                    phase.gamemoves = t
-                    game.is_finished = 0
+                    env.phase.gamemoves = t
+                    env.game.is_finished = 0
                     episode_durations.append(t+1)
                     break
             else:
                 #phase.reward -= 0.00002
                 sample = random.random()
                 if sample < 0.05:
-                    next_board_state, next_vector_state, reward, done = state_changer()[0], state_changer()[1], phase.reward, game.is_finished
+                    next_board_state, next_vector_state, reward, done = state_changer(env)[0], state_changer(env)[1], env.phase.reward, env.game.is_finished
                     reward = torch.tensor([reward], device = device)
                     next_board_state = next_board_state.clone().detach().unsqueeze(0).to(device).float()
                     next_vector_state = next_vector_state.clone().detach().unsqueeze(0).to(device).float()
                     memory.push(cur_boardstate, cur_vectorstate,action,next_board_state, next_vector_state,reward)
         
-        log.steps_done += phase.statechange
-        phase.statechangecount += phase.statechange
-        phase.statechange = 0
-        game.random_action_made = 0
-        phase.reward = 0
+        log.steps_done += env.phase.statechange
+        env.phase.statechangecount += env.phase.statechange
+        env.game.random_action_made = 0
+        env.phase.reward = 0
         
     a = int(t/100)
-    logging(i_episode)
+    log.logging(i_episode)
     elapsed_time = time.time() - start_time
-    wandb.log({"Elapsed Time": elapsed_time}, step=i_episode)
-    wandb.log({"t": t}, step = i_episode)
-    game.average_time.insert(0, time.time() - time_new_start) 
-    if len(game.average_time) > 10:
-        game.average_time.pop(10)
-    game.average_moves.insert(0, t+1)
-    if len(game.average_moves) > 10:
-        game.average_moves.pop(10)
+    env.game.average_time.insert(0, time.time() - time_new_start) 
+    if len(env.game.average_time) > 10:
+        env.game.average_time.pop(10)
+    env.game.average_moves.insert(0, t+1)
+    if len(env.game.average_moves) > 10:
+        env.game.average_moves.pop(10)
     if i_episode > 1:
 
-        game.average_legal_moves_ratio.insert(0, (phase.statechangecount - statechangecountprevious)/t)
-        if len(game.average_legal_moves_ratio) > 20:
-            game.average_legal_moves_ratio.pop(20)
-    statechangecountprevious = phase.statechangecount
-    phase.statechange = 0
-    game.random_action_made = 0
-    phase.reward = 0
+        env.game.average_legal_moves_ratio.insert(0, (env.phase.statechangecount - statechangecountprevious)/t)
+        if len(env.game.average_legal_moves_ratio) > 20:
+            env.game.average_legal_moves_ratio.pop(20)
+    statechangecountprevious = env.phase.statechangecount
+    env.phase.statechange = 0
+    env.game.random_action_made = 0
+    env.phase.reward = 0
     
     
 print('Complete')

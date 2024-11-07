@@ -37,4 +37,4 @@ def random_assignment(env):
     #random_agent.random_position_y = np.random.choice(np.arange(0,11))
     #random_agent.random_position_x = np.random.choice(np.arange(0,21))
     #action_selecter(env,random_agent.random_action, random_agent.random_position_x, random_agent.random_position_y)
-    return randomaction
+    return randomaction, position_x, position_y

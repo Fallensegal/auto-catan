@@ -1,0 +1,12 @@
+{
+  "os": "Windows-11-10.0.22631-SP0",
+  "python": "3.12.7",
+  "startedAt": "2024-11-07T02:01:20.731988Z",
+  "program": "e:\\Purdue\\auto-catan\\RL-CATAN\\RL_agent\\DQN\\main.py",
+  "codePath": "RL_agent\\DQN\\main.py",
+  "root": "E:\\Purdue\\auto-catan\\RL-CATAN",
+  "host": "DesktopDiego",
+  "username": "diego",
+  "executable": "C:\\Users\\diego\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+  "codePathLocal": "RL_agent\\DQN\\main.py"
+}
