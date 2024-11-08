@@ -44,7 +44,30 @@ check_os() {
             return 1
             ;;
     esac
-}           
+}
+
+
+check_arch() {
+    local ARCH="$1"
+
+    case "$ARCH" in
+        # Match x86
+        [Xx][8][6])
+            echo "Arch Detection: x86"
+            ;;
+
+        # Match ARM
+        [Aa][Rr][Mm][6][4])
+            echo "Arch Detection: ARM64"
+            ;;
+
+        # Unsupported Cases
+        *)
+            echo "ERROR: CPU Architecture Selection Unsupported"
+            return 1
+            ;;
+    esac
+}
 
 ######### MAIN SCRIPT #########
 if [[ "$#" -eq 0 ]]; then
@@ -55,10 +78,11 @@ if [[ "$#" -eq 0 ]]; then
 fi
 
 OS=$1
-#ARCH=$2
+ARCH=$2
 
 # Arg Validation
 check_os "$OS"
+check_arch "$ARCH"
 
 # Install K3s
 #if ![ -z $1 ]; then
