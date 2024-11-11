@@ -39,7 +39,7 @@ In order to assist in reducing reproducability issues, a list of the following d
 - [Ubuntu Server 24.04](https://ubuntu.com/download/server) *(Kernel: 6.8.0-45-generic)* 
 - [Docker](https://www.docker.com/) *(Version 24.0.5, Build ced0996)*
 - [Helm](https://helm.sh/docs/intro/install/)
-- [Bash]() *(Used in IaC scripting)*
+- [Bash](https://www.gnu.org/software/bash/) *(Used in IaC scripting)*
 
 ### Some Comments Regarding the Repo
 - If you use this, and you are experiencing issues, you are largerly on your own. If you email me I can possibly try to help out (islamwasif3@gmail.com)
