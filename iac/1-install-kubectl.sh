@@ -1,6 +1,6 @@
 #!/bin/bash
 
-##### Functions #####
+##### Functions ##############################
 
 show_help() {
     echo "IAC: Script 1"
@@ -10,7 +10,7 @@ show_help() {
     echo 
     echo "Options (REQUIRED in ORDER)"
     echo "  1. <os>,   [windows, darwin, linux]"
-    echo "  2. <arch>, [x86, arm64]"
+    echo "  2. <arch>, [amd64, arm64]"
     echo
     echo "Example:"
     echo "./1-install-k3s.sh darwin arm64"
@@ -52,7 +52,7 @@ check_arch() {
 
     case "$ARCH" in
         # Match x86
-        [Xx][8][6])
+        [Aa][Mm][Dd][6][4])
             echo "Arch Detection: x86"
             ;;
 
@@ -69,7 +69,7 @@ check_arch() {
     esac
 }
 
-######### MAIN SCRIPT #########
+######### MAIN SCRIPT ################################################
 if [[ "$#" -eq 0 ]]; then
     
     # No args are passed
@@ -84,10 +84,34 @@ ARCH=$2
 check_os "$OS"
 check_arch "$ARCH"
 
-# Install K3s
-#if ![ -z $1 ]; then
-#    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/$ARCH/$OS/kubectl"
-#fi
+# Install Kubectl
+if [ ! -z $1 ]; then
+    curl -f -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/$OS/$ARCH/kubectl"
+fi
 
+# Move Kubectl to local bin
+DIRECTORY="$HOME/.local/bin"
+if [ ! -d $DIRECTORY ]; then
+    mkdir -p $DIRECTORY
+fi
+
+if [ -f $DIRECTORY/kubectl ]; then
+    rm $DIRECTORY/kubectl
+fi
+
+mv ./kubectl $DIRECTORY/
+chmod +x $DIRECTORY/kubectl
+
+# Reinitialize Script Environment
+source $HOME/.bashrc
+
+# Check to See if Installation Successful
+if kubectl > /dev/null 2>&1; then
+    echo "KUBECTL: INSTALLATION SUCCESSFULL"
+    echo
+else
+    echo "ERROR: INSTALLATION WAS NOT SUCCESFULL"
+    echo "Check if $DIRECTORY is in PATH"
+fi  
 
 
