@@ -15,11 +15,19 @@ fi
 # Install K3s Using Quick-Start
 curl -sfL https://get.k3s.io | sh -
 
-# Set File Permission for Kubeconfig
-sudo chmod 644 /etc/rancher/k3s/k3s.yaml 
+# Set Config and Environment Variables
+cp /etc/rancher/k3s/k3s.yaml $HOME/.kube/config
+sudo chown catan:catan $HOME/.kube/config
+sudo chmod 644 $HOME/.kube/config 
 
 # Set KubeConfig Variable for Kubectl and Helm (Installed Later)
-echo "export KUBECONFIG=/etc/rancher/k3s/k3s.yaml" >> $HOME/.bashrc
+if ! grep -q 'export KUBECONFIG=$HOME/.kube/config' $HOME/.bashrc; then
+    echo 'export KUBECONFIG=$HOME/.kube/config' >> $HOME/.bashrc
+    echo 'Added KubeConfig to bashrc'
+else
+    echo "KUBECONFIG export path already set..."
+fi
+
 source $HOME/bashrc
 
 # Print K3s Status
