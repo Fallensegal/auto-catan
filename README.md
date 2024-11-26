@@ -119,7 +119,9 @@ Remove the following field and its assocaited predicates (if there are any)
 After the edit is complete, restart the `coredns` deployment
 
 ```bash
-$ kubectl rollout restart deployment.apps/coredns
+$ kubectl rollout restart deployment.apps/coredns -n kube-system
+$ kubectl rollout restart deployment.apps/traefik -n kube-system
+$ kubectl rollout restart deployment.apps/metrics-server -n kube-system
 ``` 
 
 ## Dev Dependencies
