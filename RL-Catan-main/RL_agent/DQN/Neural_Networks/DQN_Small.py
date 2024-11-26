@@ -66,6 +66,7 @@ class DQN(nn.Module):
 
 
     def forward(self, boardstate2, vectorstate2):
+        boardstate2 = boardstate2.squeeze(1)
         x1 = self.denselayer(vectorstate2)
         x2 = self.ConvScalar(boardstate2)
         y1 = self.DenseConv(vectorstate2)
@@ -73,6 +74,8 @@ class DQN(nn.Module):
         for resblock in self.ConvConv:
             y2 = resblock(y2)
         y2 = self.ConvCombine(y2)
+        y1 = y1.squeeze(1)
+        x1 = x1.squeeze(1)
         #is this the right dimension in which I concentate?
         y = torch.cat((y1,y2),1)
         x = torch.cat((x1,x2),1)

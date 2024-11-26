@@ -18,15 +18,11 @@ from Catan_Env.random_action import random_assignment
 from Catan_Env.state_changer import state_changer
 
 #plotting
-import wandb 
 import plotly.graph_objects as go
 
 # Get the available GPUs
 available_gpus = [torch.cuda.device(i) for i in range(torch.cuda.device_count())]
 print("available_gpus", available_gpus)
-
-# Initialize wandb for logging
-run = wandb.init(project="RL-Catan_AC3", name="RL_version_9.9.8", config={}, group='finalrun9.9.8')
 
 # Set the random seed for reproducibility
 torch.manual_seed(RANDOM_SEED)
@@ -408,7 +404,6 @@ def logging(env, logger, global_ep_r, average_loss, average_v_s_, average_c_loss
     run.log({"Player 1 Wins": logger.player1_totalwins}, step=global_ep)
 
     run.log({"Episode Duration": logger.episode_durations}, step=global_ep)
-    run.log({"Action Counts": wandb.Plotly(fig)}, step=global_ep)
     logger.total_move_finished += random_testing.move_finished
     random_testing.move_finished = 0
     run.log({"random_testing.move_finsihed": logger.total_move_finished}, step=global_ep)
@@ -455,7 +450,6 @@ def logging(env, logger, global_ep_r, average_loss, average_v_s_, average_c_loss
     run.log({"average_l2": sum(average_l2) / 200}, step=global_ep)
     run.log({"average_value_loss": sum(average_value_loss) / 200}, step=global_ep)
 
-    run.log({"Function Call Counts": wandb.Plotly(fig)}, step=global_ep)
 
     logger.average_time.insert(0, time.time() - logger.time)
     if len(logger.average_time) > 5:

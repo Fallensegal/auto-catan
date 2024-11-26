@@ -75,7 +75,6 @@ class Catan_Env:
         random_testing = self.random_testing
         player = self.players[self.game.cur_player]
         distribution = self.distribution
-        phase = self.phase
 
         random_testing.development_card_choose += 1
 
@@ -94,7 +93,7 @@ class Catan_Env:
             
         distribution.development_cards_bought += 1
 
-        phase.development_card_played = 1
+        self.phase.development_card_played = 1
         
         return 1
 
@@ -145,7 +144,6 @@ class Catan_Env:
         """
         random_testing = self.random_testing
         player = self.players[self.game.cur_player]
-        phase = self.phase
         board = self.board
         player0 = self.player0
         player1 = self.player1
@@ -161,7 +159,7 @@ class Catan_Env:
                 player.victorypoints += 1
                 random_testing.successful_settlement_place += 1
                 
-                phase.statechange = 1
+                self.phase.statechange = 1
                 return 1 
             return 0
 
@@ -179,7 +177,6 @@ class Catan_Env:
         """
         random_testing = self.random_testing
         player = self.players[self.game.cur_player]
-        phase = self.phase
         random_testing.settlement_place_placement += 1
         player = self.players[self.game.cur_player]  # Define "player" using "self.players"
         board = self.board  # Define "board"
@@ -193,7 +190,7 @@ class Catan_Env:
             self.tile_update_rewards(a, b)  # Use "self.tile_update_rewards" instead of "tile_update_rewards"
             player.victorypoints += 1
             
-            phase.statechange = 1
+            self.phase.statechange = 1
             return 1
         return 0
 
@@ -288,7 +285,6 @@ class Catan_Env:
         """
         random_testing = self.random_testing
         player = self.players[self.game.cur_player]
-        phase = self.phase
         random_testing.road_place += 1
         possible = 0
         possible = self.road_possible_check(a, b)
@@ -298,7 +294,7 @@ class Catan_Env:
                 player.roads_left -= 1
                 self.update_longest_road()
                 random_testing.successful_road_place += 1
-                phase.statechange = 1
+                self.phase.statechange = 1
                 
                 return 1
         return 0
@@ -321,7 +317,6 @@ class Catan_Env:
 
         random_testing = self.random_testing
         player = self.players[self.game.cur_player]
-        phase = self.phase
         if a == c and b == d:
             return 0 
         possible = 0
@@ -336,7 +331,7 @@ class Catan_Env:
                 self.update_longest_road()
                 player.roadbuilding_cards_old -= 1
                 random_testing.successful_road_place += 1
-                phase.statechange = 1
+                self.phase.statechange = 1
                 
                 return 1 
         return 0
@@ -357,13 +352,12 @@ class Catan_Env:
         """
         random_testing = self.random_testing
         player = self.players[self.game.cur_player]
-        phase = self.phase
         random_testing.road_place_placement += 1
         if ((((road_a + 1) == settlement_a or (road_a - 1)  == settlement_a) and road_b == settlement_b) or (((road_b + 1) == settlement_b or (road_b - 1)  == settlement_b) and road_a == settlement_a)):
             player.roads[road_a][road_b] = 1
             player.roads_left -= 1
             self.update_longest_road()
-            phase.statechange = 1
+            self.phase.statechange = 1
             
             return 1 
         return 0
@@ -438,7 +432,6 @@ class Catan_Env:
         """
         random_testing = self.random_testing
         player = self.players[self.game.cur_player]
-        phase = self.phase
         random_testing.city_place += 1
         # still need to add a max cities check, the same comes to settlements
         players = self.players
@@ -453,7 +446,7 @@ class Catan_Env:
                 self.tile_update_rewards(a, b)
                 player.victorypoints += 1
                 random_testing.successful_city_place += 1
-                phase.statechange = 1
+                self.phase.statechange = 1
                 
                 return 1
             return 0
@@ -518,7 +511,6 @@ class Catan_Env:
         random_testing = self.random_testing
         player = self.players[self.game.cur_player]
         distribution = self.distribution
-        phase = self.phase
         random_testing.buy_development_cards += 1
         player_log = self.player_log
         game = self.game
@@ -530,7 +522,7 @@ class Catan_Env:
                 player.resource_wool -= 1
                 player.resource_grain -= 1 
                 player.resource_ore -= 1 
-                phase.statechange = 1
+                self.phase.statechange = 1
                 
                 player_log[game.cur_player].total_development_cards_bought += 1
                 return 1
@@ -551,7 +543,6 @@ class Catan_Env:
         """
         random_testing = self.random_testing
         player = self.players[self.game.cur_player]
-        phase = self.phase
         random_testing.buy_road += 1
         possible = 0
         game = self.game
@@ -561,7 +552,7 @@ class Catan_Env:
                 if possible == 1:
                     player.resource_brick -= 1
                     player.resource_lumber -= 1
-                    phase.statechange = 1
+                    self.phase.statechange = 1
                     
                     player_log[game.cur_player].total_roads_built += 1
                     return 1
@@ -581,7 +572,6 @@ class Catan_Env:
         """
         random_testing = self.random_testing
         player = self.players[self.game.cur_player]
-        phase = self.phase
         random_testing.buy_settlement += 1
         possible = 0
 
@@ -595,7 +585,7 @@ class Catan_Env:
                 player.resource_brick -= 1
                 player.resource_wool -= 1 
                 player.resource_grain -= 1
-                phase.statechange = 1
+                self.phase.statechange = 1
                 
                 player_log[game.cur_player].total_settlements_built += 1
                 return 1 
@@ -615,7 +605,6 @@ class Catan_Env:
         """
         random_testing = self.random_testing
         player = self.players[self.game.cur_player]
-        phase = self.phase
         random_testing.buy_city += 1
         player_log = self.player_log
         game = self.game
@@ -625,7 +614,7 @@ class Catan_Env:
             if possible == 1:
                 player.resource_grain -= 2
                 player.resource_ore -= 3  
-                phase.statechange = 1
+                self.phase.statechange = 1
                 
                 player_log[game.cur_player].total_cities_built += 1
                 return 1
@@ -685,7 +674,6 @@ class Catan_Env:
         """
         random_testing = self.random_testing
         player = self.players[self.game.cur_player]
-        phase = self.phase
         random_testing.play_knight += 1
         player_log = self.player_log
         game = self.game
@@ -697,7 +685,7 @@ class Catan_Env:
                 self.steal_card()
                 player.knight_cards_old -= 1
                 player.knight_cards_played += 1
-                phase.statechange = 1
+                self.phase.statechange = 1
                 
                 player_log[game.cur_player].total_development_cards_used += 1
                 return 1
@@ -716,14 +704,13 @@ class Catan_Env:
             int: 1 if the move was successful, 0 otherwise.
         """
         random_testing = self.random_testing
-        phase = self.phase
         board = self.board
         random_testing.move_rober += 1
         if board.rober_position[a][b] != 1 and board.TILES_POSSIBLE[a][b] == 1:
             board.rober_position = board.rober_position * board.ZEROBOARD
             board.rober_position[a][b] = 1
             random_testing.successful_move_rober += 1
-            phase.statechange = 1
+            self.phase.statechange = 1
             
             return 1
         return 0
@@ -742,7 +729,6 @@ class Catan_Env:
         """
         random_testing = self.random_testing
         player = self.players[self.game.cur_player]
-        phase = self.phase
         random_testing.activate_yearofplenty_func += 1
         # need to take a look at this later. I'm not sure how to convert those resources.
         player_log = self.player_log
@@ -774,7 +760,7 @@ class Catan_Env:
             random_testing.successful_activate_yearofplenty_func += 1
             # phase.reward += 0.0008
             player_log[game.cur_player].total_resources_found += 2
-            phase.statechange = 1
+            self.phase.statechange = 1
             
             player_log[game.cur_player].total_development_cards_used += 1
             return 1
@@ -793,7 +779,6 @@ class Catan_Env:
         """
         random_testing = self.random_testing
         player = self.players[self.game.cur_player]
-        phase = self.phase
         random_testing.activate_monopoly_func += 1
         player_log = self.player_log
         game = self.game
@@ -827,7 +812,7 @@ class Catan_Env:
                 player_log[game.cur_player].total_resources_found += opponent.resource_ore
             
             random_testing.successful_activate_monopoly_func += 1
-            phase.statechange = 1
+            self.phase.statechange = 1
             
             player_log[game.cur_player].total_development_cards_used += 1
             return 1
@@ -849,7 +834,6 @@ class Catan_Env:
         """
         random_testing = self.random_testing
         player = self.players[self.game.cur_player]
-        phase = self.phase
         random_testing.activate_road_building_func += 1
         player_log = self.player_log
         game = self.game
@@ -862,7 +846,7 @@ class Catan_Env:
                     self.road_place(a2, b2)
                     player.roadbuilding_cards_old = player.roadbuilding_cards_old - 1
                     random_testing.successful_activate_road_building_func += 1
-                    phase.statechange = 1
+                    self.phase.statechange = 1
                     
                     player_log[game.cur_player].total_development_cards_used += 1
                     return 1
@@ -882,7 +866,6 @@ class Catan_Env:
         """
         random_testing = self.random_testing
         player = self.players[self.game.cur_player]
-        phase = self.phase
         player_log = self.player_log
         game = self.game
         a = 0
@@ -890,7 +873,7 @@ class Catan_Env:
         board = self.board
         if give == 1 and (board.harbor_lumber * player.settlements + board.harbor_lumber * player.cities).any() != 0:
             if player.resource_lumber > 1:
-                phase.statechange = 1
+                self.phase.statechange = 1
                 
                 player.resource_lumber -= 2
                 if get == 2:
@@ -903,7 +886,7 @@ class Catan_Env:
                     player.resource_ore += 1
         elif give == 2 and (board.harbor_wool * player.settlements + board.harbor_wool * player.cities).any() != 0:
             if player.resource_wool > 1:
-                phase.statechange = 1
+                self.phase.statechange = 1
                 
                 player.resource_wool -= 2
                 if get == 1:
@@ -916,7 +899,7 @@ class Catan_Env:
                     player.resource_ore += 1
         elif give == 3 and (board.harbor_grain * player.settlements + board.harbor_grain * player.cities).any() != 0:
             if player.resource_grain > 1:
-                phase.statechange = 1
+                self.phase.statechange = 1
                 
                 player.resource_grain -= 2
                 if get == 1:
@@ -929,7 +912,7 @@ class Catan_Env:
                     player.resource_ore += 1
         elif give == 4 and (board.harbor_brick * player.settlements + board.harbor_brick * player.cities).any() != 0:
             if player.resource_brick > 1:
-                phase.statechange = 1
+                self.phase.statechange = 1
                 
                 player.resource_brick -= 2
                 if get == 1:
@@ -942,7 +925,7 @@ class Catan_Env:
                     player.resource_ore += 1
         elif give == 5 and (board.harbor_ore * player.settlements + board.harbor_ore * player.cities).any() != 0:
             if player.resource_ore > 1:
-                phase.statechange = 1
+                self.phase.statechange = 1
                 
                 player.resource_ore -= 2
                 if get == 1:
@@ -955,7 +938,7 @@ class Catan_Env:
                     player.resource_brick += 1 
         elif (board.harbor_three_one * player.settlements + board.harbor_three_one * player.cities).any() != 0:
             if give == 1 and player.resource_lumber > 2:
-                phase.statechange = 1
+                self.phase.statechange = 1
                 
                 player.resource_lumber -= 3
                 if get == 2:
@@ -967,7 +950,7 @@ class Catan_Env:
                 elif get == 5:
                     player.resource_ore += 1
             elif give == 2 and player.resource_wool > 2:
-                phase.statechange = 1
+                self.phase.statechange = 1
                 
                 player.resource_wool -= 3
                 if get == 1:
@@ -979,7 +962,7 @@ class Catan_Env:
                 elif get == 5:
                     player.resource_ore += 1        
             elif give == 3 and player.resource_grain > 2:
-                phase.statechange = 1
+                self.phase.statechange = 1
                 
                 player.resource_grain -= 3
                 if get == 1:
@@ -991,7 +974,7 @@ class Catan_Env:
                 elif get == 5:
                     player.resource_ore += 1
             elif give == 4 and player.resource_brick > 2:
-                phase.statechange = 1
+                self.phase.statechange = 1
                 
                 player.resource_brick -= 3
                 if get == 1:
@@ -1003,7 +986,7 @@ class Catan_Env:
                 elif get == 5:
                     player.resource_ore += 1
             elif give == 5 and player.resource_ore > 2:
-                phase.statechange = 1
+                self.phase.statechange = 1
                 
                 player.resource_ore -= 3
                 if get == 1:
@@ -1015,7 +998,7 @@ class Catan_Env:
                 elif get == 4:
                     player.resource_brick += 1
         elif give == 1 and player.resource_lumber > 3:
-            phase.statechange = 1
+            self.phase.statechange = 1
             
             player.resource_lumber -= 4
             if get == 2:
@@ -1027,7 +1010,7 @@ class Catan_Env:
             elif get == 5:
                 player.resource_ore += 1
         elif give == 2 and player.resource_wool > 3:
-            phase.statechange = 1
+            self.phase.statechange = 1
             
             player.resource_wool -= 4
             if get == 1:
@@ -1039,7 +1022,7 @@ class Catan_Env:
             elif get == 5:
                 player.resource_ore += 1    
         elif give == 3 and player.resource_grain > 3:
-            phase.statechange = 1
+            self.phase.statechange = 1
             player.resource_grain -= 4
             if get == 1:
                 player.resource_lumber += 1
@@ -1050,7 +1033,7 @@ class Catan_Env:
             elif get == 5:
                 player.resource_ore += 1
         elif give == 4 and player.resource_brick > 3:
-            phase.statechange = 1
+            self.phase.statechange = 1
             
             player.resource_brick -= 4
             if get == 1:
@@ -1062,7 +1045,7 @@ class Catan_Env:
             elif get == 5:
                 player.resource_ore += 1
         elif give == 5 and player.resource_ore > 3:
-            phase.statechange = 1
+            self.phase.statechange = 1
             
             
             player.resource_ore -= 4
@@ -1076,7 +1059,7 @@ class Catan_Env:
                 player.resource_brick += 1
         else:
             a = 1
-        if phase.statechange == 1:
+        if self.phase.statechange == 1:
             player_log[game.cur_player].total_resources_traded += 1
 
 
@@ -1097,7 +1080,6 @@ class Catan_Env:
 
         random_testing = self.random_testing
         player = self.players[self.game.cur_player]
-        phase = self.phase
         random_testing.discard_resources += 1
         if player.discard_first_time == 1:
             player.total_resources = player.resource_lumber + player.resource_brick + player.resource_grain + player.resource_ore + player.resource_wool 
@@ -1119,35 +1101,35 @@ class Catan_Env:
                 player.discard_resources_lumber -= 1 
                 player.discard_resources_turn += 1
                 
-                phase.statechange = 1
+                self.phase.statechange = 1
         elif wool == 1:
             if player.discard_resources_wool != 0:
                 player.resource_wool += 1
                 player.discard_resources_wool -= 1
                 player.discard_resources_turn += 1
                 
-                phase.statechange = 1
+                self.phase.statechange = 1
         elif grain == 1:
             if player.discard_resources_grain != 0:
                 player.resource_grain += 1
                 player.discard_resources_grain -= 1 
                 player.discard_resources_turn += 1
                 
-                phase.statechange = 1
+                self.phase.statechange = 1
         elif brick == 1:
             if player.discard_resources_brick != 0:
                 player.resource_brick += 1
                 player.discard_resources_brick -= 1 
                 player.discard_resources_turn += 1
                 
-                phase.statechange = 1
+                self.phase.statechange = 1
         elif ore == 1:
             if player.discard_resources_ore != 0:
                 player.resource_ore += 1
                 player.discard_resources_ore -= 1 
                 player.discard_resources_turn += 1
                 
-                phase.statechange = 1
+                self.phase.statechange = 1
         
         if player.discard_resources_turn > math.ceil(player.total_resources/2):
             print("ERROR: Discard resources turn is greater than half of total resources")
@@ -1283,7 +1265,6 @@ class Catan_Env:
         """
         random_testing = self.random_testing
         player = self.players[self.game.cur_player]
-        phase = self.phase
         game = self.game
         players = self.players
 
@@ -1292,9 +1273,8 @@ class Catan_Env:
 
         random_testing = self.random_testing
         player = self.players[self.game.cur_player]
-        phase = self.phase
         random_testing.move_finished += 1
-        phase.statechange = 1
+        self.phase.statechange = 1
         
 
         player0 = self.player0
@@ -1312,7 +1292,7 @@ class Catan_Env:
         player.monopoly_cards_new = 0
         player.roadbuilding_cards_new = 0 
 
-        phase.development_card_played = 0
+        self.phase.development_card_played = 0
 
         random_testing.numberofturns += 1
 
@@ -1328,23 +1308,23 @@ class Catan_Env:
             print("achievement unlocked")
             if game.cur_player == 0: 
                 #phase.reward += (1 + (players[game.cur_player].victorypoints - players[1-game.cur_player].victorypoints) * 0.02 + (phase.statechangecount - phase.statechangecountafter) * 0.0001 - phase.gamemoves * 0.00002)
-                phase.reward += 0.75 + (players[game.cur_player].victorypoints - players[1-game.cur_player].victorypoints) * 0.02
-                print(phase.reward)
-                phase.victoryreward = 1
-                phase.victorypointreward = (players[game.cur_player].victorypoints - players[1-game.cur_player].victorypoints) * 0.02
-                phase.legalmovesreward = (phase.statechangecount - phase.statechangecountafter) * 0.0002
-                phase.illegalmovesreward = -phase.gamemoves * 0.00002
+                self.phase.reward += 0.75 + (players[game.cur_player].victorypoints - players[1-game.cur_player].victorypoints) * 0.02
+                print(self.phase.reward)
+                self.phase.victoryreward = 1
+                self.phase.victorypointreward = (players[game.cur_player].victorypoints - players[1-game.cur_player].victorypoints) * 0.02
+                self.phase.legalmovesreward = (self.phase.statechangecount - self.phase.statechangecountafter) * 0.0002
+                self.phase.illegalmovesreward = -self.phase.gamemoves * 0.00002
                 player0.wins += 1
             else: 
                 #phase.reward -= (1 + (players[game.cur_player].victorypoints - players[1-game.cur_player].victorypoints) * 0.02 - (phase.statechangecount - phase.statechangecountafter) * 0.0001 + phase.gamemoves * 0.00002)
-                phase.reward -= (0.75 + (players[game.cur_player].victorypoints - players[1-game.cur_player].victorypoints) * 0.02)
-                print(phase.reward)
+                self.phase.reward -= (0.75 + (players[game.cur_player].victorypoints - players[1-game.cur_player].victorypoints) * 0.02)
+                print(self.phase.reward)
                 player1.wins += 1
-                phase.victoryreward = -1
-                phase.victorypointreward = (players[game.cur_player].victorypoints - players[1-game.cur_player].victorypoints) * 0.02
-                phase.legalmovesreward = (phase.statechangecount - phase.statechangecountafter) * 0.0001
-                phase.illegalmovesreward = -phase.gamemoves * 0.00002
-            phase.statechangecountafter = phase.statechangecount
+                self.phase.victoryreward = -1
+                self.phase.victorypointreward = (players[game.cur_player].victorypoints - players[1-game.cur_player].victorypoints) * 0.02
+                self.phase.legalmovesreward = (self.phase.statechangecount - self.phase.statechangecountafter) * 0.0001
+                self.phase.illegalmovesreward = -self.phase.gamemoves * 0.00002
+            self.phase.statechangecountafter = self.phase.statechangecount
             random_testing.numberofgames += 1
             game.is_finished = 1
             player0_log.average_victory_points.insert(0, player0.victorypoints)
@@ -1428,10 +1408,7 @@ class Catan_Env:
             player0_log.total_roads_built = 0
             player1_log.total_roads_built = 0
             player0_log.total_resources_traded = 0
-            player1_log.total_resources_traded = 0
-
-
-            
+            player1_log.total_resources_traded = 0 
 
         game.cur_player = 1 - game.cur_player
         if game.placement_phase_pending != 1:
@@ -1636,7 +1613,6 @@ class Catan_Env:
 
 
     def action_executor(self):
-        phase = self.phase
         random_testing = self.random_testing
         player = self.players[self.game.cur_player]
         players = self.players
@@ -1889,9 +1865,6 @@ class Catan_Env:
                 self.activate_monopoly_func(a)
                 player.monopoly_move_pending = 0
 
-        if phase.statechange == 1:
-            phase.statechangecount += 1
-            phase.statechange = 0
         
         action.rober_move = action.rober_move * board.ZEROBOARD
         action.road_place = action.road_place * board.ZEROBOARD
