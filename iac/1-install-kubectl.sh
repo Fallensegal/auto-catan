@@ -41,7 +41,7 @@ check_os() {
         # Unsupported Case
         *)
             echo "ERROR: OS Selection Unsupported"
-            return 1
+            exit 1
             ;;
     esac
 }
