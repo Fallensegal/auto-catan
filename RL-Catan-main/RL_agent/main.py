@@ -33,9 +33,7 @@ from RL_agent.DQN.Neural_Networks.DQN_Small import DQN as dqn
 NEURAL_NET = dqn()
 
 #plotting
-import wandb 
 import plotly.graph_objects as go
-wandb.init(project="RL-Catan", name="RL_version_0.1.1", config={})
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -44,6 +42,8 @@ env = Catan_Env()
 cur_boardstate = state_changer(env)[0]
 cur_vectorstate = state_changer(env)[1]
 
+# Define a named tuple called Transition
+Transition = namedtuple('Transition', ('cur_boardstate', 'cur_vectorstate', 'action', 'next_boardstate', 'next_vectorstate', 'reward'))
 
 agent2_policy_net = NEURAL_NET.to(device)
 agent1_policy_net = NEURAL_NET.to(device)
@@ -81,7 +81,7 @@ def select_action(boardstate, vectorstate):
                     final_action = math.ceil((action/11/21)+1)
                     position_y = math.floor((action - ((final_action-1)*11*21))/21)
                     position_x = action % 21 
-                action_selecter(final_action, position_x, position_y)
+                action_selecter(env, final_action, position_x, position_y)
                 log.action_counts[action] += 1
                 if env.phase.actionstarted >= 5:
                     action_selecter(5,0,0)
@@ -139,7 +139,6 @@ def optimize_model():
 
     loss = F.l1_loss(state_action_values, expected_state_action_values.unsqueeze(1))
 
-    #adding sum of state action and sum of expected state action values to wandb
     game.average_q_value_loss.insert(0, loss.mean().item())
     while len(game.average_q_value_loss) > 1000:
         game.average_q_value_loss.pop(1000)
@@ -162,7 +161,7 @@ def optimize_model():
 start_time = time.time()
 
 
-num_episodes = 1
+num_episodes = 10
 for i_episode in range (num_episodes):
     env.new_game()
     game = env.game
@@ -176,7 +175,6 @@ for i_episode in range (num_episodes):
         #agent2_policy_net.load_state_dict(torch.load(f'agent{i_episode}_policy_net_0_0_4.pth'))
 
     for t in count():
-        
         if game.cur_player == 1:
             
             final_action,position_x,position_y = random_assignment(env)
@@ -185,6 +183,7 @@ for i_episode in range (num_episodes):
             else:
                 action = (final_action-1)*11*21 + position_y*21 + position_x 
             log.random_action_counts[action] += 1
+            print("player 1 action taken " + str(action))
             action = torch.tensor([[action]], device=device, dtype=torch.long)
             game.random_action_made = 1
             env.phase.actionstarted = 0
@@ -239,7 +238,8 @@ for i_episode in range (num_episodes):
             cur_vectorstate = state_changer(env)[1]
             cur_boardstate = cur_boardstate.clone().detach().unsqueeze(0).to(device).float()        
             cur_vectorstate = cur_vectorstate.clone().detach().unsqueeze(0).to(device).float()
-            action = select_action(cur_boardstate, cur_vectorstate)
+            action = select_action(cur_boardstate, cur_vectorstate)  
+            print("player 2 action taken " + str(action.item()))
             #calculate reward and check done
             if env.phase.statechange == 1:
                 #env.phase.reward += 0.0001
@@ -293,10 +293,8 @@ for i_episode in range (num_episodes):
         env.phase.reward = 0
         
     a = int(t/100)
-    log(i_episode)
+    # log.logging(i_episode)
     elapsed_time = time.time() - start_time
-    wandb.log({"Elapsed Time": elapsed_time}, step=i_episode)
-    wandb.log({"t": t}, step = i_episode)
     #print(t)
     #print(player0.victorypoints)
     #print(player1.victorypoints)

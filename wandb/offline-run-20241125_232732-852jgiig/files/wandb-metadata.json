@@ -1,0 +1,27 @@
+{
+  "os": "Windows-11-10.0.22631-SP0",
+  "python": "3.12.7",
+  "startedAt": "2024-11-26T05:27:32.568149Z",
+  "program": "E:\\Purdue\\auto-catan\\RL-Catan-main\\RL_agent\\main.py",
+  "codePath": "RL-Catan-main\\RL_agent\\main.py",
+  "root": "E:\\Purdue\\auto-catan",
+  "host": "DesktopDiego",
+  "username": "diego",
+  "executable": "C:\\Users\\diego\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+  "codePathLocal": "RL-Catan-main\\RL_agent\\main.py",
+  "cpu_count": 8,
+  "cpu_count_logical": 16,
+  "disk": {
+    "/": {
+      "total": "2000382062592",
+      "used": "1634356334592"
+    }
+  },
+  "memory": {
+    "total": "34264313856"
+  },
+  "cpu": {
+    "count": 8,
+    "countLogical": 16
+  }
+}
