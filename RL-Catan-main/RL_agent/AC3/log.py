@@ -2,6 +2,7 @@ import math
 import plotly.graph_objects as go
 
 from config import *
+import wandb
 
 import time
 
