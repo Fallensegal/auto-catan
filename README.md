@@ -1,10 +1,20 @@
 # auto-catan
 Academic technical demonstration of agentic RL implementation of game AI playing `Catan`. It is aimed to showcase a prototype pipeline starting from data acquisition, model training, and model inference
 
+## Table of Content
+    1. [Installation](#install)
+        - [Install and Start Cluster](#cluster-start)
+        - [Install Application Helm Chart](#app-helm)
+        - [Health Check](#health)
+ 
+    2. [Installation Troubleshooting](#bugs)
+    3. [Dev Dependencies](#deps)
 
-## Installation
+## <a name="install"></a> Installation
 
 > *NOTE: Currently, the installation of the cluster using defined IAC only supports Linux (Tested on Ubuntu 24.04 Server). YES YOU WILL NEED ROOT ACCESS TO YOUR MACHINE* 
+
+### <a name="cluster-start"></a> Install and Start Cluster
 
 1. Create Local Executable Directory
 
@@ -98,7 +108,23 @@ kube-system   job.batch/helm-install-traefik-crd   Complete   1/1           8s  
 
 We want to see the **non-installer** pods to be `Running` and `Ready`. The **installer** pods should not be running, and should be shown as `Completed`.
 
-## Installation Troubleshooting
+### <a name="app-helm"></a> Install Application Helm Chart
+
+1. Once the cluster is running and cluster health can be verified, we can start deploying our application. Start by changing directories to root of the project and executing the following commands
+
+```bash
+$ helm dependency build ./deploy
+```
+
+This will install our custom helm chart that contain RL specific applications and its dependencies.
+
+2. Once the helm dependencies are installed you can bring up the deployment using `tilt`
+
+```bash
+$ tilt up --host 0.0.0.0
+```  
+
+## <a name="bugs"></a>Installation Troubleshooting
 
 1. CoreDNS `CrashBackOffLoop`
 
@@ -124,13 +150,14 @@ $ kubectl rollout restart deployment.apps/traefik -n kube-system
 $ kubectl rollout restart deployment.apps/metrics-server -n kube-system
 ``` 
 
-## Dev Dependencies
+## <a name="deps"></a> Dev Dependencies
 In order to assist in reducing reproducability issues, a list of the following dependencies used to develop the project is provided:
 
 - [Ubuntu Server 24.04](https://ubuntu.com/download/server) *(Kernel: 6.8.0-45-generic)* 
 - [Docker](https://www.docker.com/) *(Version 24.0.5, Build ced0996)*
 - [Helm](https://helm.sh/docs/intro/install/)
 - [Bash](https://www.gnu.org/software/bash/) *(Used in IaC scripting)*
+- [Tilt](https://tilt.dev/)
 
 ### Some Comments Regarding the Repo
 - If you use this, and you are experiencing issues, you are largerly on your own. If you email me I can possibly try to help out (islamwasif3@gmail.com)
