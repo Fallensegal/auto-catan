@@ -125,7 +125,7 @@ $ tilt up --host 0.0.0.0
 ```  
 3. You can check if the deployment is properly working by looking at the `Tilt` status and navigating to `Minio`
 
-<img src="./docs/tilt_screenshot.png" alt="Minio" width=1200 height=400>
+<img src="./docs/tilt_screenshot.png" alt="Minio" width=1600 height=400>
 
 > *Tilt showing all deployments are operational*
 
