@@ -1,5 +1,8 @@
 # Values File for Auto-Catan
+
+# Global Variables
 imagePullSecrets: []
+replicaCount: 1
 
 mlflow-catan:
     name: mlflow-catan
