@@ -2,13 +2,13 @@
 Academic technical demonstration of agentic RL implementation of game AI playing `Catan`. It is aimed to showcase a prototype pipeline starting from data acquisition, model training, and model inference
 
 ## Table of Content
-    1. [Installation](#install)
-        - [Install and Start Cluster](#cluster-start)
-        - [Install Application Helm Chart](#app-helm)
-        - [Health Check](#health)
- 
-    2. [Installation Troubleshooting](#bugs)
-    3. [Dev Dependencies](#deps)
+1. [Installation](#install)
+    - [Install and Start Cluster](#cluster-start)
+    - [Install Application Helm Chart](#app-helm)
+    - [Health Check](#health)
+
+2. [Installation Troubleshooting](#bugs)
+3. [Dev Dependencies](#deps)
 
 ## <a name="install"></a> Installation
 
