@@ -190,7 +190,7 @@ for i_episode in range (num_episodes):
             log.random_action_counts[action] += 1
             if print_actions:
                 InterpretActions(game.cur_player,action)
-            #print("player 1 action taken " + str(action))
+                print("player 1 action taken " + str(action))
             action = torch.tensor([[action]], device=device, dtype=torch.long)
             game.random_action_made = 1
             env.phase.actionstarted = 0
@@ -248,7 +248,7 @@ for i_episode in range (num_episodes):
             action = select_action(cur_boardstate, cur_vectorstate)  
             if print_actions:
                 InterpretActions(game.cur_player,action)
-            #print("player 2 action taken " + str(action.item()))
+                print("player 0 action taken " + str(action.item()))
             #calculate reward and check done
             if env.phase.statechange == 1:
                 #env.phase.reward += 0.0001
