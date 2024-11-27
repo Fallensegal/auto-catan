@@ -6,8 +6,8 @@ def InterpretActions(player, selected_action):
         position_y = 0
         position_x = 0
     else:
-        final_action = math.ceil((selected_action/11/21)+1)
-        position_y = math.floor((selected_action - ((final_action-1)*11*21))/21)
+        final_action = selected_action//(11*21)+1
+        position_y = (selected_action - ((final_action-1)*11*21))//21
         position_x = selected_action % 21 
 
     # Action message mapping

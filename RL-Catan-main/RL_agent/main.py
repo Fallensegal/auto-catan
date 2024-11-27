@@ -83,8 +83,8 @@ def select_action(boardstate, vectorstate):
                     position_y = 0
                     position_x = 0
                 else:
-                    final_action = math.ceil((action/11/21)+1)
-                    position_y = math.floor((action - ((final_action-1)*11*21))/21)
+                    final_action = action//(11*21)+1
+                    position_y = (action - ((final_action-1)*11*21))//21
                     position_x = action % 21 
                 action_selecter(env, final_action, position_x, position_y)
                 log.action_counts[action] += 1
