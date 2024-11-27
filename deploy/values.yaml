@@ -4,14 +4,14 @@
 imagePullSecrets: []
 replicaCount: 1
 
-mlflow-catan:
-    name: mlflow-catan
+mlflow:
+    name: mlflow
     labels:
         app: autocatan
-        component: mlflow-catan
+        component: mlflow
 
     image:
-        repository: islam25/mlflow-catan
+        repository: islam25/mlflow
         pullPolicy: ifNotPresent
         tag: ""
 

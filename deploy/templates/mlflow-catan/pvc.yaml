@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-    name: {{ .Values.mlflow-catan.name }}
+    name: {{ .Values.mlflow.name }}
     labels:
-       {{ .Values.mlflow-catan.labels | toYaml | nindent 4 }}
+       {{ .Values.mlflow.labels | toYaml | nindent 4 }}
 
 spec:
     accessModes:
