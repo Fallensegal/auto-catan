@@ -32,6 +32,11 @@ from Catan_Env.game import Game
 from RL_agent.DQN.Neural_Networks.DQN_Small import DQN as dqn
 NEURAL_NET = dqn()
 
+###  Defines for Debugging
+print_actions = True
+
+if print_actions:
+    from Catan_Env.Interpreter import InterpretActions
 #plotting
 import plotly.graph_objects as go
 
@@ -183,7 +188,9 @@ for i_episode in range (num_episodes):
             else:
                 action = (final_action-1)*11*21 + position_y*21 + position_x 
             log.random_action_counts[action] += 1
-            print("player 1 action taken " + str(action))
+            if print_actions:
+                InterpretActions(game.cur_player,action)
+            #print("player 1 action taken " + str(action))
             action = torch.tensor([[action]], device=device, dtype=torch.long)
             game.random_action_made = 1
             env.phase.actionstarted = 0
@@ -239,7 +246,9 @@ for i_episode in range (num_episodes):
             cur_boardstate = cur_boardstate.clone().detach().unsqueeze(0).to(device).float()        
             cur_vectorstate = cur_vectorstate.clone().detach().unsqueeze(0).to(device).float()
             action = select_action(cur_boardstate, cur_vectorstate)  
-            print("player 2 action taken " + str(action.item()))
+            if print_actions:
+                InterpretActions(game.cur_player,action)
+            #print("player 2 action taken " + str(action.item()))
             #calculate reward and check done
             if env.phase.statechange == 1:
                 #env.phase.reward += 0.0001
