@@ -1,10 +1,15 @@
 import math 
 def InterpretActions(player, selected_action):
-    # Calculate the action details
-    final_action = math.ceil((selected_action / 11 / 21) + 1)
-    position_y = math.floor((selected_action - ((final_action - 1) * 11 * 21)) / 21)
-    position_x = selected_action % 21
-    
+    selected_action = selected_action.item()
+    if selected_action >= 4*11*21:
+        final_action = selected_action - 4*11*21 + 5
+        position_y = 0
+        position_x = 0
+    else:
+        final_action = math.ceil((selected_action/11/21)+1)
+        position_y = math.floor((selected_action - ((final_action-1)*11*21))/21)
+        position_x = selected_action % 21 
+
     # Action message mapping
     action_messages = {
         1: f"move Robber to position: {position_y}, {position_x}",
