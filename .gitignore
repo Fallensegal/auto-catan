@@ -6,6 +6,10 @@ __pycache__/
 # C extensions
 *.so
 
+# Adding K8s and Helm Related Stuff
+**/charts/
+
+
 # Distribution / packaging
 .Python
 build/

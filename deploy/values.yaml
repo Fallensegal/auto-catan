@@ -1,0 +1,10 @@
+# Values File for Auto-Catan
+imagePullSecrets: []
+
+minio:
+    persistence:
+        enabled: true
+        size: 5Gi
+    defaultBucket:
+        enabled: true
+        name: analysis
