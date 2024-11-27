@@ -1,6 +1,31 @@
 # Values File for Auto-Catan
 imagePullSecrets: []
 
+mlflow-catan:
+    name: mlflow-catan
+    labels:
+        app: autocatan
+        component: mlflow-catan
+
+    image:
+        repository: islam25/mlflow-catan
+        pullPolicy: ifNotPresent
+        tag: ""
+
+    service:
+        port: 8250
+
+    resources:
+        limits:
+            cpu: 400m
+            memory: 1024Mi
+        requests:
+            cpu: 250m
+            memory: 512Mi
+
+    autoscaling:
+        enabled: false
+
 minio:
     persistence:
         enabled: true
