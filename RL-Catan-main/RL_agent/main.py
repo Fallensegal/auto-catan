@@ -40,9 +40,9 @@ if PRINT_ACTIONS:
     from Catan_Env.Interpreter import InterpretActions
 
 #plotting and Logging
+import plotly.graph_objects as go
 if USE_WANDB:
     import wandb 
-    import plotly.graph_objects as go
     wandb.init(project="RL-Catan", name="RL_version_0.1.1", config={})
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

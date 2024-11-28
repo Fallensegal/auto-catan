@@ -3,7 +3,11 @@ import time
 import torch
 import torch.multiprocessing as mp
 import sys
-sys.path.append('/home/victor/Maturarbeit/Catan/RL-Catan')
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+grandparent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.append(grandparent_dir)
+from Configurations import *
 
 from utils import push_and_pull, record
 from SharedAdam import SharedAdam
@@ -18,7 +22,8 @@ from Catan_Env.random_action import random_assignment
 from Catan_Env.state_changer import state_changer
 
 #plotting
-import wandb 
+if USE_WANDB:
+    import wandb 
 import plotly.graph_objects as go
 
 # Get the available GPUs
@@ -26,7 +31,8 @@ available_gpus = [torch.cuda.device(i) for i in range(torch.cuda.device_count())
 print("available_gpus", available_gpus)
 
 # Initialize wandb for logging
-run = wandb.init(project="RL-Catan_AC3", name="RL_version_9.9.8", config={}, group='finalrun9.9.8')
+if USE_WANDB:
+    run = wandb.init(project="RL-Catan_AC3", name="RL_version_9.9.8", config={}, group='finalrun9.9.8')
 
 # Set the random seed for reproducibility
 torch.manual_seed(RANDOM_SEED)
@@ -210,7 +216,8 @@ class Worker(mp.Process):
                             print("total reward =", ep_r)
 
                             # Log the statistics and record the episode result
-                            logging(self.env, self.logger, total_step, self.average_loss, self.average_v_s_, self.average_c_loss, self.average_a_loss, self.average_entropy, self.average_l2, self.average_value_loss)
+                            if USE_WANDB:
+                                logging(self.env, self.logger, total_step, self.average_loss, self.average_v_s_, self.average_c_loss, self.average_a_loss, self.average_entropy, self.average_l2, self.average_value_loss)
                             record(self.g_ep, self.g_ep_r, ep_r, self.res_queue, self.name)
 
                             total_step = 0
@@ -300,7 +307,8 @@ class Worker(mp.Process):
                         print("total reward =", ep_r)
 
                         # Log the statistics
-                        logging(self.env, self.logger, ep_r, self.average_loss, self.average_v_s_, self.average_c_loss, self.average_a_loss, self.average_entropy, self.average_l2, self.average_value_loss)
+                        if USE_WANDB:
+                            logging(self.env, self.logger, ep_r, self.average_loss, self.average_v_s_, self.average_c_loss, self.average_a_loss, self.average_entropy, self.average_l2, self.average_value_loss)
                         record(self.g_ep, self.g_ep_r, ep_r, self.res_queue, self.name)
 
                         self.env.game.is_finished = 0

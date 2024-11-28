@@ -2,7 +2,12 @@ import math
 import plotly.graph_objects as go
 
 from config import *
-import wandb
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from Configurations import *
+if USE_WANDB:
+    import wandb
 
 import time
 
