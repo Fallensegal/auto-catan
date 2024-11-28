@@ -1,10 +1,38 @@
 # Values File for Auto-Catan
+
+# Global Variables
 imagePullSecrets: []
+replicaCount: 1
+
+mlflow:
+  name: mlflow
+  labels:
+    app: autocatan
+    component: mlflow
+
+  image:
+    repository: islam25/mlflow
+    pullPolicy: IfNotPresent
+    tag: "0.0.1"
+
+  service:
+    port: 8250
+
+  resources:
+    limits:
+      cpu: 400m
+      memory: 1024Mi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+
+  autoscaling:
+    enabled: false
 
 minio:
-    persistence:
-        enabled: true
-        size: 5Gi
-    defaultBucket:
-        enabled: true
-        name: analysis
+  persistence:
+    enabled: true
+    size: 5Gi
+  defaultBucket:
+    enabled: true
+    name: analysis

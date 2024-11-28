@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.mlflow.name }}
+  labels: {{ .Values.mlflow.labels | toYaml | nindent 4 }}
+spec:
+  {{- if not .Values.mlflow.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{ .Values.mlflow.labels | toYaml | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{ .Values.mlflow.labels | toYaml | nindent 8 }}
+      {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.mlflow.image.repository }}:{{ .Values.mlflow.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.mlflow.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.mlflow.service.port }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+                path: /
+                port: http
+          readinessProbe:
+            httpGet:
+                path: /
+                port: http 
+          resources:
+            {{- toYaml .Values.mlflow.resources | nindent 12 }}
+          volumeMounts:
+            - name: tracking-server-mount
+              mountPath: /opt/mlflow
+      volumes:
+        - name: tracking-server-mount
+          persistentVolumeClaim:
+            claimName: {{ .Values.mlflow.name }}
