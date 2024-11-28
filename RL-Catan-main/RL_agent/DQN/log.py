@@ -7,7 +7,7 @@ grandparent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 
 sys.path.append(grandparent_dir)
 from Configurations import *
 from Catan_Env.catan_env import Catan_Env
-from config import *
+from .config import *
 
 
 if USE_WANDB:
