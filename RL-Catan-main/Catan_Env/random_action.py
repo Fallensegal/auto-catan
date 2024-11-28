@@ -23,8 +23,8 @@ def random_assignment(env):
             position_y = 0
             position_x = 0
     else:
-        final_action = math.ceil(((randomaction + 1)/11/21))
-        position_y = math.floor((randomaction- ((final_action-1)*11*21))/21)
+        final_action = randomaction//(11*21)+1
+        position_y = (randomaction - ((final_action-1)*11*21))//21
         position_x = randomaction % 21 
 
     action_selecter(env, final_action, position_x, position_y)
