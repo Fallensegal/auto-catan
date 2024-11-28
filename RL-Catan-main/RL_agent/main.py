@@ -307,10 +307,11 @@ for i_episode in range (num_episodes):
         env.phase.reward = 0
         
     a = int(t/100)
-    log(i_episode)
     elapsed_time = time.time() - start_time
-    wandb.log({"Elapsed Time": elapsed_time}, step=i_episode)
-    wandb.log({"t": t}, step = i_episode)
+    if USE_WANDB:
+        log(i_episode)
+        wandb.log({"Elapsed Time": elapsed_time}, step=i_episode)
+        wandb.log({"t": t}, step = i_episode)
     #print(t)
     #print(player0.victorypoints)
     #print(player1.victorypoints)
