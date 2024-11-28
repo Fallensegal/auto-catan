@@ -8,9 +8,10 @@ from itertools import product
 
 import sys
 import os
-print(sys.path)
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 grandparent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 sys.path.append(grandparent_dir)
+from Configurations import *
 
 import torch
 import torch.nn as nn
@@ -28,10 +29,14 @@ from Catan_Env.random_action import random_assignment
 
 from Catan_Env.catan_env import game, phase, new_game
 
-#plotting
-import wandb 
+from Configurations import *
+
 import plotly.graph_objects as go
-wandb.init(project="RL-Catan", name="RL_version_0.1.1", config={})
+#plotting
+if USE_WANDB:
+    import wandb 
+    wandb.init(project="RL-Catan", name="RL_version_0.1.1", config={})
+
 import os
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -292,10 +297,11 @@ for i_episode in range (num_episodes):
         phase.reward = 0
         
     a = int(t/100)
-    logging(i_episode)
     elapsed_time = time.time() - start_time
-    wandb.log({"Elapsed Time": elapsed_time}, step=i_episode)
-    wandb.log({"t": t}, step = i_episode)
+    if USE_WANDB:
+        logging(i_episode)
+        wandb.log({"Elapsed Time": elapsed_time}, step=i_episode)
+        wandb.log({"t": t}, step = i_episode)
     game.average_time.insert(0, time.time() - time_new_start) 
     if len(game.average_time) > 10:
         game.average_time.pop(10)
