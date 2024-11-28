@@ -12,8 +12,8 @@ mlflow:
 
   image:
     repository: islam25/mlflow
-    pullPolicy: ifNotPresent
-    tag: ""
+    pullPolicy: IfNotPresent
+    tag: "0.0.1"
 
   service:
     port: 8250
