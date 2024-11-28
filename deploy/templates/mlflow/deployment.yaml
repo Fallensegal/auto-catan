@@ -45,11 +45,11 @@ spec:
                 path: /healthz
                 port: http 
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            {{- toYaml .Values.mlflow.resources | nindent 12 }}
           volumeMounts:
             - name: tracking-server-mount
               mountPath: /opt/mlflow
-        volumes:
-          - name: tracking-server-mount
-            persistentVolumeClaim:
-              claimName: {{ .Values.mlflow.name }} 
+      volumes:
+        - name: tracking-server-mount
+          persistentVolumeClaim:
+            claimName: {{ .Values.mlflow.name }}
