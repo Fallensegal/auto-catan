@@ -32,15 +32,18 @@ from Catan_Env.game import Game
 from RL_agent.DQN.Neural_Networks.DQN_Small import DQN as dqn
 NEURAL_NET = dqn()
 
-###  Defines for Debugging
-print_actions = True
+###  Defines for Debugging and Logging
+from Configurations import *
 
-if print_actions:
+
+if PRINT_ACTIONS:
     from Catan_Env.Interpreter import InterpretActions
-#plotting
-import wandb 
-import plotly.graph_objects as go
-wandb.init(project="RL-Catan", name="RL_version_0.1.1", config={})
+
+#plotting and Logging
+if USE_WANDB:
+    import wandb 
+    import plotly.graph_objects as go
+    wandb.init(project="RL-Catan", name="RL_version_0.1.1", config={})
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -190,7 +193,7 @@ for i_episode in range (num_episodes):
             else:
                 action = (final_action-1)*11*21 + position_y*21 + position_x 
             log.random_action_counts[action] += 1
-            if print_actions:
+            if PRINT_ACTIONS:
                 InterpretActions(game.cur_player,action)
                 print("player 1 action taken " + str(action))
             action = torch.tensor([[action]], device=device, dtype=torch.long)
@@ -248,7 +251,7 @@ for i_episode in range (num_episodes):
             cur_boardstate = cur_boardstate.clone().detach().unsqueeze(0).to(device).float()        
             cur_vectorstate = cur_vectorstate.clone().detach().unsqueeze(0).to(device).float()
             action = select_action(cur_boardstate, cur_vectorstate)  
-            if print_actions:
+            if PRINT_ACTIONS:
                 InterpretActions(game.cur_player,action)
                 print("player 0 action taken " + str(action.item()))
             #calculate reward and check done
