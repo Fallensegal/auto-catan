@@ -84,13 +84,13 @@ def select_action(boardstate, vectorstate):
                 env.phase.actionstarted += 1
                 action = agent1_policy_net(boardstate, vectorstate).max(1).indices.view(1,1)
                 if action >= 4*11*21:
-                    final_action = action - 4*11*21 + 5
+                    final_action = int(action - 4*11*21 + 5)
                     position_y = 0
                     position_x = 0
                 else:
-                    final_action = action//(11*21)+1
-                    position_y = (action - ((final_action-1)*11*21))//21
-                    position_x = action % 21 
+                    final_action = int(action)//(11*21)+1
+                    position_y = (int(action) - ((final_action-1)*11*21))//21
+                    position_x = int(action) % 21 
                 action_selecter(env, final_action, position_x, position_y)
                 log.action_counts[action] += 1
                 if env.phase.actionstarted >= 5:
@@ -333,6 +333,7 @@ for i_episode in range (num_episodes):
     
     
 print('Complete')
-
+if(PRINT_ACTIONS):
+    print(f'steps over {num_episodes} episodes: {steps_done}')
 
 
