@@ -1329,7 +1329,7 @@ class Catan_Env:
             #phase.reward += (player1.victorypoints - player1.victorypoints_before) * 0.02
         
 
-        self.game.is_finished = self.update_rewards(self.game,self.players,self.player0,self.player1)
+        self.game.is_finished = self.update_rewards()
         player0.victorypoints_before = player0.victorypoints
         player1.victorypoints_before = player1.victorypoints
         '''
