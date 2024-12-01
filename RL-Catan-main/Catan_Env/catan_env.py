@@ -1336,28 +1336,7 @@ class Catan_Env:
         self.game.is_finished = self.update_rewards()
         player0.victorypoints_before = player0.victorypoints
         player1.victorypoints_before = player1.victorypoints
-        '''
-        if player.victorypoints >= 10:
-            print("achievement unlocked")
-            if game.cur_player == 0: 
-                #phase.reward += (1 + (players[game.cur_player].victorypoints - players[1-game.cur_player].victorypoints) * 0.02 + (phase.statechangecount - phase.statechangecountafter) * 0.0001 - phase.gamemoves * 0.00002)
 
-                self.phase.reward += 0.75 + (players[game.cur_player].victorypoints - players[1-game.cur_player].victorypoints) * 0.02
-                self.phase.victoryreward = 1
-                self.phase.victorypointreward = (players[game.cur_player].victorypoints - players[1-game.cur_player].victorypoints) * 0.02
-                self.phase.legalmovesreward = (self.phase.statechangecount - self.phase.statechangecountafter) * 0.0002
-                self.phase.illegalmovesreward = -self.phase.gamemoves * 0.00002
-                print(self.phase.reward)
-                player0.wins += 1
-            else: 
-                #phase.reward -= (1 + (players[game.cur_player].victorypoints - players[1-game.cur_player].victorypoints) * 0.02 - (phase.statechangecount - phase.statechangecountafter) * 0.0001 + phase.gamemoves * 0.00002)
-                self.phase.reward -= (0.75 + (players[game.cur_player].victorypoints - players[1-game.cur_player].victorypoints) * 0.02)
-                self.phase.victoryreward = -1
-                self.phase.victorypointreward = (players[game.cur_player].victorypoints - players[1-game.cur_player].victorypoints) * 0.02
-                self.phase.legalmovesreward = (self.phase.statechangecount - self.phase.statechangecountafter) * 0.0001
-                self.phase.illegalmovesreward = -self.phase.gamemoves * 0.00002
-                print(self.phase.reward)
-                player1.wins += 1'''
         if self.game.is_finished ==1:
             self.phase.statechangecountafter = self.phase.statechangecount
             random_testing.numberofgames += 1
