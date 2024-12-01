@@ -48,7 +48,7 @@ if USE_WANDB:
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 torch.manual_seed(2)
-env = Catan_Env()
+env = Catan_Env(REWARD_FUNCTION)
 cur_boardstate = state_changer(env)[0]
 cur_vectorstate = state_changer(env)[1]
 
