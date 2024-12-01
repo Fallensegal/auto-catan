@@ -1256,6 +1256,32 @@ class Catan_Env:
             player.largest_army = 1
             player.victorypoints += 2
         
+        
+    def update_rewards(self):
+       cur_player = self.game.cur_player
+       if self.players[cur_player].victorypoints >= 10:
+        print('Game Over')
+        if cur_player == 0:
+            self.phase.reward += 0.75 + (self.players[0].victorypoints - self.players[1].victorypoints) * 0.02
+            print(self.phase.reward)
+            self.phase.victoryreward = 1
+            self.phase.victorypointreward = (self.players[0].victorypoints - self.players[1].victorypoints) * 0.02
+            self.phase.legalmovesreward = (self.phase.statechangecount - self.phase.statechangecountafter) * 0.0002
+            self.phase.illegalmovesreward = -self.phase.gamemoves * 0.00002
+            self.player0.wins+=1
+            return 1
+        elif cur_player ==1:
+            self.phase.reward -= -1*(0.75 + (self.players[1].victorypoints - self.players[0].victorypoints) * 0.02)
+            print(self.phase.reward)
+            self.phase.victoryreward = -1
+            self.phase.victorypointreward = (self.players[1].victorypoints - self.players[0].victorypoints) * 0.02
+            self.phase.legalmovesreward = (self.phase.statechangecount - self.phase.statechangecountafter) * 0.0002
+            self.phase.illegalmovesreward = -self.phase.gamemoves * 0.00002
+            self.player0.wins+=1
+            return 1
+        else:
+            return 0
+
 
     def move_finished(self):
         """
@@ -1303,27 +1329,30 @@ class Catan_Env:
             #phase.reward += (player1.victorypoints - player1.victorypoints_before) * 0.02
         
         player0.victorypoints_before = player0.victorypoints
-        player1.victorypoints_before = player1.victorypoints   
+        player1.victorypoints_before = player1.victorypoints
+        self.game.is_finished = self.update_rewards(self.game,self.players,self.player0,self.player1)
+        '''
         if player.victorypoints >= 10:
             print("achievement unlocked")
             if game.cur_player == 0: 
                 #phase.reward += (1 + (players[game.cur_player].victorypoints - players[1-game.cur_player].victorypoints) * 0.02 + (phase.statechangecount - phase.statechangecountafter) * 0.0001 - phase.gamemoves * 0.00002)
+
                 self.phase.reward += 0.75 + (players[game.cur_player].victorypoints - players[1-game.cur_player].victorypoints) * 0.02
-                print(self.phase.reward)
                 self.phase.victoryreward = 1
                 self.phase.victorypointreward = (players[game.cur_player].victorypoints - players[1-game.cur_player].victorypoints) * 0.02
                 self.phase.legalmovesreward = (self.phase.statechangecount - self.phase.statechangecountafter) * 0.0002
                 self.phase.illegalmovesreward = -self.phase.gamemoves * 0.00002
+                print(self.phase.reward)
                 player0.wins += 1
             else: 
                 #phase.reward -= (1 + (players[game.cur_player].victorypoints - players[1-game.cur_player].victorypoints) * 0.02 - (phase.statechangecount - phase.statechangecountafter) * 0.0001 + phase.gamemoves * 0.00002)
                 self.phase.reward -= (0.75 + (players[game.cur_player].victorypoints - players[1-game.cur_player].victorypoints) * 0.02)
-                print(self.phase.reward)
-                player1.wins += 1
                 self.phase.victoryreward = -1
                 self.phase.victorypointreward = (players[game.cur_player].victorypoints - players[1-game.cur_player].victorypoints) * 0.02
                 self.phase.legalmovesreward = (self.phase.statechangecount - self.phase.statechangecountafter) * 0.0001
                 self.phase.illegalmovesreward = -self.phase.gamemoves * 0.00002
+                print(self.phase.reward)
+                player1.wins += 1'''
             self.phase.statechangecountafter = self.phase.statechangecount
             random_testing.numberofgames += 1
             game.is_finished = 1
