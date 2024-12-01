@@ -14,8 +14,8 @@ import torch.optim as optim
 import torch.nn.functional as F
 import torch.multiprocessing as mp
 from torch.distributions import Categorical
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, project_root)
+#project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+#sys.path.insert(0, project_root)
 
 from DQN.config import *
 from DQN.log import *
@@ -48,7 +48,7 @@ if USE_WANDB:
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 torch.manual_seed(2)
-env = Catan_Env()
+env = Catan_Env(REWARD_FUNCTION)
 cur_boardstate = state_changer(env)[0]
 cur_vectorstate = state_changer(env)[1]
 
@@ -214,7 +214,6 @@ for i_episode in range (num_episodes):
                     cur_vectorstate = cur_vectorstate.clone().detach().unsqueeze(0).to(device).float()
                     next_board_state, next_vector_state, reward, done = state_changer(env)[0], state_changer(env)[1], env.phase.reward, game.is_finished  #[this is were I need to perform an action and return the next state, reward, done
                     reward = torch.tensor([reward], device = device)
-                    print(reward)
                     next_board_state = next_board_state.clone().detach().unsqueeze(0).to(device).float()
                     next_vector_state = next_vector_state.clone().detach().unsqueeze(0).to(device).float()
                     if done == 1:
