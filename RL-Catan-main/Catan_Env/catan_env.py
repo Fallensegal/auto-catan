@@ -1354,9 +1354,9 @@ class Catan_Env:
                 self.phase.illegalmovesreward = -self.phase.gamemoves * 0.00002
                 print(self.phase.reward)
                 player1.wins += 1'''
+        if self.game.is_finished ==1:
             self.phase.statechangecountafter = self.phase.statechangecount
             random_testing.numberofgames += 1
-            game.is_finished = 1
             player0_log.average_victory_points.insert(0, player0.victorypoints)
             if len(player0_log.average_victory_points) > 10:
                 player0_log.average_victory_points.pop(10)
