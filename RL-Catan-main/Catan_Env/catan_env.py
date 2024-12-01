@@ -1258,29 +1258,33 @@ class Catan_Env:
         
         
     def update_rewards(self):
-       cur_player = self.game.cur_player
-       if self.players[cur_player].victorypoints >= 10:
-        print('Game Over')
-        if cur_player == 0:
-            self.phase.reward += 0.75 + (self.players[0].victorypoints - self.players[1].victorypoints) * 0.02
-            print(self.phase.reward)
-            self.phase.victoryreward = 1
-            self.phase.victorypointreward = (self.players[0].victorypoints - self.players[1].victorypoints) * 0.02
-            self.phase.legalmovesreward = (self.phase.statechangecount - self.phase.statechangecountafter) * 0.0002
-            self.phase.illegalmovesreward = -self.phase.gamemoves * 0.00002
-            self.player0.wins+=1
-            return 1
-        elif cur_player ==1:
-            self.phase.reward -= 1*(0.75 + (self.players[1].victorypoints - self.players[0].victorypoints) * 0.02)
-            print(self.phase.reward)
-            self.phase.victoryreward = -1
-            self.phase.victorypointreward = -(self.players[1].victorypoints - self.players[0].victorypoints) * 0.02
-            self.phase.legalmovesreward = (self.phase.statechangecount - self.phase.statechangecountafter) * 0.0002
-            self.phase.illegalmovesreward = -self.phase.gamemoves * 0.00002
-            self.player1.wins+=1
-            return 1
+       
+        cur_player = self.game.cur_player
+        if self.players[cur_player].victorypoints >= 10:
+            print('Game Over')
+            if cur_player == 0:
+                self.phase.reward += 0.75 + (self.players[0].victorypoints - self.players[1].victorypoints) * 0.02
+                print(self.phase.reward)
+                self.phase.victoryreward = 1
+                self.phase.victorypointreward = (self.players[0].victorypoints - self.players[1].victorypoints) * 0.02
+                self.phase.legalmovesreward = (self.phase.statechangecount - self.phase.statechangecountafter) * 0.0002
+                self.phase.illegalmovesreward = -self.phase.gamemoves * 0.00002
+                self.player0.wins+=1
+                return 1
+            elif cur_player ==1:
+                self.phase.reward -= 1*(0.75 + (self.players[1].victorypoints - self.players[0].victorypoints) * 0.02)
+                print(self.phase.reward)
+                self.phase.victoryreward = -1
+                self.phase.victorypointreward = -(self.players[1].victorypoints - self.players[0].victorypoints) * 0.02
+                self.phase.legalmovesreward = (self.phase.statechangecount - self.phase.statechangecountafter) * 0.0002
+                self.phase.illegalmovesreward = -self.phase.gamemoves * 0.00002
+                self.player1.wins+=1
+                return 1
+            else:
+                return 0
         else:
             return 0
+
 
 
     def move_finished(self):
