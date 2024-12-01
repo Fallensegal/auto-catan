@@ -1328,9 +1328,10 @@ class Catan_Env:
         #if game.cur_player == 1:
             #phase.reward += (player1.victorypoints - player1.victorypoints_before) * 0.02
         
+
+        self.game.is_finished = self.update_rewards(self.game,self.players,self.player0,self.player1)
         player0.victorypoints_before = player0.victorypoints
         player1.victorypoints_before = player1.victorypoints
-        self.game.is_finished = self.update_rewards(self.game,self.players,self.player0,self.player1)
         '''
         if player.victorypoints >= 10:
             print("achievement unlocked")
