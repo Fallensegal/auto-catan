@@ -14,8 +14,8 @@ import torch.optim as optim
 import torch.nn.functional as F
 import torch.multiprocessing as mp
 from torch.distributions import Categorical
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, project_root)
+#project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+#sys.path.insert(0, project_root)
 
 from DQN.config import *
 from DQN.log import *
