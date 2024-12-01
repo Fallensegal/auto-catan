@@ -333,6 +333,7 @@ for i_episode in range (num_episodes):
     
     
 print('Complete')
-
+if(PRINT_ACTIONS):
+    print(f'steps over {num_episodes} episodes: {steps_done}')
 
 
