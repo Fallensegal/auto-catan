@@ -1,10 +1,9 @@
 import numpy as np
 
-
 _NUM_ROWS = 11
 _NUM_COLS = 21
 
-class Board: 
+class Board:
     def __init__(self):
         #_______________________input_________________________
         self.tiles_lumber = np.zeros((_NUM_ROWS, _NUM_COLS))
@@ -28,7 +27,6 @@ class Board:
         self.harbor_ore = np.zeros((_NUM_ROWS, _NUM_COLS))
         self.harbor_three_one = np.zeros((_NUM_ROWS, _NUM_COLS))
 
-
         #_________________ game specific ________________
         #board
         self.ZEROBOARD = np.zeros((_NUM_ROWS, _NUM_COLS))
@@ -50,9 +48,57 @@ class Board:
         self.harbors_possible = np.zeros((9, 2, 2))
 
         #longest road
-        self.longest_road = np.zeros((_NUM_ROWS,_NUM_COLS))
-        self.increasing_roads = np.zeros((_NUM_ROWS,_NUM_COLS))
+        self.longest_road = np.zeros((_NUM_ROWS, _NUM_COLS))
+        self.increasing_roads = np.zeros((_NUM_ROWS, _NUM_COLS))
 
+    def find_non_zero_elements(self, matrix):
+        non_zero_elements = np.argwhere(matrix != 0)
+        result = []
+        for element in non_zero_elements:
+            row, col = element
+            result.append(f"Row: {row}, Column: {col}")
+        return '\n'.join(result)
+    
+    def find_zero_elements(self, matrix):
+        zero_elements = np.argwhere(matrix == 0)
+        result = []
+        for element in zero_elements:
+            row, col = element
+            result.append(f"Row: {row}, Column: {col}")
+        return '\n'.join(result)
+
+    def __str__(self):
+        return (#f"Tiles:\n"
+                #f"Lumber: {self.find_non_zero_elements(self.tiles_lumber)}\n"
+                #f"Wool: {self.find_non_zero_elements(self.tiles_wool)}\n"
+                #f"Grain: {self.find_non_zero_elements(self.tiles_grain)}\n"
+                #f"Brick: {self.find_non_zero_elements(self.tiles_brick)}\n"
+                #f"Ore: {self.find_non_zero_elements(self.tiles_ore)}\n"
+                #f"Tile Probabilities:\n"
+                #f"Probability 1: {self.find_non_zero_elements(self.tiles_probability_1)}\n"
+                #f"Probability 2: {self.find_non_zero_elements(self.tiles_probability_2)}\n"
+                #f"Probability 3: {self.find_non_zero_elements(self.tiles_probability_3)}\n"
+                #f"Probability 4: {self.find_non_zero_elements(self.tiles_probability_4)}\n"
+                #f"Probability 5: {self.find_non_zero_elements(self.tiles_probability_5)}\n"
+                f"Robber Position:\n"
+                f"{self.find_non_zero_elements(self.rober_position)}\n"
+                #f"Harbors:\n"
+                #f"Lumber: {self.find_non_zero_elements(self.harbor_lumber)}\n"
+                #f"Wool: {self.find_non_zero_elements(self.harbor_wool)}\n"
+                #f"Grain: {self.find_non_zero_elements(self.harbor_grain)}\n"
+                #f"Brick: {self.find_non_zero_elements(self.harbor_brick)}\n"
+                #f"Ore: {self.find_non_zero_elements(self.harbor_ore)}\n"
+                #f"3:1: {self.find_non_zero_elements(self.harbor_three_one)}\n"
+                f"Settlements:\n"
+                #f"Free:\n{self.find_non_zero_elements(self.settlements_free)}\n"
+                #f"Available:\n{self.find_non_zero_elements(self.settlements_available)}\n"
+                f"Used:\n{self.find_zero_elements(self.settlements_used)}\n"
+                #f"Roads:\n"
+                #f"Available:\n{self.find_non_zero_elements(self.roads_available)}\n"
+                #f"Free:\n{self.find_zero_elements(self.roads_free)}\n"
+                f"Longest Road:\n"
+                f"Current:\n{self.find_non_zero_elements(self.longest_road)}\n"
+                f"Increasing:\n{self.find_non_zero_elements(self.increasing_roads)}")
 
     def harbors_building(self):
         # Define harbor locations

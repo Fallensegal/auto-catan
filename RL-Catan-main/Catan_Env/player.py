@@ -85,6 +85,34 @@ class Player:
 
         self.wins = 0
 
+    def find_non_zero_elements(self, matrix):
+        non_zero_elements = np.argwhere(matrix != 0)
+        result = []
+        for element in non_zero_elements:
+            row, col = element
+            result.append(f"Row: {row}, Column: {col}")
+        return '\n'.join(result)
+
+    def __str__(self):
+        return (f"Resources:\n"
+                f"Lumber: {self.resource_lumber}, Wool: {self.resource_wool}, Grain: {self.resource_grain}, "
+                f"Brick: {self.resource_brick}, Ore: {self.resource_ore}\n"
+                f"Development Cards (New):\n"
+                f"Knights: {self.knight_cards_new}, Victory Points: {self.victorypoints_cards_new}, "
+                f"Year of Plenty: {self.yearofplenty_cards_new}, Monopoly: {self.monopoly_cards_new}, "
+                f"Road Building: {self.roadbuilding_cards_new}\n"
+                f"Development Cards (Old):\n"
+                f"Knights: {self.knight_cards_old}, Victory Points: {self.victorypoints_cards_old}, "
+                f"Year of Plenty: {self.yearofplenty_cards_old}, Monopoly: {self.monopoly_cards_old}, "
+                f"Road Building: {self.roadbuilding_cards_old}\n"
+                f"Victory Points: {self.victorypoints}, Largest Army: {self.largest_army}, Longest Road: {self.longest_road}\n"
+                f"Settlements Left: {self.settlements_left}, Cities Left: {self.cities_left}, Roads Left: {self.roads_left}\n"
+                f"Total Resources: {self.total_resources}\n"
+                f"Board State:\n"
+                f"Settlements:\n{self.find_non_zero_elements(self.settlements)}\n"
+                f"Roads:\n{self.find_non_zero_elements(self.roads)}\n"
+                f"Cities:\n{self.find_non_zero_elements(self.cities)}")
+
     class Action: 
         def __init__(self):
             #________________________Output board_______________
