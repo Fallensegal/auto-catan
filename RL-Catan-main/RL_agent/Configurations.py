@@ -1,2 +1,2 @@
-PRINT_ACTIONS = True
+PRINT_ACTIONS = False
 USE_WANDB = False
