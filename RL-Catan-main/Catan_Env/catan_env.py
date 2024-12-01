@@ -23,7 +23,7 @@ def create_env():
     return Catan_Env()
 
 class Catan_Env:
-    def __init__(self):
+    def __init__(self,RewardFunction='Basic'):
 
         self.board = Board()
 
@@ -62,7 +62,7 @@ class Catan_Env:
 
         self.total_step = 0
         
-
+        self.RewardFunction = RewardFunction
         self.legal_actions = np.zeros((1,965))
 
 
@@ -1258,33 +1258,63 @@ class Catan_Env:
         
         
     def update_rewards(self):
-       
+        """ 
+        This function updates the reward at the end of each turn.
+        The inputs are the current player, victory points, game state/env, and other player information
+        The output is game.is_finished, which is used at the end of each turn to determine if the game is over. 
+        The rewards are updated in the environment and called in the main function. They're not returned
+        """
         cur_player = self.game.cur_player
-        if self.players[cur_player].victorypoints >= 10:
-            print('Game Over')
-            if cur_player == 0:
-                self.phase.reward += 0.75 + (self.players[0].victorypoints - self.players[1].victorypoints) * 0.02
-                print(self.phase.reward)
-                self.phase.victoryreward = 1
-                self.phase.victorypointreward = (self.players[0].victorypoints - self.players[1].victorypoints) * 0.02
-                self.phase.legalmovesreward = (self.phase.statechangecount - self.phase.statechangecountafter) * 0.0002
-                self.phase.illegalmovesreward = -self.phase.gamemoves * 0.00002
-                self.player0.wins+=1
-                return 1
-            elif cur_player ==1:
-                self.phase.reward -= 1*(0.75 + (self.players[1].victorypoints - self.players[0].victorypoints) * 0.02)
-                print(self.phase.reward)
-                self.phase.victoryreward = -1
-                self.phase.victorypointreward = -(self.players[1].victorypoints - self.players[0].victorypoints) * 0.02
-                self.phase.legalmovesreward = (self.phase.statechangecount - self.phase.statechangecountafter) * 0.0002
-                self.phase.illegalmovesreward = -self.phase.gamemoves * 0.00002
-                self.player1.wins+=1
-                return 1
+        if self.RewardFunction=='Differential VP': #baseline reward (0.75) + a small ammount fo how much you won by
+            if self.players[cur_player].victorypoints >= 10:
+                print('Game Over')
+                if cur_player == 0:
+                    self.phase.reward += 0.75 + (self.players[0].victorypoints - self.players[1].victorypoints) * 0.02
+                    print(self.phase.reward)
+                    self.phase.victoryreward = 1
+                    self.phase.victorypointreward = (self.players[0].victorypoints - self.players[1].victorypoints) * 0.02
+                    self.phase.legalmovesreward = (self.phase.statechangecount - self.phase.statechangecountafter) * 0.0002
+                    self.phase.illegalmovesreward = -self.phase.gamemoves * 0.00002
+                    self.player0.wins+=1
+                    return 1
+                elif cur_player ==1:
+                    self.phase.reward -= 1*(0.75 + (self.players[1].victorypoints - self.players[0].victorypoints) * 0.02)
+                    print(self.phase.reward)
+                    self.phase.victoryreward = -1
+                    self.phase.victorypointreward = -(self.players[1].victorypoints - self.players[0].victorypoints) * 0.02
+                    self.phase.legalmovesreward = (self.phase.statechangecount - self.phase.statechangecountafter) * 0.0002
+                    self.phase.illegalmovesreward = -self.phase.gamemoves * 0.00002
+                    self.player1.wins+=1
+                    return 1
+                else:
+                    return 0
             else:
-                return 0
-        else:
-            return 0
-
+                return 0 #game not over
+        else: ###IF nothing is defined then just 10 points for winning and -10 points for losing.
+            if self.players[cur_player].victorypoints >=10:
+                print('Game Over')
+                if cur_player == 0:
+                    self.phase.reward += 10
+                    print(self.phase.reward)
+                    self.phase.victoryreward = 0
+                    self.phase.victorypointreward = 0
+                    self.phase.legalmovesreward = 0
+                    self.phase.illegalmovesreward = 0
+                    self.player0.wins+=1
+                    return 1
+                elif cur_player ==1:
+                    self.phase.reward -= 10
+                    print(self.phase.reward)
+                    self.phase.victoryreward = 0
+                    self.phase.victorypointreward = 0
+                    self.phase.legalmovesreward = 0
+                    self.phase.illegalmovesreward = 0
+                    self.player1.wins+=1
+                    return 1
+                else: 
+                    return 0 #Error/incorrect state.Go another turn
+            else:
+                return 0 #game not over. 
 
 
     def move_finished(self):
