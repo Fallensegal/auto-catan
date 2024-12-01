@@ -1270,7 +1270,7 @@ class Catan_Env:
                 print('Game Over')
                 if cur_player == 0:
                     self.phase.reward += 0.75 + (self.players[0].victorypoints - self.players[1].victorypoints) * 0.02
-                    print(self.phase.reward)
+                    print(f'Reward: {self.phase.reward}')
                     self.phase.victoryreward = 1
                     self.phase.victorypointreward = (self.players[0].victorypoints - self.players[1].victorypoints) * 0.02
                     self.phase.legalmovesreward = (self.phase.statechangecount - self.phase.statechangecountafter) * 0.0002
@@ -1279,7 +1279,7 @@ class Catan_Env:
                     return 1
                 elif cur_player ==1:
                     self.phase.reward -= 1*(0.75 + (self.players[1].victorypoints - self.players[0].victorypoints) * 0.02)
-                    print(self.phase.reward)
+                    print(f'Reward: {self.phase.reward}')
                     self.phase.victoryreward = -1
                     self.phase.victorypointreward = -(self.players[1].victorypoints - self.players[0].victorypoints) * 0.02
                     self.phase.legalmovesreward = (self.phase.statechangecount - self.phase.statechangecountafter) * 0.0002
@@ -1295,7 +1295,7 @@ class Catan_Env:
                 print('Game Over')
                 if cur_player == 0:
                     self.phase.reward += 10
-                    print(self.phase.reward)
+                    print(f'Reward: {self.phase.reward}')
                     self.phase.victoryreward = 0
                     self.phase.victorypointreward = 0
                     self.phase.legalmovesreward = 0
@@ -1304,7 +1304,7 @@ class Catan_Env:
                     return 1
                 elif cur_player ==1:
                     self.phase.reward -= 10
-                    print(self.phase.reward)
+                    print(f'Reward: {self.phase.reward}')
                     self.phase.victoryreward = 0
                     self.phase.victorypointreward = 0
                     self.phase.legalmovesreward = 0
