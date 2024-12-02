@@ -1290,6 +1290,25 @@ class Catan_Env:
                     return 0
             else:
                 return 0 #game not over
+        if self.RewardFunction == 'Incremental VP':
+            if self.players[cur_player] == 0:
+                if self.players[cur_player].victorypoints != self.players[cur_player].victorypoints_before:
+                    self.phase.reward += (self.players[cur_player].victorypoints - self.players[cur_player].victorypoints_before)
+            if self.players[cur_player].victorypoints >= 10:
+                if cur_player ==0: 
+                    self.phase.reward+=20
+                    print(f'Reward: {self.phase.reward}')
+                    self.player0.wins+=1
+                    return 1
+                elif cur_player ==1: 
+                    self.phase.reward-=20
+                    print(f'Reward: {self.phase.reward}')
+                    self.player1.wins+=1
+                    return 1
+                else: 
+                    return 0
+            else:
+                return 0           
         else: ###IF nothing is defined then just 10 points for winning and -10 points for losing.
             if self.players[cur_player].victorypoints >=10:
                 print('Game Over')
