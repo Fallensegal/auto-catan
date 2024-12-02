@@ -163,7 +163,7 @@ class Catan_Training:
             self.log.random_action_counts[action] += 1
             self.game.random_action_made = 1
         action_tensor = torch.tensor([[action]], device=self.device, dtype=torch.long)
-            return action_tensor
+        return action_tensor
         
 
     def select_action_agent1(self):
@@ -172,10 +172,10 @@ class Catan_Training:
             action = final_action + 4*11*21 - 5
         else:
             action = (final_action-1)*11*21 + position_y*21 + position_x 
-            self.log.random_action_counts[action] += 1
-            action = torch.tensor([[action]], device=self.device, dtype=torch.long)
-            self.game.random_action_made = 1
-            return action
+        self.log.random_action_counts[action] += 1
+        action = torch.tensor([[action]], device=self.device, dtype=torch.long)
+        self.game.random_action_made = 1
+        return action
 
     def optimize_model(self):
         if len(self.memory) < self.agent.BATCH_SIZE:
@@ -322,9 +322,10 @@ class Catan_Training:
         
         elapsed_time = time.time() - start_time
         print('Complete')
-        if(PRINT_ACTIONS):
-            print(f'steps over {num_episodes} episodes: {steps_done}')
-            print(f'Elapsed time: {elapsed_time}')
+        print(f'steps over {self.num_episodes} episodes: {self.steps_done}')
+        print(f'Elapsed time: {elapsed_time}')
+        print(f'Optimizer steps: {len(self.game.average_q_value_loss)}')
+        print(f'Optimizer Loss avg: {np.mean(self.game.average_q_value_loss)}')
 
 
 
@@ -335,7 +336,7 @@ def main():
     model = dqn()
     model.to(device)
     training = Catan_Training(REWARD_FUNCTION, device, model, num_episodes=2, memory=MEMORY)
-    training.train()
+    training.train(False)
 
 
 
