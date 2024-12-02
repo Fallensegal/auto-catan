@@ -270,27 +270,12 @@ for i_episode in range (num_episodes):
                 cur_vectorstate = next_vector_state
                 optimize_model()
 
-                #target_net_state_dict = target_net.state_dict()
-                #policy_net_state_dict = agent1_policy_net.state_dict()
-                #I might do a mix later on
-                #for key in policy_net_state_dict:
-                #    target_net_state_dict[key] = TAU*policy_net_state_dict[key] + (1-TAU)*target_net_state_dict[key]
-                #target_net.load_state_dict(target_net_state_dict)
-
-                #target_net_state_dict = target_net.state_dict()
-                #policy_net_state_dict = agent1_policy_net.state_dict()
-                #for key in policy_net_state_dict:
-                #    target_net_state_dict[key] = TAU*policy_net_state_dict[key] + (1-TAU)*target_net_state_dict[key]
-                #target_net.load_state_dict(target_net_state_dict)
-
-
                 if done == 1:
                     env.phase.gamemoves = t
                     game.is_finished = 0
                     episode_durations.append(t+1)
                     break
             else:
-                #env.phase.reward -= 0.00002 #does this gradient get to small? Should I rather add a reward for successful moves?
                 sample = random.random()
                 if sample < 0.05:
                     next_board_state, next_vector_state, reward, done = state_changer(env)[0], state_changer(env)[1], env.phase.reward, game.is_finished
@@ -311,9 +296,7 @@ for i_episode in range (num_episodes):
         log(i_episode)
         wandb.log({"Elapsed Time": elapsed_time}, step=i_episode)
         wandb.log({"t": t}, step = i_episode)
-    #print(t)
-    #print(player0.victorypoints)
-    #print(player1.victorypoints)
+
     game.average_time.insert(0, time.time() - time_new_start) 
     if len(game.average_time) > 10:
         game.average_time.pop(10)
@@ -329,7 +312,6 @@ for i_episode in range (num_episodes):
     env.phase.statechange = 0
     game.random_action_made = 0
     env.phase.reward = 0
-    
     
 print('Complete')
 if(PRINT_ACTIONS):
