@@ -53,9 +53,6 @@ cur_boardstate = state_changer(env)[0]
 cur_vectorstate = state_changer(env)[1]
 
 # Define a named tuple called Transition
-Transition = namedtuple('Transition', ('cur_boardstate', 'cur_vectorstate', 'action', 'next_boardstate', 'next_vectorstate', 'reward'))
-
-agent2_policy_net = NEURAL_NET.to(device)
 agent1_policy_net = NEURAL_NET.to(device)
 
 target_net = NEURAL_NET.to(device)
@@ -127,8 +124,10 @@ def plotting():
 
 log_called = 0
 def optimize_model():
+    
     if len(memory) < BATCH_SIZE:
         return
+    Transition = namedtuple('Transition', ('cur_boardstate', 'cur_vectorstate', 'action', 'next_boardstate', 'next_vectorstate', 'reward'))
     transitions = memory.sample(BATCH_SIZE)
     batch = Transition(*zip(*transitions))
 
