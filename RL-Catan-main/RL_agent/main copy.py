@@ -85,8 +85,8 @@ class Log:
 
         self.steps_done = 0
 
-        self.action_counts = []
-        self.random_action_counts = []
+        self.action_counts = [0] * TOTAL_ACTIONS
+        self.random_action_counts = [0] * TOTAL_ACTIONS
         self.episode_durations = []
 
 class DQNAgent:
@@ -110,7 +110,7 @@ class DQNAgent:
         self.steps_done = 0
 
 class Catan_Training:
-    def __init__(self, reward_function,device,model, num_episodes = 1000, memory=MEMORY):
+    def __init__(self, reward_function,device,model, num_episodes = 1000, memory=100000):
         self.env = Catan_Env(reward_function)
         self.game = self.env.game
         self.num_episodes = num_episodes
@@ -135,7 +135,7 @@ class Catan_Training:
     def select_action_agent0(self, boardstate, vectorstate):
         sample = random.random()
         eps_threshold = self.agent.EPS_END + (self.agent.EPS_START - self.agent.EPS_END)*math.exp(-1. * self.steps_done / self.agent.EPS_DECAY)
-        lr = self.agent.LR_END + (self.agent.LR_START - self.agetn.LR_END) * math.exp(-1. * self.steps_done / self.agent.LR_DECAY)
+        lr = self.agent.LR_END + (self.agent.LR_START - self.agent.LR_END) * math.exp(-1. * self.steps_done / self.agent.LR_DECAY)
         # Update the learning rate
         for param_group in self.optimizer.param_groups:
             param_group['lr'] = lr
@@ -330,3 +330,17 @@ class Catan_Training:
             print(f'steps over {num_episodes} episodes: {steps_done}')
             print(f'Elapsed time: {elapsed_time}')
 
+
+
+def main():
+    torch.manual_seed(2)
+    MEMORY = 100000
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = dqn()
+    model.to(device)
+    training = Catan_Training(REWARD_FUNCTION, device, model, num_episodes=2, memory=MEMORY)
+    training.train()
+
+
+
+main()
