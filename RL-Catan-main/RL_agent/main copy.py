@@ -152,7 +152,7 @@ class Catan_Training:
                     self.log.action_counts[action] += 1
                     if self.env.phase.actionstarted >= 5:
                         action_selecter(self.env,5,0,0)
-                    return action
+                    #return action
                 
         else:
             final_action,position_x,position_y = random_assignment(self.env)
@@ -161,8 +161,8 @@ class Catan_Training:
             else:
                 action = (final_action-1)*11*21 + position_y*21 + position_x 
             self.log.random_action_counts[action] += 1
-            action_tensor = torch.tensor([[action]], device=self.device, dtype=torch.long)
             self.game.random_action_made = 1
+        action_tensor = torch.tensor([[action]], device=self.device, dtype=torch.long)
             return action_tensor
         
 
@@ -230,8 +230,8 @@ class Catan_Training:
                 if self.game.cur_player == 1:
                     action = self.select_action_agent1()
                     if PRINT_ACTIONS:
-                        InterpretActions(self.game.cur_player,action)
-                        print("player 1 action taken " + str(action))
+                        InterpretActions(1,action)
+                        print("player 1 action taken " + str(action.item()))
                     self.env.phase.actionstarted = 0
                     if self.env.phase.statechange == 1:
                         if self.game.is_finished == 1:
@@ -268,7 +268,7 @@ class Catan_Training:
                     cur_vectorstate = self.cur_vectorstate.clone().detach().unsqueeze(0).to(self.device).float()
                     action = self.select_action_agent0(cur_boardstate, cur_vectorstate)
                     if PRINT_ACTIONS:
-                        InterpretActions(self.game.cur_player,action)
+                        InterpretActions(0,action)
                         print("player 0 action taken " + str(action.item()))
                     if self.env.phase.statechange == 1:
                         next_board_state, next_vector_state, reward, done = state_changer(self.env)[0], state_changer(self.env)[1], self.env.phase.reward, self.game.is_finished
