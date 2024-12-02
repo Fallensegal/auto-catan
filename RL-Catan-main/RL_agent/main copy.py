@@ -30,19 +30,15 @@ from Catan_Env.action_selection import action_selecter
 from Catan_Env.random_action import random_assignment
 from Catan_Env.game import Game
 from RL_agent.DQN.Neural_Networks.DQN_Small import DQN as dqn
-NEURAL_NET = dqn()
-MEMORY = 100000
+#NEURAL_NET = dqn()
+
 ###  Defines for Debugging and Logging
 from Configurations import *
-
-
-if PRINT_ACTIONS:
-    from Catan_Env.Interpreter import InterpretActions
-
+from Catan_Env.Interpreter import InterpretActions
 #plotting and Logging
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+#device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-torch.manual_seed(2)
+
 #env = Catan_Env(REWARD_FUNCTION)
 #cur_boardstate = state_changer(env)[0]
 #cur_vectorstate = state_changer(env)[1]
