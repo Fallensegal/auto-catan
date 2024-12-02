@@ -158,7 +158,7 @@ def optimize_model():
 start_time = time.time()
 
 
-num_episodes = 10
+num_episodes = 2
 for i_episode in range (num_episodes):
     env.new_game()
     game = env.game
@@ -301,7 +301,7 @@ for i_episode in range (num_episodes):
     env.phase.reward = 0
     
 print('Complete')
-if(PRINT_ACTIONS):
-    print(f'steps over {num_episodes} episodes: {steps_done}')
-
-
+print(f'steps over {num_episodes} episodes: {steps_done}')
+print(f'Elapsed time: {elapsed_time}')
+print(f'Optimizer steps: {len(game.average_q_value_loss)}')
+print(f'Optimizer Loss avg: {np.mean(game.average_q_value_loss)}')
