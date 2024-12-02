@@ -93,19 +93,7 @@ def select_action(boardstate, vectorstate):
                 if env.phase.actionstarted >= 5:
                     action_selecter(5,0,0)
                 return action
-            #elif game.cur_player == 1:
-            #    action =  agent2_policy_net(boardstate, vectorstate).max(1).indices.view(1,1) 
-            #    if action >= 4*11*21:
-            #        final_action = action - 4*11*21 + 5
-            #        position_y = 0
-            #        position_x = 0
-            #    else:
-            #        final_action = math.ceil((action/11/21)+1)
-            #        position_y = math.floor((action - ((final_action-1)*11*21))/21)
-            #        position_x = action % 21 
-            #    action_selecter(final_action, position_x, position_y)
-            #    action_counts[action] += 1
-            #    return action
+
     else:
         final_action,position_x,position_y = random_assignment(env)
         if final_action > 4:
