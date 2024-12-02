@@ -177,7 +177,7 @@ class Catan_Training:
         else:
             action = (final_action-1)*11*21 + position_y*21 + position_x 
             self.log.random_action_counts[action] += 1
-            action = torch.tensor([[action]], device=device, dtype=torch.long)
+            action = torch.tensor([[action]], device=self.device, dtype=torch.long)
             self.game.random_action_made = 1
             return action
 
