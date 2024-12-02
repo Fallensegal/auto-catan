@@ -1291,7 +1291,7 @@ class Catan_Env:
             else:
                 return 0 #game not over
         if self.RewardFunction == 'Incremental VP':
-            if self.players[cur_player] == 0:
+            if cur_player == 0:
                 if self.players[cur_player].victorypoints != self.players[cur_player].victorypoints_before:
                     self.phase.reward += (self.players[cur_player].victorypoints - self.players[cur_player].victorypoints_before)
             if self.players[cur_player].victorypoints >= 10:
