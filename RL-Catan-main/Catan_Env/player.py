@@ -107,7 +107,7 @@ class Player:
                 f"Road Building: {self.roadbuilding_cards_old}\n"
                 f"Victory Points: {self.victorypoints}, Largest Army: {self.largest_army}, Longest Road: {self.longest_road}\n"
                 f"Settlements Left: {self.settlements_left}, Cities Left: {self.cities_left}, Roads Left: {self.roads_left}\n"
-                f"Total Resources: {self.total_resources}\n"
+                #f"Total Resources: {self.total_resources}\n"
                 f"Board State:\n"
                 f"Settlements:\n{self.find_non_zero_elements(self.settlements)}\n"
                 f"Roads:\n{self.find_non_zero_elements(self.roads)}\n"

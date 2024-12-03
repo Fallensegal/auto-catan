@@ -1,5 +1,5 @@
 import math 
-def InterpretActions(player, selected_action, env, printBoardState = False):
+def InterpretActions(player, selected_action, env, gameStatePrintLevel = 0):
     selected_action = selected_action.item()
     if selected_action >= 4*11*21:
         final_action = selected_action - 4*11*21 + 5
@@ -62,10 +62,20 @@ def InterpretActions(player, selected_action, env, printBoardState = False):
     # Fetch and print the appropriate message
     message = action_messages.get(final_action, "Unknown action")
     print(f"Player: {player}, {message}")
-    if final_action == 5 and printBoardState:
-        print("Player 0 Stats:")
-        print(env.player0)
-        print("Player 1 Stats:")
-        print(env.player1)
-        print(env.board)
+    if final_action == 5:
+        if gameStatePrintLevel == 1:
+            print(f"\nPlayer 0 Stats:")
+            print(env.player0)
+            print(f"\nPlayer 1 Stats:")
+            print(env.player1)
+        elif gameStatePrintLevel == 2:
+            print(f"\nBoard state:")
+            print(env.board)
+        elif gameStatePrintLevel == 3:
+            print(f"\nPlayer 0 Stats:")
+            print(env.player0)
+            print(f"\nPlayer 1 Stats:")
+            print(env.player1)
+            print(f"\nBoard state:")
+            print(env.board)
 

@@ -216,7 +216,7 @@ class Catan_Training:
         loss.backward()
         self.optimizer.step()
 
-    def train(self,PRINT_ACTIONS = True):
+    def train(self,PRINT_ACTIONS = True, gameStatePrintLevel = 0):
         start_time = time.time()
         for i_episode in range(self.num_episodes):
             self.new_game()
@@ -230,7 +230,7 @@ class Catan_Training:
                 if self.game.cur_player == 1:
                     action = self.select_action_agent1()
                     if PRINT_ACTIONS:
-                        InterpretActions(1,action)
+                        InterpretActions(1,action, self.env, gameStatePrintLevel)
                     self.env.phase.actionstarted = 0
                     if self.env.phase.statechange == 1:
                         if self.game.is_finished == 1:
@@ -267,7 +267,7 @@ class Catan_Training:
                     cur_vectorstate = self.cur_vectorstate.clone().detach().unsqueeze(0).to(self.device).float()
                     action = self.select_action_agent0(cur_boardstate, cur_vectorstate)
                     if PRINT_ACTIONS:
-                        InterpretActions(0,action)
+                        InterpretActions(0,action, self.env, gameStatePrintLevel)
                     if self.env.phase.statechange == 1:
                         next_board_state, next_vector_state, reward, done = state_changer(self.env)[0], state_changer(self.env)[1], self.env.phase.reward, self.game.is_finished
                         reward = torch.tensor([reward], device=self.device)
@@ -324,8 +324,6 @@ class Catan_Training:
         print(f'Elapsed time: {elapsed_time}')
         print(f'Optimizer steps: {len(self.game.average_q_value_loss)}')
         print(f'Optimizer Loss avg: {np.mean(self.game.average_q_value_loss)}')
-
-
 
 def main():
     torch.manual_seed(2)

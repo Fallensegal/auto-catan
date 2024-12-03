@@ -97,8 +97,8 @@ class Board:
                 #f"Available:\n{self.find_non_zero_elements(self.roads_available)}\n"
                 #f"Free:\n{self.find_zero_elements(self.roads_free)}\n"
                 f"Longest Road:\n"
-                f"Current:\n{self.find_non_zero_elements(self.longest_road)}\n"
-                f"Increasing:\n{self.find_non_zero_elements(self.increasing_roads)}")
+                f"Current:\n{self.find_non_zero_elements(self.longest_road)}\n")
+                #f"Increasing:\n{self.find_non_zero_elements(self.increasing_roads)}")
 
     def harbors_building(self):
         # Define harbor locations
