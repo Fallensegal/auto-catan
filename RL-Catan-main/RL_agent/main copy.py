@@ -231,7 +231,6 @@ class Catan_Training:
                     action = self.select_action_agent1()
                     if PRINT_ACTIONS:
                         InterpretActions(1,action)
-                        print("player 1 action taken " + str(action.item()))
                     self.env.phase.actionstarted = 0
                     if self.env.phase.statechange == 1:
                         if self.game.is_finished == 1:
@@ -269,7 +268,6 @@ class Catan_Training:
                     action = self.select_action_agent0(cur_boardstate, cur_vectorstate)
                     if PRINT_ACTIONS:
                         InterpretActions(0,action)
-                        print("player 0 action taken " + str(action.item()))
                     if self.env.phase.statechange == 1:
                         next_board_state, next_vector_state, reward, done = state_changer(self.env)[0], state_changer(self.env)[1], self.env.phase.reward, self.game.is_finished
                         reward = torch.tensor([reward], device=self.device)
@@ -337,6 +335,8 @@ def main():
     model.to(device)
     training = Catan_Training(REWARD_FUNCTION, device, model, num_episodes=2, memory=MEMORY)
     training.train(False)
+    training = Catan_Training(REWARD_FUNCTION, device, model, num_episodes=1, memory=MEMORY)
+    training.train(True)
 
 
 
