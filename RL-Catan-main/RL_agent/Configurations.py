@@ -1,10 +1,13 @@
 PRINT_ACTIONS = False
 
-# Batch size for training the DQN model
-BATCH_SIZE = 8
+# Starting learning rate for the optimizer
+LR_START = 0.003
 
-# Discount factor for future rewards in the Q-learning algorithm
-GAMMA = 0.999
+# Ending learning rate for the optimizer
+LR_END = 0.0002
+
+# Decay rate for the learning rate
+LR_DECAY = 2000000
 
 # Starting value for the exploration rate (epsilon) in the epsilon-greedy policy
 EPS_START = 1
@@ -15,20 +18,14 @@ EPS_END = 0.05
 # Decay rate for the exploration rate (epsilon) in the epsilon-greedy policy
 EPS_DECAY = 200000
 
-# Soft update coefficient for updating the target network in the DQN algorithm
-TAU = 0.002
-
-# Starting learning rate for the optimizer
-LR_START = 0.003
-
-# Ending learning rate for the optimizer
-LR_END = 0.0002
-
-# Decay rate for the learning rate
-LR_DECAY = 2000000
+# Discount factor for future rewards in the Q-learning algorithm
+GAMMA = 0.999
 
 # Total number of possible actions in the environment
 TOTAL_ACTIONS = 21*11*4 + 41
+
+# Batch size for training the DQN model
+BATCH_SIZE = 8
 
 #Reward Functions
 REWARD_FUNCTION = 'Incremental_VP'
@@ -40,3 +37,15 @@ REWARD_FUNCTION = 'Incremental_VP'
         4. 'Large_Magnitude'
         5. 'High_Sparsity_VP'
 '''
+#number of episodes
+NUM_EPISODES = 500
+
+
+#I might do a mix later on
+#target_net_state_dict = target_net.state_dict()
+#policy_net_state_dict = agent1_policy_net.state_dict()
+#for key in policy_net_state_dict:
+#    target_net_state_dict[key] = TAU*policy_net_state_dict[key] + (1-TAU)*target_net_state_dict[key]
+#target_net.load_state_dict(target_net_state_dict)
+# Soft update coefficient for updating the target network in the DQN algorithm
+#TAU = 0.002
