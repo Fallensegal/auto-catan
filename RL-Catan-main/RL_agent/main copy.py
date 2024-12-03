@@ -128,45 +128,51 @@ class Catan_Training:
         self.cur_boardstate = state_changer(self.env)[0]
         self.cur_vectorstate = state_changer(self.env)[1]
 
-    def select_action_agent0(self, boardstate, vectorstate):
+    def select_action_using_policy(self, boardstate, vectorstate):
         sample = random.random()
         eps_threshold = self.agent.EPS_END + (self.agent.EPS_START - self.agent.EPS_END)*math.exp(-1. * self.steps_done / self.agent.EPS_DECAY)
         lr = self.agent.LR_END + (self.agent.LR_START - self.agent.LR_END) * math.exp(-1. * self.steps_done / self.agent.LR_DECAY)
         # Update the learning rate
         for param_group in self.optimizer.param_groups:
             param_group['lr'] = lr
-        if sample > eps_threshold:
+        if sample > eps_threshold:  # use epsilon greedy policy, select action from policy
+            action_was_random = False
             with torch.no_grad():
                 if self.game.cur_player == 0:
                     self.env.phase.actionstarted += 1
-                    action = self.agent_policy_net(boardstate, vectorstate).max(1).indices.view(1,1)
-                    if action >= 4*11*21:
-                        final_action = int(action - 4*11*21 + 5)
+                    normalized_q_values = F.softmax(self.agent_policy_net(boardstate, vectorstate)).tolist()[0]
+                    legal_actions = self.env.checklegalmoves()
+                    legal_indices = np.where(legal_actions == 1)[1]
+                    valid_q_values = [normalized_q_values[i] for i in legal_indices]
+                    policy_action = legal_indices[np.argmax(valid_q_values)]
+                    if policy_action >= 4*11*21:
+                        action_type = int(policy_action - 4*11*21 + 5)
                         position_y = 0
                         position_x = 0
                     else:
-                        final_action = int(action)//(11*21)+1
-                        position_y = (int(action) - ((final_action-1)*11*21))//21
-                        position_x = int(action) % 21 
-                    action_selecter(self.env, final_action, position_x, position_y)
-                    self.log.action_counts[action] += 1
+                        action_type = int(policy_action)//(11*21)+1
+                        position_y = (int(policy_action) - ((action_type-1)*11*21))//21
+                        position_x = int(policy_action) % 21 
+                    action_selecter(self.env, action_type, position_x, position_y)
+                    self.log.action_counts[policy_action] += 1
                     if self.env.phase.actionstarted >= 5:
                         action_selecter(self.env,5,0,0)
                     #return action
                 
-        else:
-            final_action,position_x,position_y = random_assignment(self.env)
-            if final_action > 4:
-                action = final_action + 4*11*21 - 5
+        else: # use epsilon greedy policy, select random action
+            action_was_random = True
+            action_type,position_x,position_y = random_assignment(self.env)
+            if action_type > 4:
+                policy_action = action_type + 4*11*21 - 5
             else:
-                action = (final_action-1)*11*21 + position_y*21 + position_x 
-            self.log.random_action_counts[action] += 1
+                policy_action = (action_type-1)*11*21 + position_y*21 + position_x 
+            self.log.random_action_counts[policy_action] += 1
             self.game.random_action_made = 1
-        action_tensor = torch.tensor([[action]], device=self.device, dtype=torch.long)
-        return action_tensor
+        action_tensor = torch.tensor([[policy_action]], device=self.device, dtype=torch.long)
+        return action_tensor, action_was_random
         
 
-    def select_action_agent1(self):
+    def select_action_randomly(self):
         final_action,position_x,position_y = random_assignment(self.env)
         if final_action > 4:
             action = final_action + 4*11*21 - 5
@@ -231,7 +237,7 @@ class Catan_Training:
                 torch.save(self.agent_policy_net.state_dict(), f'agent{i_episode}_policy_net_0_1_1.pth')
             for t in count():
                 if self.game.cur_player == 1:
-                    action = self.select_action_agent1()
+                    action = self.select_action_randomly() #player 1 uses random policy
                     if PRINT_ACTIONS:
                         InterpretActions(1,action, self.env, gameStatePrintLevel)
                     self.env.phase.actionstarted = 0
@@ -268,9 +274,9 @@ class Catan_Training:
                     self.cur_vectorstate = state_changer(self.env)[1]
                     cur_boardstate = self.cur_boardstate.clone().detach().unsqueeze(0).to(self.device).float()
                     cur_vectorstate = self.cur_vectorstate.clone().detach().unsqueeze(0).to(self.device).float()
-                    action = self.select_action_agent0(cur_boardstate, cur_vectorstate)
+                    action, action_was_random = self.select_action_using_policy(cur_boardstate, cur_vectorstate) #player 0 uses trained policy
                     if PRINT_ACTIONS:
-                        InterpretActions(0,action, self.env, gameStatePrintLevel)
+                        InterpretActions(0,action, self.env, gameStatePrintLevel, action_was_random)
                     if self.env.phase.statechange == 1:
                         next_board_state, next_vector_state, reward, done = state_changer(self.env)[0], state_changer(self.env)[1], self.env.phase.reward, self.game.is_finished
                         reward = torch.tensor([reward], device=self.device)
@@ -347,6 +353,6 @@ def main():
     with open('TrainingLog.txt', 'w') as f:
         
         f.write("\nStart of training Log:\n\n")
-        training.train(False, gameStatePrintLevel=3, logFile=f)
+        training.train(True, gameStatePrintLevel=0, logFile=f)
 
 main()
