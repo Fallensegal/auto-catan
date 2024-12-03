@@ -335,8 +335,6 @@ def main():
     model.to(device)
     training = Catan_Training(REWARD_FUNCTION, device, model, num_episodes=2, memory=MEMORY)
     training.train(False)
-    training = Catan_Training(REWARD_FUNCTION, device, model, num_episodes=1, memory=MEMORY)
-    training.train(True)
 
 
 
