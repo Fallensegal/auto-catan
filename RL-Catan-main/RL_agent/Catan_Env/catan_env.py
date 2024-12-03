@@ -1265,7 +1265,7 @@ class Catan_Env:
         The rewards are updated in the environment and called in the main function. They're not returned
         """
         cur_player = self.game.cur_player
-        if self.RewardFunction=='Differential VP': #baseline reward (0.75) + a small ammount fo how much you won by
+        if self.RewardFunction=='Differential_VP': #baseline reward (0.75) + a small ammount fo how much you won by
             if self.players[cur_player].victorypoints >= 10:
                 print('Game Over')
                 if cur_player == 0:
@@ -1290,7 +1290,7 @@ class Catan_Env:
                     return 0
             else:
                 return 0 #game not over
-        if self.RewardFunction == 'Incremental VP':
+        if self.RewardFunction == 'Incremental_VP':
             if cur_player == 0:
                 #everytime the player gains victory points, get a reward the size of the victory point
                 #if the player loses longest road or largest army, then they would lose victory points and get negative reward
@@ -1315,7 +1315,7 @@ class Catan_Env:
                     return 0
             else:
                 return 0           
-        else: ###IF nothing is defined then just 10 points for winning and -10 points for losing.
+        else: # If nothing is defined then just 10 points for winning and -10 points for losing. (a.k.a. High_Sparsity_VP)
             if self.players[cur_player].victorypoints >=10:
                 print('Game Over')
                 if cur_player == 0:
