@@ -29,3 +29,5 @@ class Game:
         self.average_legal_moves_ratio = []
         
         self.random_action_made = 0
+
+        self.winner = None

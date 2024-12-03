@@ -53,9 +53,6 @@ cur_boardstate = state_changer(env)[0]
 cur_vectorstate = state_changer(env)[1]
 
 # Define a named tuple called Transition
-Transition = namedtuple('Transition', ('cur_boardstate', 'cur_vectorstate', 'action', 'next_boardstate', 'next_vectorstate', 'reward'))
-
-agent2_policy_net = NEURAL_NET.to(device)
 agent1_policy_net = NEURAL_NET.to(device)
 
 target_net = NEURAL_NET.to(device)
@@ -96,19 +93,7 @@ def select_action(boardstate, vectorstate):
                 if env.phase.actionstarted >= 5:
                     action_selecter(5,0,0)
                 return action
-            #elif game.cur_player == 1:
-            #    action =  agent2_policy_net(boardstate, vectorstate).max(1).indices.view(1,1) 
-            #    if action >= 4*11*21:
-            #        final_action = action - 4*11*21 + 5
-            #        position_y = 0
-            #        position_x = 0
-            #    else:
-            #        final_action = math.ceil((action/11/21)+1)
-            #        position_y = math.floor((action - ((final_action-1)*11*21))/21)
-            #        position_x = action % 21 
-            #    action_selecter(final_action, position_x, position_y)
-            #    action_counts[action] += 1
-            #    return action
+
     else:
         final_action,position_x,position_y = random_assignment(env)
         if final_action > 4:
@@ -127,8 +112,10 @@ def plotting():
 
 log_called = 0
 def optimize_model():
+    
     if len(memory) < BATCH_SIZE:
         return
+    Transition = namedtuple('Transition', ('cur_boardstate', 'cur_vectorstate', 'action', 'next_boardstate', 'next_vectorstate', 'reward'))
     transitions = memory.sample(BATCH_SIZE)
     batch = Transition(*zip(*transitions))
 
@@ -171,7 +158,7 @@ def optimize_model():
 start_time = time.time()
 
 
-num_episodes = 10
+num_episodes = 2
 for i_episode in range (num_episodes):
     env.new_game()
     game = env.game
@@ -270,27 +257,12 @@ for i_episode in range (num_episodes):
                 cur_vectorstate = next_vector_state
                 optimize_model()
 
-                #target_net_state_dict = target_net.state_dict()
-                #policy_net_state_dict = agent1_policy_net.state_dict()
-                #I might do a mix later on
-                #for key in policy_net_state_dict:
-                #    target_net_state_dict[key] = TAU*policy_net_state_dict[key] + (1-TAU)*target_net_state_dict[key]
-                #target_net.load_state_dict(target_net_state_dict)
-
-                #target_net_state_dict = target_net.state_dict()
-                #policy_net_state_dict = agent1_policy_net.state_dict()
-                #for key in policy_net_state_dict:
-                #    target_net_state_dict[key] = TAU*policy_net_state_dict[key] + (1-TAU)*target_net_state_dict[key]
-                #target_net.load_state_dict(target_net_state_dict)
-
-
                 if done == 1:
                     env.phase.gamemoves = t
                     game.is_finished = 0
                     episode_durations.append(t+1)
                     break
             else:
-                #env.phase.reward -= 0.00002 #does this gradient get to small? Should I rather add a reward for successful moves?
                 sample = random.random()
                 if sample < 0.05:
                     next_board_state, next_vector_state, reward, done = state_changer(env)[0], state_changer(env)[1], env.phase.reward, game.is_finished
@@ -311,9 +283,7 @@ for i_episode in range (num_episodes):
         log(i_episode)
         wandb.log({"Elapsed Time": elapsed_time}, step=i_episode)
         wandb.log({"t": t}, step = i_episode)
-    #print(t)
-    #print(player0.victorypoints)
-    #print(player1.victorypoints)
+
     game.average_time.insert(0, time.time() - time_new_start) 
     if len(game.average_time) > 10:
         game.average_time.pop(10)
@@ -330,9 +300,8 @@ for i_episode in range (num_episodes):
     game.random_action_made = 0
     env.phase.reward = 0
     
-    
 print('Complete')
-if(PRINT_ACTIONS):
-    print(f'steps over {num_episodes} episodes: {steps_done}')
-
-
+print(f'steps over {num_episodes} episodes: {steps_done}')
+print(f'Elapsed time: {elapsed_time}')
+print(f'Optimizer steps: {len(game.average_q_value_loss)}')
+print(f'Optimizer Loss avg: {np.mean(game.average_q_value_loss)}')
