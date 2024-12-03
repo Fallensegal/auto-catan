@@ -66,10 +66,10 @@ class Log:
         self.episode_durations = []
 
 class DQNAgent:
-    def __init__(self, model, device, memory_capacity=100000,
-                 LR_START = LR_START, LR_END = LR_END, LR_DECAY = LR_DECAY,
-                 EPS_START = EPS_START, EPS_END = EPS_END, EPS_DECAY = EPS_DECAY,
-                 GAMMA = GAMMA, BATCH_SIZE = BATCH_SIZE):
+    def __init__(self, model, device, memory_capacity=10000,
+                 LR_START = .003, LR_END = .0002, LR_DECAY = 200000,
+                 EPS_START = 1, EPS_END = .05, EPS_DECAY = 200000,
+                 GAMMA = 0.999, BATCH_SIZE = 8):
         self.policy_net = model.to(device)
         self.target_net = model.to(device)
         self.target_net.load_state_dict(self.policy_net.state_dict())
@@ -86,10 +86,10 @@ class DQNAgent:
         self.steps_done = 0
 
 class Catan_Training:
-    def __init__(self, reward_function,device,model, num_episodes = 1000, memory=100000,
-                 LR_START = LR_START, LR_END = LR_END, LR_DECAY = LR_DECAY,
-                 EPS_START = EPS_START, EPS_END = EPS_END, EPS_DECAY = EPS_DECAY,
-                 GAMMA = GAMMA, BATCH_SIZE = BATCH_SIZE):
+    def __init__(self, reward_function,device,model, num_episodes = 10000, memory=10000,
+                 LR_START = .003, LR_END = .0002, LR_DECAY = 200000,
+                 EPS_START = 1, EPS_END = .05, EPS_DECAY = 200000,
+                 GAMMA = 0.999, BATCH_SIZE = 8):
         self.env = Catan_Env(reward_function)
         self.game = self.env.game
         self.num_episodes = num_episodes
