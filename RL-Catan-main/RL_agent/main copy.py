@@ -29,7 +29,7 @@ from Catan_Env.catan_env import Catan_Env
 from Catan_Env.action_selection import action_selecter
 from Catan_Env.random_action import random_assignment
 from Catan_Env.game import Game
-from RL_agent.DQN.Neural_Networks.DQN_Small import DQN as dqn
+#from RL_agent.DQN.Neural_Networks.DQN_Small import DQN as dqn
 
 from Configurations import *
 from Catan_Env.Interpreter import InterpretActions
@@ -311,15 +311,24 @@ class Catan_Training:
         print(f'Optimizer steps: {len(self.game.average_q_value_loss)}')
         print(f'Optimizer Loss avg: {np.mean(self.game.average_q_value_loss)}')
 
-def main():
+def main(MEMORY,MODEL_SELECT,REWARD_FUNCTION,NUM_EPISODES,
+         LR_START,LR_END,LR_DECAY,EPS_START,EPS_END,EPS_DECAY,
+         GAMMA,BATCH_SIZE,PRINT_ACTIONS):
     torch.manual_seed(2)
-    MEMORY = 100000
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    if MODEL_SELECT =='Large':
+        from RL_agent.DQN.Neural_Networks.DQN_Big import DQN as dqn
+    elif MODEL_SELECT =='Medium':
+        from RL_agent.DQN.Neural_Networks.DQN_Medium import DQN as dqn
+    else: 
+        from RL_agent.DQN.Neural_Networks.DQN_Small import DQN as dqn
     model = dqn()
     model.to(device)
-    training = Catan_Training(REWARD_FUNCTION, device, model, num_episodes=2, memory=MEMORY)
-    training.train(False)
 
+    training = Catan_Training(REWARD_FUNCTION, device, model, num_episodes=NUM_EPISODES, memory=MEMORY,
+                              LR_START=LR_START, LR_END=LR_END, LR_DECAY=LR_DECAY,
+                              EPS_START=EPS_START, EPS_END=EPS_END,
+                              EPS_DECAY=EPS_DECAY, GAMMA=GAMMA, BATCH_SIZE=BATCH_SIZE)
+    training.train(PRINT_ACTIONS)
 
-
-main()
+main(MEMORY,MODEL_SELECT,REWARD_FUNCTION,NUM_EPISODES,LR_START,LR_END,LR_DECAY,EPS_START,EPS_END,EPS_DECAY,GAMMA,BATCH_SIZE,PRINT_ACTIONS)
