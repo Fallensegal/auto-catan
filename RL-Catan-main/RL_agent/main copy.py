@@ -1,12 +1,10 @@
 import numpy as np
 import random
 import math 
-import sys
-import os
 from collections import namedtuple, deque
 from itertools import count
 import time
-from itertools import product
+import sys
 
 import torch
 import torch.nn as nn
@@ -14,45 +12,17 @@ import torch.optim as optim
 import torch.nn.functional as F
 import torch.multiprocessing as mp
 from torch.distributions import Categorical
-#project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-#sys.path.insert(0, project_root)
-
-from DQN.config import *
-from DQN.log import *
-
 
 from Catan_Env.state_changer import state_changer
-from DQN.replay_memory import ReplayMemory  
+from replay_memory import ReplayMemory  
 
 from Catan_Env.catan_env import Catan_Env
 
 from Catan_Env.action_selection import action_selecter
 from Catan_Env.random_action import random_assignment
 from Catan_Env.game import Game
-from RL_agent.DQN.Neural_Networks.DQN_Small import DQN as dqn
-#NEURAL_NET = dqn()
-
-###  Defines for Debugging and Logging
-from Configurations import *
 from Catan_Env.Interpreter import InterpretActions
-#plotting and Logging
-#device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-
-#env = Catan_Env(REWARD_FUNCTION)
-#cur_boardstate = state_changer(env)[0]
-#cur_vectorstate = state_changer(env)[1]
-
-# Define a named tuple called Transition
-#agent1_policy_net = NEURAL_NET.to(device)
-#target_net = NEURAL_NET.to(device)
-#target_net.load_state_dict(agent1_policy_net.state_dict())
-
-#optimizer = optim.Adam(agent1_policy_net.parameters(), lr = LR_START, amsgrad=True)
-#memory = ReplayMemory(100000)
-
-#steps_done = 0
-
+from Configurations import *
 #different types of reward shaping: Immidiate rewards vps, immidiate rewards legal/illegal, immidiate rewards ressources produced, rewards at the end for winning/losing (+vps +legal/illegal)
 class Log:
     def __init__(self):
@@ -86,15 +56,14 @@ class Log:
         self.episode_durations = []
 
 class DQNAgent:
-    def __init__(self, model, device, memory_capacity=100000,
-                 LR_START = LR_START, LR_END = LR_END, LR_DECAY = LR_DECAY,
-                 EPS_START = EPS_START, EPS_END = EPS_END, EPS_DECAY = EPS_DECAY,
-                 GAMMA = GAMMA, BATCH_SIZE = BATCH_SIZE):
+    def __init__(self, model, device, memory_capacity=10000,
+                 LR_START = .003, LR_END = .0002, LR_DECAY = 200000,
+                 EPS_START = 1, EPS_END = .05, EPS_DECAY = 200000,
+                 GAMMA = 0.999, BATCH_SIZE = 8):
         self.policy_net = model.to(device)
         self.target_net = model.to(device)
         self.target_net.load_state_dict(self.policy_net.state_dict())
         self.memory = ReplayMemory(memory_capacity)
-        self.optimizer = optim.Adam(self.policy_net.parameters(), lr=LR_START, amsgrad=True)
         self.LR_START = LR_START
         self.LR_END = LR_END
         self.LR_DECAY = LR_DECAY
@@ -103,16 +72,23 @@ class DQNAgent:
         self.EPS_DECAY = EPS_DECAY
         self.GAMMA = GAMMA
         self.BATCH_SIZE = BATCH_SIZE
+        self.optimizer = optim.Adam(self.policy_net.parameters(), lr=LR_START, amsgrad=True)
         self.steps_done = 0
 
 class Catan_Training:
-    def __init__(self, reward_function,device,model, num_episodes = 1000, memory=100000):
+    def __init__(self, reward_function,device,model, num_episodes = 10000, memory=10000,
+                 LR_START = .003, LR_END = .0002, LR_DECAY = 200000,
+                 EPS_START = 1, EPS_END = .05, EPS_DECAY = 200000,
+                 GAMMA = 0.999, BATCH_SIZE = 8):
         self.env = Catan_Env(reward_function)
         self.game = self.env.game
         self.num_episodes = num_episodes
         self.device = device
         self.NEURAL_NET = model
-        self.agent = DQNAgent(model, device, memory)
+        self.agent = DQNAgent(model, device, memory,
+                                LR_START, LR_END, LR_DECAY,
+                                EPS_START, EPS_END, EPS_DECAY,
+                                GAMMA, BATCH_SIZE)
         self.agent_policy_net = self.agent.policy_net
         self.agent_target_net = self.agent.target_net
         self.optimizer = self.agent.optimizer
@@ -342,17 +318,24 @@ class Catan_Training:
         print(f'Optimizer steps: {len(self.game.average_q_value_loss)}')
         print(f'Optimizer Loss avg: {np.mean(self.game.average_q_value_loss)}')
 
-def main():
+def main(MEMORY,MODEL_SELECT,REWARD_FUNCTION,NUM_EPISODES,
+         LR_START,LR_END,LR_DECAY,EPS_START,EPS_END,EPS_DECAY,
+         GAMMA,BATCH_SIZE,PRINT_ACTIONS):
     torch.manual_seed(2)
-    MEMORY = 100000
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    if MODEL_SELECT =='Large':
+        from DQN.Neural_Networks.DQN_Big import DQN as dqn
+    elif MODEL_SELECT =='Medium':
+        from DQN.Neural_Networks.DQN_Medium import DQN as dqn
+    else: 
+        from DQN.Neural_Networks.DQN_Small import DQN as dqn
     model = dqn()
     model.to(device)
-    training = Catan_Training(REWARD_FUNCTION, device, model, num_episodes=100, memory=MEMORY)
-    print("Training Start, see TrainingLog.txt for output")
-    with open('TrainingLog.txt', 'w') as f:
-        
-        f.write("\nStart of training Log:\n\n")
-        training.train(True, gameStatePrintLevel=0, logFile=f)
 
-main()
+    training = Catan_Training(REWARD_FUNCTION, device, model, num_episodes=NUM_EPISODES, memory=MEMORY,
+                              LR_START=LR_START, LR_END=LR_END, LR_DECAY=LR_DECAY,
+                              EPS_START=EPS_START, EPS_END=EPS_END,
+                              EPS_DECAY=EPS_DECAY, GAMMA=GAMMA, BATCH_SIZE=BATCH_SIZE)
+    training.train(PRINT_ACTIONS)
+
+main(MEMORY,MODEL_SELECT,REWARD_FUNCTION,NUM_EPISODES,LR_START,LR_END,LR_DECAY,EPS_START,EPS_END,EPS_DECAY,GAMMA,BATCH_SIZE,PRINT_ACTIONS)
