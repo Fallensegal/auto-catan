@@ -4,7 +4,6 @@ import math
 from collections import namedtuple, deque
 from itertools import count
 import time
-from itertools import product
 
 import torch
 import torch.nn as nn
@@ -12,25 +11,17 @@ import torch.optim as optim
 import torch.nn.functional as F
 import torch.multiprocessing as mp
 from torch.distributions import Categorical
-#project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-#sys.path.insert(0, project_root)
-
-#from DQN.config import *
-#from DQN.log import *
-
 
 from Catan_Env.state_changer import state_changer
-from DQN.replay_memory import ReplayMemory  
+from replay_memory import ReplayMemory  
 
 from Catan_Env.catan_env import Catan_Env
 
 from Catan_Env.action_selection import action_selecter
 from Catan_Env.random_action import random_assignment
 from Catan_Env.game import Game
-#from RL_agent.DQN.Neural_Networks.DQN_Small import DQN as dqn
-
-from Configurations import *
 from Catan_Env.Interpreter import InterpretActions
+from Configurations import *
 #different types of reward shaping: Immidiate rewards vps, immidiate rewards legal/illegal, immidiate rewards ressources produced, rewards at the end for winning/losing (+vps +legal/illegal)
 class Log:
     def __init__(self):
