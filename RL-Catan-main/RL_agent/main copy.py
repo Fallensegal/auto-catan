@@ -1,8 +1,6 @@
 import numpy as np
 import random
 import math 
-import sys
-import os
 from collections import namedtuple, deque
 from itertools import count
 import time
@@ -17,8 +15,8 @@ from torch.distributions import Categorical
 #project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 #sys.path.insert(0, project_root)
 
-from DQN.config import *
-from DQN.log import *
+#from DQN.config import *
+#from DQN.log import *
 
 
 from Catan_Env.state_changer import state_changer
@@ -317,11 +315,11 @@ def main(MEMORY,MODEL_SELECT,REWARD_FUNCTION,NUM_EPISODES,
     torch.manual_seed(2)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     if MODEL_SELECT =='Large':
-        from RL_agent.DQN.Neural_Networks.DQN_Big import DQN as dqn
+        from DQN.Neural_Networks.DQN_Big import DQN as dqn
     elif MODEL_SELECT =='Medium':
-        from RL_agent.DQN.Neural_Networks.DQN_Medium import DQN as dqn
+        from DQN.Neural_Networks.DQN_Medium import DQN as dqn
     else: 
-        from RL_agent.DQN.Neural_Networks.DQN_Small import DQN as dqn
+        from DQN.Neural_Networks.DQN_Small import DQN as dqn
     model = dqn()
     model.to(device)
 
