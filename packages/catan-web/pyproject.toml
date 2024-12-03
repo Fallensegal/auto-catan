@@ -1,0 +1,17 @@
+[project]
+name = "catan-web"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Wasif Islam", email = "islamwasif3@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = []
+
+[project.scripts]
+catan-web = "catan_web:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
