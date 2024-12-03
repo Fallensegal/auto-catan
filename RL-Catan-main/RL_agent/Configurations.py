@@ -21,9 +21,6 @@ EPS_DECAY = 200000
 # Discount factor for future rewards in the Q-learning algorithm
 GAMMA = 0.999
 
-# Total number of possible actions in the environment
-TOTAL_ACTIONS = 21*11*4 + 41
-
 # Batch size for training the DQN model
 BATCH_SIZE = 8
 
@@ -37,9 +34,21 @@ REWARD_FUNCTION = 'Incremental_VP'
         4. 'Large_Magnitude'
         5. 'High_Sparsity_VP'
 '''
-#number of episodes
-NUM_EPISODES = 500
 
+MODEL_SELECT = 'Small'
+'''
+        There are 3 model sizes: 
+        1. 'Small'
+        2. 'Medium'
+        3. 'Large'
+'''
+#number of episodes
+NUM_EPISODES = 10
+
+MEMORY = 10000
+
+# Total number of possible actions in the environment
+TOTAL_ACTIONS = 21*11*4 + 41
 
 #I might do a mix later on
 #target_net_state_dict = target_net.state_dict()
