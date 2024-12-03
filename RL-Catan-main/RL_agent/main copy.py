@@ -173,13 +173,17 @@ class Catan_Training:
         state_batch = (torch.cat(batch.cur_boardstate), torch.cat(batch.cur_vectorstate))
         action_batch = (torch.cat(batch.action))
         reward_batch = torch.cat(batch.reward)
-        
-        state_action_values = self.agent_policy_net(*state_batch).gather(1, action_batch)
+
+        #the Q Values expected by current DQN model
+        state_action_values = self.agent_policy_net(*state_batch).gather(1, action_batch) 
+
+        # the Q values calculated using next state max Q value of all possible state action pairs (for all valid board and vector state combinations in the batch)
+        # calculated by the DQN model and the actual reward received from current state-action pair
         next_state_values = torch.zeros(self.agent.BATCH_SIZE, device=self.device)
         next_state_values[non_final_mask] = self.agent_target_net(non_final_next_board_states, non_final_next_vector_states).max(1)[0].detach()
+        expected_state_action_values = (next_state_values * GAMMA) + reward_batch 
 
-        expected_state_action_values = (next_state_values * GAMMA) + reward_batch
-        loss = F.l1_loss(state_action_values, expected_state_action_values.unsqueeze(1))
+        loss = F.mse_loss(state_action_values, expected_state_action_values.unsqueeze(1))
         
         self.game.average_q_value_loss.insert(0, loss.mean().item())
         while len(self.game.average_q_value_loss) > 1000:
