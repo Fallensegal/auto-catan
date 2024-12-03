@@ -158,6 +158,24 @@ $ kubectl rollout restart deployment.apps/coredns -n kube-system
 $ kubectl rollout restart deployment.apps/traefik -n kube-system
 $ kubectl rollout restart deployment.apps/metrics-server -n kube-system
 ``` 
+2. Docker Failing to Build Images (`deb.debian.org` not found):
+
+If you are developing `Dockerfiles` that do not have an image already built, and you are in an Ubuntu VM, and chose to install `docker` from the OS installation menu, there is a good chance `docker` was installed using `snap`.
+
+If `docker` is having a hard time resolving QDN's you will have to manually add google's DNS server to the docker config in the following location
+
+```bash
+/var/snap/docker/current/config
+```
+Edit the file `daemon.json` (note: you will have to be sudo to run this) and add the following lines:
+
+```json
+{
+    "dns": ["8.8.8.8", "8.8.4.4"]
+}
+```
+
+This should now allow docker to properly build docker files when before it might have been having issues resolving hosts.
 
 ## <a name="deps"></a> Dev Dependencies
 In order to assist in reducing reproducability issues, a list of the following dependencies used to develop the project is provided:
