@@ -216,12 +216,15 @@ class Catan_Training:
         loss.backward()
         self.optimizer.step()
 
-    def train(self,PRINT_ACTIONS = True, gameStatePrintLevel = 0):
+    def train(self,PRINT_ACTIONS = True, gameStatePrintLevel = 0, logFile = None):
+        sys.stdout = sys.__stdout__
         start_time = time.time()
         for i_episode in range(self.num_episodes):
-            self.new_game()
+            sys.stdout = sys.__stdout__
             time_new_start = time.time()
-            print(i_episode)
+            print(f"Starting Episode {i_episode}")
+            sys.stdout = logFile
+            self.new_game()
             if i_episode % 50 == 49:
                 self.agent_target_net.load_state_dict(self.agent_policy_net.state_dict())
             if i_episode % 20 == 19:
@@ -317,7 +320,15 @@ class Catan_Training:
             self.env.phase.statechange = 0
             self.game.random_action_made = 0
             self.env.phase.reward = 0
+            episode_time = time.time() - time_new_start
+            sys.stdout = sys.__stdout__
+            print(f"Episode {i_episode} finished in {episode_time} seconds")
+            print(f'latest Optimizer Loss Avg: {np.mean(self.game.average_q_value_loss)}')
+
         
+        # Reset sys.stdout to its original value if needed
+        sys.stdout = sys.__stdout__
+
         elapsed_time = time.time() - start_time
         print('Complete')
         print(f'steps over {self.num_episodes} episodes: {self.steps_done}')
@@ -331,9 +342,11 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = dqn()
     model.to(device)
-    training = Catan_Training(REWARD_FUNCTION, device, model, num_episodes=2, memory=MEMORY)
-    training.train(False)
-
-
+    training = Catan_Training(REWARD_FUNCTION, device, model, num_episodes=100, memory=MEMORY)
+    print("Training Start, see TrainingLog.txt for output")
+    with open('TrainingLog.txt', 'w') as f:
+        
+        f.write("\nStart of training Log:\n\n")
+        training.train(False, gameStatePrintLevel=3, logFile=f)
 
 main()
