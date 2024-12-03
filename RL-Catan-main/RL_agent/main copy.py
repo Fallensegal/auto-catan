@@ -30,29 +30,9 @@ from Catan_Env.action_selection import action_selecter
 from Catan_Env.random_action import random_assignment
 from Catan_Env.game import Game
 from RL_agent.DQN.Neural_Networks.DQN_Small import DQN as dqn
-#NEURAL_NET = dqn()
 
-###  Defines for Debugging and Logging
 from Configurations import *
 from Catan_Env.Interpreter import InterpretActions
-#plotting and Logging
-#device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-
-#env = Catan_Env(REWARD_FUNCTION)
-#cur_boardstate = state_changer(env)[0]
-#cur_vectorstate = state_changer(env)[1]
-
-# Define a named tuple called Transition
-#agent1_policy_net = NEURAL_NET.to(device)
-#target_net = NEURAL_NET.to(device)
-#target_net.load_state_dict(agent1_policy_net.state_dict())
-
-#optimizer = optim.Adam(agent1_policy_net.parameters(), lr = LR_START, amsgrad=True)
-#memory = ReplayMemory(100000)
-
-#steps_done = 0
-
 #different types of reward shaping: Immidiate rewards vps, immidiate rewards legal/illegal, immidiate rewards ressources produced, rewards at the end for winning/losing (+vps +legal/illegal)
 class Log:
     def __init__(self):
@@ -94,7 +74,6 @@ class DQNAgent:
         self.target_net = model.to(device)
         self.target_net.load_state_dict(self.policy_net.state_dict())
         self.memory = ReplayMemory(memory_capacity)
-        self.optimizer = optim.Adam(self.policy_net.parameters(), lr=LR_START, amsgrad=True)
         self.LR_START = LR_START
         self.LR_END = LR_END
         self.LR_DECAY = LR_DECAY
@@ -103,16 +82,23 @@ class DQNAgent:
         self.EPS_DECAY = EPS_DECAY
         self.GAMMA = GAMMA
         self.BATCH_SIZE = BATCH_SIZE
+        self.optimizer = optim.Adam(self.policy_net.parameters(), lr=LR_START, amsgrad=True)
         self.steps_done = 0
 
 class Catan_Training:
-    def __init__(self, reward_function,device,model, num_episodes = 1000, memory=100000):
+    def __init__(self, reward_function,device,model, num_episodes = 1000, memory=100000,
+                 LR_START = LR_START, LR_END = LR_END, LR_DECAY = LR_DECAY,
+                 EPS_START = EPS_START, EPS_END = EPS_END, EPS_DECAY = EPS_DECAY,
+                 GAMMA = GAMMA, BATCH_SIZE = BATCH_SIZE):
         self.env = Catan_Env(reward_function)
         self.game = self.env.game
         self.num_episodes = num_episodes
         self.device = device
         self.NEURAL_NET = model
-        self.agent = DQNAgent(model, device, memory)
+        self.agent = DQNAgent(model, device, memory,
+                                LR_START, LR_END, LR_DECAY,
+                                EPS_START, EPS_END, EPS_DECAY,
+                                GAMMA, BATCH_SIZE)
         self.agent_policy_net = self.agent.policy_net
         self.agent_target_net = self.agent.target_net
         self.optimizer = self.agent.optimizer
