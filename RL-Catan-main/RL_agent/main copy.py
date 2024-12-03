@@ -116,7 +116,7 @@ class Catan_Training:
             with torch.no_grad():
                 if self.game.cur_player == 0:
                     self.env.phase.actionstarted += 1
-                    normalized_q_values = F.softmax(self.agent_policy_net(boardstate, vectorstate)).tolist()[0]
+                    normalized_q_values = F.softmax(self.agent_policy_net(boardstate, vectorstate), dim=1).tolist()[0]
                     legal_actions = self.env.checklegalmoves()
                     legal_indices = np.where(legal_actions == 1)[1]
                     valid_q_values = [normalized_q_values[i] for i in legal_indices]
