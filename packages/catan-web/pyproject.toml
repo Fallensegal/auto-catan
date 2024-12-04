@@ -7,7 +7,13 @@ authors = [
     { name = "Wasif Islam", email = "islamwasif3@gmail.com" }
 ]
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "fastapi>=0.115.6",
+    "pydantic-settings>=2.6.1",
+    "pydantic>=2.10.3",
+    "uvicorn[standard]>=0.32.1",
+    "minio>=7.2.12",
+]
 
 [project.scripts]
 catan-web = "catan_web:main"
