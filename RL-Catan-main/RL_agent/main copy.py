@@ -307,7 +307,7 @@ def main(MEMORY,MODEL_SELECT,REWARD_FUNCTION,NUM_EPISODES,
          GAMMA,BATCH_SIZE,PRINT_ACTIONS,MLFLOW_ADDRESS):
     torch.manual_seed(2)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    mlflow.set_tracking_uri(uri=MLFLOW_ADDRESS)
+    
     if MODEL_SELECT =='Large':
         from DQN.Neural_Networks.DQN_Big import DQN as dqn
     elif MODEL_SELECT =='Medium':
@@ -337,14 +337,8 @@ def main(MEMORY,MODEL_SELECT,REWARD_FUNCTION,NUM_EPISODES,
                               EPS_START=EPS_START, EPS_END=EPS_END,
                               EPS_DECAY=EPS_DECAY, GAMMA=GAMMA, BATCH_SIZE=BATCH_SIZE)
     training.train(PRINT_ACTIONS)
+    Experiment_name = model + REWARD_FUNCTION + 'training'
 
-    mlflow.set_experiment('10 Episode Test Run')
-    with mlflow.start_run():
-        mlflow.log_params(param_dict)
-        mlflow.log_metric('average moves', np.mean(training.game.average_moves))
-        mlflow.log_metric('average reward per move', np.mean(training.game.average_reward_per_move))
-        mlflow.log_metric('average loss', np.mean(training.game.average_q_value_loss))
-        mlflow.set_tag("Test", "Test that ML Flow is working...")
 
 
 main(MEMORY,MODEL_SELECT,REWARD_FUNCTION,NUM_EPISODES,LR_START,LR_END,LR_DECAY,EPS_START,EPS_END,EPS_DECAY,GAMMA,BATCH_SIZE,PRINT_ACTIONS,MLFLOW_ADDRESS)
