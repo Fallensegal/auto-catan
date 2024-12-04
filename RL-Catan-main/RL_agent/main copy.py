@@ -115,6 +115,7 @@ class Catan_Training:
         self.game = self.env.game
         self.num_episodes = num_episodes
         self.benchmark_games = 100
+        #turn into hyperparameter for benchmark number of games
         self.device = device
         self.NEURAL_NET = model
         self.agent = DQNAgent(model, device, memory,
@@ -214,6 +215,7 @@ class Catan_Training:
         next_state_values[non_final_mask] = self.agent_target_net(non_final_next_board_states, non_final_next_vector_states).max(1)[0].detach()
         expected_state_action_values = (next_state_values * GAMMA) + reward_batch 
 
+        #TO DO: Add hyper-parameter to select L1 vs MSE
         loss = F.mse_loss(state_action_values, expected_state_action_values.unsqueeze(1))
         
         self.game.average_q_value_loss.insert(0, loss.mean().item())
@@ -247,6 +249,7 @@ class Catan_Training:
                     legal_actions = self.env.checklegalmoves()
                     can_end_turn = legal_actions[0][4*21*11]
                     legal_indices = np.where(legal_actions == 1)[1]
+                    #maybe change to valid_q_value_indices so it's clear its an array of valid actions with associated action numbers
                     valid_q_values = [normalized_q_values[i] for i in legal_indices]
                     policy_action = legal_indices[np.argmax(valid_q_values)]
                     if policy_action >= 4*11*21:
@@ -261,15 +264,16 @@ class Catan_Training:
                         if can_end_turn: #ends turn after 5 policy actions
                             action_selecter(self.env,5,0,0)
                         else: #tries random actions if it can't end turn
+                            # TO DO: evaluate trying to remove keep/discard resources from policy -> can we just randomly discard resources for both players when required. 
                             action_tensor = self.select_action_randomly()
                             random_action = True
-                    else:
+                    else: 
                         action_selecter(self.env, action_type, position_x, position_y)
                         random_action = False
                         action_tensor = torch.tensor([[policy_action]], device=self.device, dtype=torch.long)
                 if self.print_actions:
                     InterpretActions(0,action_tensor, self.env, action_was_random=random_action)
-            else:
+            else:#Random AI takes turn
                 self.env.phase.actionstarted = 0
                 action = self.select_action_randomly()
                 if self.print_actions:
@@ -285,7 +289,8 @@ class Catan_Training:
     def benchmark(self, PRINT_ACTIONS = True, logFile = None, checkpoint = None, min_win_rate = 0.25):
         # Load the network weights from a .pth file
         if checkpoint is not None:
-            self.agent_policy_net.load_state_dict(torch.load(checkpoint, map_location=self.device, weights_only=True))
+            self.agent_policy_net.load_state_dict(torch.load(checkpoint, map_location=self.device, weights_only=True)) #is bias considered a weight? 
+
 
         self.print_actions = PRINT_ACTIONS
         self.logfile = logFile
@@ -326,6 +331,7 @@ class Catan_Training:
         for i_episode in range(self.num_episodes):
             if i_episode % 50 == 49:
                 self.agent_target_net.load_state_dict(self.agent_policy_net.state_dict())
+                # do we want to lmove benchmark outside of training loop? 
                 stop_training = self.benchmark(PRINT_ACTIONS, logFile=logFile)
                 if stop_training:
                     print(f"Training stopped after {i_episode} episodes due to low win rate")
