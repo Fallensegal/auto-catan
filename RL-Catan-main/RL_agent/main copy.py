@@ -56,34 +56,40 @@ class Log:
         self.episode_durations = []
 
 class policy:
-    def __init__(self, model_net, device, stochastic = False):
-        self.model_net = model_net.to(device)
+    def __init__(self, stochastic = False):
+        self.stochastic = stochastic
 
-        def get_actions_probabilities(self, boardstate, vectorstate):
-            return F.softmax(self.model_net(boardstate, vectorstate))
-        
-        def get_q_values(self, boardstate, vectorstate):
-            return self.model_net(boardstate, vectorstate)
-        
-        def get_action(self, boardstate, vectorstate):
+        def get_action(self, predicted_model_q_values):
             if self.stochastic:
-                action_probabilities = self.get_actions_probabilities(boardstate, vectorstate)
+                action_probabilities = F.softmax(predicted_model_q_values, dim=1)
                 action_distribution = Categorical(action_probabilities)
                 action = action_distribution.sample()
             else:
-                q_values = self.get_q_values(boardstate, vectorstate)
-                action = torch.argmax(q_values)
+                action = F.argmax(predicted_model_q_values)
+
             return action
         
-        def get_expected_state_action_value(self, boardstate, vectorstate):
+        def get_expected_q_value(self,predicted_model_q_values):
             if self.stochastic:
-                actions_probabilities = self.get_actions_probabilities(boardstate, vectorstate)
-                q_values = self.get_q_values(boardstate, vectorstate)
-                expected_state_action_value = torch.sum(actions_probabilities * q_values)
+                action_probabilities = F.softmax(predicted_model_q_values, dim=1)
+                expected_q_value = torch.sum(action_probabilities * predicted_model_q_values)
             else:
-                q_values = self.get_q_values(boardstate, vectorstate)
-                expected_state_action_value = torch.max(q_values)    
-            return expected_state_action_value
+                expected_q_value = torch.max(predicted_model_q_values)
+            return expected_q_value
+        
+        def get_legal_action(self, predicted_model_q_values, legal_actions):
+            if self.stochastic:
+                legal_action_q_values = predicted_model_q_values * legal_actions
+                legal_action_probabilities = F.softmax(legal_action_q_values, dim=1)
+                legal_action_distribution = Categorical(legal_action_probabilities)
+                legal_policy_action = legal_action_distribution.sample()
+            else: 
+                legal_indices = np.where(legal_actions == 1)[1]
+                valid_q_values = [predicted_model_q_values[i] for i in legal_indices]
+                legal_policy_action = legal_indices[np.argmax(valid_q_values)]
+            return legal_policy_action
+                
+
 
 
 class DQNAgent:
