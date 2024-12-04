@@ -114,7 +114,7 @@ class Catan_Training:
         self.env = Catan_Env(reward_function)
         self.game = self.env.game
         self.num_episodes = num_episodes
-        self.benchmark_games = 200
+        self.benchmark_games = 100
         self.device = device
         self.NEURAL_NET = model
         self.agent = DQNAgent(model, device, memory,
@@ -282,7 +282,7 @@ class Catan_Training:
 
         return game.winner
 
-    def benchmark(self, PRINT_ACTIONS = True, logFile = None, checkpoint = None):
+    def benchmark(self, PRINT_ACTIONS = True, logFile = None, checkpoint = None, min_win_rate = 0.25):
         # Load the network weights from a .pth file
         if checkpoint is not None:
             self.agent_policy_net.load_state_dict(torch.load(checkpoint, map_location=self.device, weights_only=True))
@@ -314,22 +314,29 @@ class Catan_Training:
         print(f"benchmark finished in {time.time() - start_time} seconds")
         print(f"Trained Policy Win Rate: {trained_policy_win_rate * 100:.2f}%")
         print(f"Random Policy Win Rate: {random_policy_win_rate * 100:.2f}%")
+        if trained_policy_win_rate < min_win_rate:
+            return True
+        return False
+
 
     def train(self,PRINT_ACTIONS = True, gameStatePrintLevel = 0, logFile = None):
         sys.stdout = sys.__stdout__
         self.logfile = logFile
         start_time = time.time()
         for i_episode in range(self.num_episodes):
+            if i_episode % 50 == 49:
+                self.agent_target_net.load_state_dict(self.agent_policy_net.state_dict())
+                stop_training = self.benchmark(PRINT_ACTIONS, logFile=logFile)
+                if stop_training:
+                    print(f"Training stopped after {i_episode} episodes due to low win rate")
+                    break
+            if i_episode % 20 == 19:
+                torch.save(self.agent_policy_net.state_dict(), f'agent{i_episode}_policy_net_0_1_1.pth')
             sys.stdout = sys.__stdout__
             time_new_start = time.time()
             print(f"Starting Episode {i_episode}")
             sys.stdout = logFile
             self.new_game()
-            if i_episode % 50 == 49:
-                self.agent_target_net.load_state_dict(self.agent_policy_net.state_dict())
-                self.benchmark(PRINT_ACTIONS, logFile=logFile)
-            if i_episode % 20 == 19:
-                torch.save(self.agent_policy_net.state_dict(), f'agent{i_episode}_policy_net_0_1_1.pth')
             for t in count():
                 if self.game.cur_player == 1:
                     action = self.select_action_randomly() #player 1 uses random policy
@@ -413,7 +420,7 @@ class Catan_Training:
             self.game.average_moves.insert(0, t+1)
             if len(self.game.average_moves) > 10:
                 self.game.average_moves.pop(10)
-            if i_episode > 1:
+            if i_episode > 1 and t > 0:
                 self.game.average_legal_moves_ratio.insert(0, (self.env.phase.statechangecount - statechangecountprevious)/t)
                 if len(self.game.average_legal_moves_ratio) > 20:
                     self.game.average_legal_moves_ratio.pop(20)
