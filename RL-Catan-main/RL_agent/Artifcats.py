@@ -8,7 +8,7 @@ def PushArtifacts(experiment_name, params,Model,Results,MLFLOW_ADDRESS,TrainingD
     if (TrainingData == False and TestingData == False) or (TrainingData == True and TestingData == True):
         print("Error: Either TrainingData or TestingData must be True, but not both.")
         return 0
-    os.makedirs("artifacts", exist_ok=True)
+    os.makedirs("Artifacts", exist_ok=True)
     DF = pd.DataFrame(Results)
     DF.to_csv('Artifacts/Results.csv')
     torch.save(Model.state_dict(),'Artifacts/Model_Parameters.pth')
