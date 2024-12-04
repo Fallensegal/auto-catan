@@ -22,7 +22,7 @@ from Catan_Env.random_action import random_assignment
 from Catan_Env.game import Game
 from Catan_Env.Interpreter import InterpretActions
 from Configurations import *
-import mlflow
+from Artifcats import *
 
 #different types of reward shaping: Immidiate rewards vps, immidiate rewards legal/illegal, immidiate rewards ressources produced, rewards at the end for winning/losing (+vps +legal/illegal)
 class Log:
