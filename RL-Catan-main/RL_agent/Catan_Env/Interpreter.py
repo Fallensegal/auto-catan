@@ -1,5 +1,5 @@
 import math 
-def InterpretActions(player, selected_action, env, gameStatePrintLevel = 0):
+def InterpretActions(player, selected_action, env, gameStatePrintLevel = 0, action_was_random = True):
     selected_action = selected_action.item()
     if selected_action >= 4*11*21:
         final_action = selected_action - 4*11*21 + 5
@@ -61,8 +61,14 @@ def InterpretActions(player, selected_action, env, gameStatePrintLevel = 0):
     
     # Fetch and print the appropriate message
     message = action_messages.get(final_action, "Unknown action")
+    
+    if action_was_random:
+        message = "Randomly selected " + message
+    else:
+        message = "Policy selected " + message
     print(f"Player: {player}, {message}")
     if final_action == 5:
+        print(f"Reward for player 0: {env.phase.reward}\n")
         if gameStatePrintLevel == 1:
             print(f"\nPlayer 0 Stats:")
             print(env.player0)
