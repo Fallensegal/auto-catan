@@ -22,6 +22,8 @@ from Catan_Env.random_action import random_assignment
 from Catan_Env.game import Game
 from Catan_Env.Interpreter import InterpretActions
 from Configurations import *
+import mlflow
+
 #different types of reward shaping: Immidiate rewards vps, immidiate rewards legal/illegal, immidiate rewards ressources produced, rewards at the end for winning/losing (+vps +legal/illegal)
 class Log:
     def __init__(self):
@@ -302,9 +304,10 @@ class Catan_Training:
 
 def main(MEMORY,MODEL_SELECT,REWARD_FUNCTION,NUM_EPISODES,
          LR_START,LR_END,LR_DECAY,EPS_START,EPS_END,EPS_DECAY,
-         GAMMA,BATCH_SIZE,PRINT_ACTIONS):
+         GAMMA,BATCH_SIZE,PRINT_ACTIONS,MLFLOW_ADDRESS):
     torch.manual_seed(2)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    mlflow.set_tracking_uri(uri=MLFLOW_ADDRESS)
     if MODEL_SELECT =='Large':
         from DQN.Neural_Networks.DQN_Big import DQN as dqn
     elif MODEL_SELECT =='Medium':
@@ -314,10 +317,34 @@ def main(MEMORY,MODEL_SELECT,REWARD_FUNCTION,NUM_EPISODES,
     model = dqn()
     model.to(device)
 
+    param_dict = {
+    "MEMORY": MEMORY,  # Size of the replay memory
+    "MODEL_SELECT": MODEL_SELECT,  # Model selection (example: 'DQN_Big', 'DQN_Medium', 'DQN_Small')
+    "REWARD_FUNCTION": REWARD_FUNCTION,  # Reward function used in the environment
+    "NUM_EPISODES": NUM_EPISODES,  # Number of episodes for training
+    "LR_START": LR_START,  # Initial learning rate
+    "LR_END": LR_END,  # Final learning rate
+    "LR_DECAY": LR_DECAY,  # Decay factor for the learning rate
+    "EPS_START": EPS_START,  # Initial epsilon for exploration
+    "EPS_END": EPS_END,  # Final epsilon for exploration
+    "EPS_DECAY": EPS_DECAY,  # Decay factor for epsilon
+    "GAMMA": GAMMA,  # Discount factor
+    "BATCH_SIZE": BATCH_SIZE  # Batch size for training
+}
+
     training = Catan_Training(REWARD_FUNCTION, device, model, num_episodes=NUM_EPISODES, memory=MEMORY,
                               LR_START=LR_START, LR_END=LR_END, LR_DECAY=LR_DECAY,
                               EPS_START=EPS_START, EPS_END=EPS_END,
                               EPS_DECAY=EPS_DECAY, GAMMA=GAMMA, BATCH_SIZE=BATCH_SIZE)
     training.train(PRINT_ACTIONS)
 
-main(MEMORY,MODEL_SELECT,REWARD_FUNCTION,NUM_EPISODES,LR_START,LR_END,LR_DECAY,EPS_START,EPS_END,EPS_DECAY,GAMMA,BATCH_SIZE,PRINT_ACTIONS)
+    mlflow.set_experiment('10 Episode Test Run')
+    with mlflow.start_run():
+        mlflow.log_params(param_dict)
+        mlflow.log_metric('average moves', np.mean(training.game.average_moves))
+        mlflow.log_metric('average reward per move', np.mean(training.game.average_reward_per_move))
+        mlflow.log_metric('average loss', np.mean(training.game.average_q_value_loss))
+        mlflow.set_tag("Test", "Test that ML Flow is working...")
+
+
+main(MEMORY,MODEL_SELECT,REWARD_FUNCTION,NUM_EPISODES,LR_START,LR_END,LR_DECAY,EPS_START,EPS_END,EPS_DECAY,GAMMA,BATCH_SIZE,PRINT_ACTIONS,MLFLOW_ADDRESS)
