@@ -37,8 +37,8 @@ catan-web:
 
   image:
     repository: islam25/catan_web
-    pullPolicy: IfNotPresent
-    tag: "0.0.1"
+    pullPolicy: Always
+    tag: "0.0.2"
   
   service:
     port: 8251
