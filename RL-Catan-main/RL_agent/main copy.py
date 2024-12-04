@@ -130,6 +130,61 @@ class Catan_Training:
         self.cur_boardstate = None
         self.cur_vectorstate = None
         self.log = Log()
+        self.EpisodeData = []
+        self.training = True
+        self.train_test_change = False
+        
+        
+    def add_epsiode_data(self,episode):
+        if self.train_test_change:
+            self.train_test_change = False
+            self.EpisodeData = []
+        if self.training:
+            dict = {
+                'Episode': episode,
+                'player_0_win': self.game.winner,  # Boolean
+                'player_0_knights': self.env.player0.knight_cards_played,
+                'player_1_knights': self.env.player1.knight_cards_played,
+                'player_0_roads': 1,
+                'player_1_roads': 8,
+                'player_0_settlements': 4,
+                'player_1_settlements': 5,
+                'player_0_cities': 2,
+                'player_1_cities': 1,
+                'player_0_dev_cards_bought': 3,
+                'player_1_dev_cards_bought': 4,
+                'player_0_dev_cards_played': 2,
+                'player_1_dev_cards_played': 3,
+                'player_0_victory_points': self.env.player0.victorypoints,
+                'player_1_victory_points': self.env.player1.victorypoints,
+                'game_length': self.env.phase.gamemoves +1,  #0 based
+                'player_0_num_trades': 2,
+                'player_1_num_trades': 1,
+                'average_model_loss': 0.1234,
+                }
+        else:
+            dict = {
+                'Episode': episode,
+                'player_0_win': self.game.winner,  # Boolean
+                'player_0_knights': self.env.player0.knight_cards_played,
+                'player_1_knights': self.env.player1.knight_cards_played,
+                'player_0_roads': 1,
+                'player_1_roads': 8,
+                'player_0_settlements': 4,
+                'player_1_settlements': 5,
+                'player_0_cities': 2,
+                'player_1_cities': 1,
+                'player_0_dev_cards_bought': 3,
+                'player_1_dev_cards_bought': 4,
+                'player_0_dev_cards_played': 2,
+                'player_1_dev_cards_played': 3,
+                'player_0_victory_points': self.env.player0.victorypoints,
+                'player_1_victory_points': self.env.player1.victorypoints,
+                'game_length': self.env.phase.gamemoves +1,  #0 based
+            }
+        self.EpisodeData.append(dict)
+
+
 
     def new_game(self):
         self.env.new_game()
@@ -419,7 +474,7 @@ class Catan_Training:
                 self.env.phase.statechange = 0
                 self.game.random_action_made = 0
                 self.env.phase.reward = 0
-
+            self.add_epsiode_data(i_episode)
             self.game.average_time.insert(0, time.time() - time_new_start)
             if len(self.game.average_time) > 10:
                 self.game.average_time.pop(10)
