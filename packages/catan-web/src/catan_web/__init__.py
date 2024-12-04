@@ -1,2 +1,3 @@
-def main() -> None:
-    print("Hello from catan-web!")
+from catan_web.app import app
+
+__all__ = ["app"]
