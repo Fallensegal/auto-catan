@@ -29,6 +29,31 @@ mlflow:
   autoscaling:
     enabled: false
 
+catan-web:
+  name: "catan-web"
+  labels:
+    app: autocatan
+    component: "catan-web"
+
+  image:
+    repository: islam25/catan_web
+    pullPolicy: IfNotPresent
+    tag: "0.0.1"
+  
+  service:
+    port: 8251
+  
+  resources:
+    limits:
+      cpu: 300m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  
+  autoscaling:
+    enabled: false
+
 minio:
   persistence:
     enabled: true
