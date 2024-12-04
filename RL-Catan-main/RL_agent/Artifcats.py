@@ -18,6 +18,7 @@ def PushArtifacts(experiment_name, params,Model,Results,MLFLOW_ADDRESS,TrainingD
             mlflow.log_metric('average loss', np.mean(DF.AverageQloss))
             mlflow.set_tag("Training Run", "Test that ML Flow is working...")
         if TestingData is True:
+            mlflow.log_artifact('Results.csv')
             mlflow.log_metric('Win rate',DF.winrate)
             mlflow.log_metric('RL Avg Victroy Points ', DF.VP0)
             mlflow.log_metric('Random Avg Victroy Points ', DF.VP1)
