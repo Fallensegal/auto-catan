@@ -235,7 +235,7 @@ class Catan_Training:
 
     def simulate_match(self):
         self.env.new_game()
-        game = self.env.game
+        game = self.game
         game.is_finished = 0
         done = False
         while not done:
@@ -317,6 +317,7 @@ class Catan_Training:
         trained_policy_win_rate = trained_policy_wins / self.benchmark_games
         random_policy_win_rate = random_policy_wins / self.benchmark_games
         sys.stdout = sys.__stdout__
+        print(f"benchmark finished in {time.time() - start_time} seconds")
         print(f"Trained Policy Win Rate: {trained_policy_win_rate * 100:.2f}%")
         print(f"Random Policy Win Rate: {random_policy_win_rate * 100:.2f}%")
 
@@ -332,14 +333,14 @@ class Catan_Training:
             self.new_game()
             if i_episode % 50 == 49:
                 self.agent_target_net.load_state_dict(self.agent_policy_net.state_dict())
-                self.benchmark(PRINT_ACTIONS, logFile)
+                self.benchmark(PRINT_ACTIONS, logFile=logFile)
             if i_episode % 20 == 19:
                 torch.save(self.agent_policy_net.state_dict(), f'agent{i_episode}_policy_net_0_1_1.pth')
             for t in count():
                 if self.game.cur_player == 1:
                     action = self.select_action_randomly() #player 1 uses random policy
                     if PRINT_ACTIONS:
-                        InterpretActions(1,action, self.env, gameStatePrintLevel)
+                        InterpretActions(1,action, self.env, gameStatePrintLevel, True)
                     self.env.phase.actionstarted = 0
                     if self.env.phase.statechange == 1:
                         if self.game.is_finished == 1:
@@ -446,7 +447,7 @@ def main(MEMORY,MODEL_SELECT,REWARD_FUNCTION,NUM_EPISODES,
          LR_START,LR_END,LR_DECAY,EPS_START,EPS_END,EPS_DECAY,
          GAMMA,BATCH_SIZE,PRINT_ACTIONS):
     torch.manual_seed(2)
-    train = False
+    train = True
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     if MODEL_SELECT =='Large':
         from DQN.Neural_Networks.DQN_Big import DQN as dqn
