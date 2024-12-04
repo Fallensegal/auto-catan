@@ -2,11 +2,13 @@ import pandas as pd
 import numpy as np
 import mlflow
 import torch
+import os
 
 def PushArtifacts(experiment_name, params,Model,Results,MLFLOW_ADDRESS,TrainingData=False,TestingData = False,TagID = 0):
     if (TrainingData == False and TestingData == False) or (TrainingData == True and TestingData == True):
         print("Error: Either TrainingData or TestingData must be True, but not both.")
         return 0
+    os.makedirs("artifacts", exist_ok=True)
     DF = pd.DataFrame(Results)
     DF.to_csv('Artifacts/Results.csv')
     torch.save(Model.state_dict(),'Artifacts/Model_Parameters.pth')
