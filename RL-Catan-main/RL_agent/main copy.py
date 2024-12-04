@@ -55,6 +55,37 @@ class Log:
         self.random_action_counts = [0] * TOTAL_ACTIONS
         self.episode_durations = []
 
+class policy:
+    def __init__(self, model_net, device, stochastic = False):
+        self.model_net = model_net.to(device)
+
+        def get_actions_probabilities(self, boardstate, vectorstate):
+            return F.softmax(self.model_net(boardstate, vectorstate))
+        
+        def get_q_values(self, boardstate, vectorstate):
+            return self.model_net(boardstate, vectorstate)
+        
+        def get_action(self, boardstate, vectorstate):
+            if self.stochastic:
+                action_probabilities = self.get_actions_probabilities(boardstate, vectorstate)
+                action_distribution = Categorical(action_probabilities)
+                action = action_distribution.sample()
+            else:
+                q_values = self.get_q_values(boardstate, vectorstate)
+                action = torch.argmax(q_values)
+            return action
+        
+        def get_expected_state_action_value(self, boardstate, vectorstate):
+            if self.stochastic:
+                actions_probabilities = self.get_actions_probabilities(boardstate, vectorstate)
+                q_values = self.get_q_values(boardstate, vectorstate)
+                expected_state_action_value = torch.sum(actions_probabilities * q_values)
+            else:
+                q_values = self.get_q_values(boardstate, vectorstate)
+                expected_state_action_value = torch.max(q_values)    
+            return expected_state_action_value
+
+
 class DQNAgent:
     def __init__(self, model, device, memory_capacity=10000,
                  LR_START = .003, LR_END = .0002, LR_DECAY = 200000,
@@ -83,6 +114,7 @@ class Catan_Training:
         self.env = Catan_Env(reward_function)
         self.game = self.env.game
         self.num_episodes = num_episodes
+        self.benchmark_games = 200
         self.device = device
         self.NEURAL_NET = model
         self.agent = DQNAgent(model, device, memory,
@@ -133,7 +165,6 @@ class Catan_Training:
                     self.log.action_counts[policy_action] += 1
                     if self.env.phase.actionstarted >= 5:
                         action_selecter(self.env,5,0,0)
-                    #return action
                 
         else: # use epsilon greedy policy, select random action
             action_was_random = True
@@ -202,8 +233,96 @@ class Catan_Training:
         loss.backward()
         self.optimizer.step()
 
+    def simulate_match(self):
+        self.env.new_game()
+        game = self.env.game
+        game.is_finished = 0
+        done = False
+        while not done:
+            if game.cur_player == 0:
+                cur_boardstate, cur_vectorstate = state_changer(self.env)
+                with torch.no_grad():
+                    self.env.phase.actionstarted += 1
+                    normalized_q_values = F.softmax(self.agent_policy_net(cur_boardstate, cur_vectorstate), dim=1).tolist()[0]
+                    legal_actions = self.env.checklegalmoves()
+                    can_end_turn = legal_actions[0][4*21*11]
+                    legal_actions[0][4*21*11] = 0
+                    legal_indices = np.where(legal_actions == 1)[1]
+                    valid_q_values = [normalized_q_values[i] for i in legal_indices]
+                    if len(valid_q_values) == 0 and can_end_turn == 1:
+                        policy_action = 4*21*11 
+                    try:
+                        policy_action = legal_indices[np.argmax(valid_q_values)]
+                    except: #if only ending the turn is valid, end the turn
+                        policy_action = 4*21*11
+                    if policy_action >= 4*11*21:
+                        action_type = int(policy_action - 4*11*21 + 5)
+                        position_y = 0
+                        position_x = 0
+                    else:
+                        action_type = int(policy_action)//(11*21)+1
+                        position_y = (int(policy_action) - ((action_type-1)*11*21))//21
+                        position_x = int(policy_action) % 21 
+                    if self.env.phase.actionstarted >= 5:
+                        if can_end_turn: #ends turn after 5 policy actions
+                            action_selecter(self.env,5,0,0)
+                        else: #tries random actions if it can't end turn
+                            action_tensor = self.select_action_randomly()
+                            random_action = True
+                    else:
+                        action_selecter(self.env, action_type, position_x, position_y)
+                        random_action = False
+                        action_tensor = torch.tensor([[policy_action]], device=self.device, dtype=torch.long)
+                if self.print_actions:
+                    InterpretActions(0,action_tensor, self.env, action_was_random=random_action)
+            else:
+                self.env.phase.actionstarted = 0
+                action = self.select_action_randomly()
+                if self.print_actions:
+                    InterpretActions(1,action, self.env, action_was_random=True)
+            
+            self.env.phase.statechange = 0
+            self.env.phase.reward = 0
+            if game.is_finished == 1:
+                done = True
+
+        return game.winner
+
+    def benchmark(self, PRINT_ACTIONS = True, logFile = None, checkpoint = None):
+        # Load the network weights from a .pth file
+        if checkpoint is not None:
+            self.agent_policy_net.load_state_dict(torch.load(checkpoint, map_location=self.device, weights_only=True))
+
+        self.print_actions = PRINT_ACTIONS
+        self.logfile = logFile
+        sys.stdout = sys.__stdout__
+        print("Starting Benchmark")
+        sys.stdout = logFile
+        start_time = time.time()
+        trained_policy_wins = 0
+        random_policy_wins = 0
+        for game_number in range(self.benchmark_games):
+            time_new_start = time.time()
+            print(f"Starting Game {game_number}")
+            sys.stdout = logFile
+            self.new_game()
+            winner = self.simulate_match()
+            if winner == 0:
+                trained_policy_wins += 1
+                print("Trained Policy Wins")
+            elif winner == 1:
+                random_policy_wins += 1
+                print("Random Policy Wins")
+            print (f"Game {game_number} finished in {time.time() - time_new_start} seconds")
+        trained_policy_win_rate = trained_policy_wins / self.benchmark_games
+        random_policy_win_rate = random_policy_wins / self.benchmark_games
+        sys.stdout = sys.__stdout__
+        print(f"Trained Policy Win Rate: {trained_policy_win_rate * 100:.2f}%")
+        print(f"Random Policy Win Rate: {random_policy_win_rate * 100:.2f}%")
+
     def train(self,PRINT_ACTIONS = True, gameStatePrintLevel = 0, logFile = None):
         sys.stdout = sys.__stdout__
+        self.logfile = logFile
         start_time = time.time()
         for i_episode in range(self.num_episodes):
             sys.stdout = sys.__stdout__
@@ -213,6 +332,7 @@ class Catan_Training:
             self.new_game()
             if i_episode % 50 == 49:
                 self.agent_target_net.load_state_dict(self.agent_policy_net.state_dict())
+                self.benchmark(PRINT_ACTIONS, logFile)
             if i_episode % 20 == 19:
                 torch.save(self.agent_policy_net.state_dict(), f'agent{i_episode}_policy_net_0_1_1.pth')
             for t in count():
@@ -326,6 +446,7 @@ def main(MEMORY,MODEL_SELECT,REWARD_FUNCTION,NUM_EPISODES,
          LR_START,LR_END,LR_DECAY,EPS_START,EPS_END,EPS_DECAY,
          GAMMA,BATCH_SIZE,PRINT_ACTIONS):
     torch.manual_seed(2)
+    train = False
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     if MODEL_SELECT =='Large':
         from DQN.Neural_Networks.DQN_Big import DQN as dqn
@@ -340,6 +461,12 @@ def main(MEMORY,MODEL_SELECT,REWARD_FUNCTION,NUM_EPISODES,
                               LR_START=LR_START, LR_END=LR_END, LR_DECAY=LR_DECAY,
                               EPS_START=EPS_START, EPS_END=EPS_END,
                               EPS_DECAY=EPS_DECAY, GAMMA=GAMMA, BATCH_SIZE=BATCH_SIZE)
-    training.train(PRINT_ACTIONS)
+    with open(f'log_{REWARD_FUNCTION}_{MODEL_SELECT}.txt', 'w') as f:
+        f.write(f"\nStart of log for {REWARD_FUNCTION} with {MODEL_SELECT} model\n\n")
+        if train:
+            training.train(PRINT_ACTIONS, logFile=f, gameStatePrintLevel=2)
+        else:
+            training.benchmark(PRINT_ACTIONS, logFile=f, checkpoint='agent39_policy_net_0_1_1.pth')
+
 
 main(MEMORY,MODEL_SELECT,REWARD_FUNCTION,NUM_EPISODES,LR_START,LR_END,LR_DECAY,EPS_START,EPS_END,EPS_DECAY,GAMMA,BATCH_SIZE,PRINT_ACTIONS)

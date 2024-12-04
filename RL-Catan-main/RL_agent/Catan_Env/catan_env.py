@@ -1389,6 +1389,8 @@ class Catan_Env:
         
 
         self.game.is_finished = self.update_rewards()
+        if self.game.is_finished == 1:
+            self.game.winner = self.game.cur_player
         player0.victorypoints_before = player0.victorypoints
         player1.victorypoints_before = player1.victorypoints
 
