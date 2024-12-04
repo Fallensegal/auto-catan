@@ -246,15 +246,9 @@ class Catan_Training:
                     normalized_q_values = F.softmax(self.agent_policy_net(cur_boardstate, cur_vectorstate), dim=1).tolist()[0]
                     legal_actions = self.env.checklegalmoves()
                     can_end_turn = legal_actions[0][4*21*11]
-                    legal_actions[0][4*21*11] = 0
                     legal_indices = np.where(legal_actions == 1)[1]
                     valid_q_values = [normalized_q_values[i] for i in legal_indices]
-                    if len(valid_q_values) == 0 and can_end_turn == 1:
-                        policy_action = 4*21*11 
-                    try:
-                        policy_action = legal_indices[np.argmax(valid_q_values)]
-                    except: #if only ending the turn is valid, end the turn
-                        policy_action = 4*21*11
+                    policy_action = legal_indices[np.argmax(valid_q_values)]
                     if policy_action >= 4*11*21:
                         action_type = int(policy_action - 4*11*21 + 5)
                         position_y = 0
@@ -465,7 +459,7 @@ def main(MEMORY,MODEL_SELECT,REWARD_FUNCTION,NUM_EPISODES,
     with open(f'log_{REWARD_FUNCTION}_{MODEL_SELECT}.txt', 'w') as f:
         f.write(f"\nStart of log for {REWARD_FUNCTION} with {MODEL_SELECT} model\n\n")
         if train:
-            training.train(PRINT_ACTIONS, logFile=f, gameStatePrintLevel=2)
+            training.train(PRINT_ACTIONS, logFile=f, gameStatePrintLevel=0)
         else:
             training.benchmark(PRINT_ACTIONS, logFile=f, checkpoint='agent39_policy_net_0_1_1.pth')
 
