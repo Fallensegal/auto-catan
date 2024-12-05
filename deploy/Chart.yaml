@@ -10,4 +10,7 @@ dependencies:
       version: 20.3.0
     - name: minio
       repository: https://charts.bitnami.com/bitnami
-      version: 14.8.5  
+      version: 14.8.5
+    - name: keda
+      repository: https://kedacore.github.io/charts
+      version: 2.16

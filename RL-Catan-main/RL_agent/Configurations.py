@@ -1,10 +1,10 @@
-PRINT_ACTIONS = False
+PRINT_ACTIONS = True
 
 # Starting learning rate for the optimizer
-LR_START = 0.003
+LR_START = 0.0000003
 
 # Ending learning rate for the optimizer
-LR_END = 0.0002
+LR_END = 0.0000001
 
 # Decay rate for the learning rate
 LR_DECAY = 2000000
@@ -19,10 +19,10 @@ EPS_END = 0.05
 EPS_DECAY = 200000
 
 # Discount factor for future rewards in the Q-learning algorithm
-GAMMA = 0.999
+GAMMA = 0.99
 
 # Batch size for training the DQN model
-BATCH_SIZE = 8
+BATCH_SIZE = 64
 
 #Reward Functions
 REWARD_FUNCTION = 'Incremental_VP'
@@ -45,7 +45,7 @@ MODEL_SELECT = 'Small'
 #number of episodes
 NUM_EPISODES = 10
 
-MEMORY = 10000
+MEMORY = 1000
 
 # Total number of possible actions in the environment
 TOTAL_ACTIONS = 21*11*4 + 41
