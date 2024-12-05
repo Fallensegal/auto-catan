@@ -50,6 +50,7 @@ class Log:
         self.total_knights_played = 0
 
         self.steps_done = 0
+        self.episodeRewardTracker =[]
 
         self.action_counts = [0] * TOTAL_ACTIONS
         self.random_action_counts = [0] * TOTAL_ACTIONS
@@ -414,6 +415,9 @@ class Catan_Training:
                             cur_boardstate = self.cur_boardstate.clone().detach().unsqueeze(0).to(self.device).float()        
                             cur_vectorstate = self.cur_vectorstate.clone().detach().unsqueeze(0).to(self.device).float()
                             next_board_state, next_vector_state, reward, done = state_changer(self.env)[0], state_changer(self.env)[1], self.env.phase.reward, self.game.is_finished
+                            ##add a sanity check on rewards. 
+                            if reward != 0:
+                                self.log.episodeRewardTracker.append(reward)
                             reward = torch.tensor([reward], device=self.device)
                             next_board_state = next_board_state.clone().detach().unsqueeze(0).to(self.device).float()
                             next_vector_state = next_vector_state.clone().detach().unsqueeze(0).to(self.device).float()
