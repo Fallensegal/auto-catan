@@ -12,11 +12,11 @@ def action_selecter(env,selected_action, selected_position_x = 0, selected_posit
     action.city_place = action.city_place * board.ZEROBOARD
     action.end_turn = 0
 
-    keepresources.keep_lumber = 0
-    keepresources.keep_wool = 0
-    keepresources.keep_grain = 0
-    keepresources.keep_brick = 0
-    keepresources.keep_ore = 0
+    #keepresources.keep_lumber = 0
+    #keepresources.keep_wool = 0
+    #keepresources.keep_grain = 0
+    #keepresources.keep_brick = 0
+    #keepresources.keep_ore = 0
 
     trading.give_lumber_get_wool = 0
     trading.give_lumber_get_grain = 0
@@ -66,85 +66,85 @@ def action_selecter(env,selected_action, selected_position_x = 0, selected_posit
         action.city_place[selected_position_y] [selected_position_x] = 1
     if selected_action == 5:
         action.end_turn = 1
-    if selected_action == 6:    
-        keepresources.keep_lumber = 1
-    if selected_action == 7:    
-        keepresources.keep_wool = 1
-    if selected_action == 8:    
-        keepresources.keep_grain = 1
-    if selected_action == 9:    
-        keepresources.keep_brick = 1
-    if selected_action == 10:    
-        keepresources.keep_ore = 1   
-    if selected_action == 11:  
+    #if selected_action == 6:    
+    #    keepresources.keep_lumber = 1
+    #if selected_action == 7:    
+    #    keepresources.keep_wool = 1
+    #if selected_action == 8:    
+    #    keepresources.keep_grain = 1
+    #if selected_action == 9:    
+    #    keepresources.keep_brick = 1
+    #if selected_action == 10:    
+    #    keepresources.keep_ore = 1   
+    if selected_action == 6:  
         trading.give_lumber_get_wool = 1
-    if selected_action == 12:
+    if selected_action == 7:
         trading.give_lumber_get_grain = 1
-    if selected_action == 13:
+    if selected_action == 8:
         trading.give_lumber_get_brick = 1
-    if selected_action == 14:
-        trading.give_lumber_get_ore  = 1
-    if selected_action == 15:
+    if selected_action == 9:
+        trading.give_lumber_get_ore = 1
+    if selected_action == 10:
         trading.give_wool_get_lumber = 1
-    if selected_action == 16:
+    if selected_action == 11:
         trading.give_wool_get_grain = 1
-    if selected_action == 17:
+    if selected_action == 12:
         trading.give_wool_get_brick = 1
-    if selected_action == 18:
+    if selected_action == 13:
         trading.give_wool_get_ore = 1
-    if selected_action == 19:
+    if selected_action == 14:
         trading.give_grain_get_lumber = 1
-    if selected_action == 20:
+    if selected_action == 15:
         trading.give_grain_get_wool = 1
-    if selected_action == 21:
+    if selected_action == 16:
         trading.give_grain_get_brick = 1
-    if selected_action == 22:
+    if selected_action == 17:
         trading.give_grain_get_ore = 1
-    if selected_action == 23:
+    if selected_action == 18:
         trading.give_brick_get_lumber = 1
-    if selected_action == 24:
+    if selected_action == 19:
         trading.give_brick_get_wool = 1
-    if selected_action == 25:
+    if selected_action == 20:
         trading.give_brick_get_grain = 1
-    if selected_action == 26:
+    if selected_action == 21:
         trading.give_brick_get_ore = 1
-    if selected_action == 27:
+    if selected_action == 22:
         trading.give_ore_get_lumber = 1
-    if selected_action == 28:
+    if selected_action == 23:
         trading.give_ore_get_wool = 1
-    if selected_action == 29:
+    if selected_action == 24:
         trading.give_ore_get_grain = 1
-    if selected_action == 30:
+    if selected_action == 25:
         trading.give_ore_get_brick = 1
-    if selected_action == 31:
+    if selected_action == 26:
         action.development_card_buy = 1
-    if selected_action == 32:
+    if selected_action == 27:
         action.knight_cards_activate = 1
-    if selected_action == 33:
+    if selected_action == 28:
         action.road_building_cards_activate = 1
-    if selected_action == 34:
+    if selected_action == 29:
         action.yearofplenty_cards_activate = 1
-    if selected_action == 35:
+    if selected_action == 30:
         action.monopoly_cards_activate = 1
-    if selected_action == 36:
+    if selected_action == 31:
         action.yearofplenty_lumber = 1
-    if selected_action == 37:
+    if selected_action == 32:
         action.yearofplenty_wool = 1
-    if selected_action == 38:
+    if selected_action == 33:
         action.yearofplenty_grain = 1
-    if selected_action == 39:
+    if selected_action == 34:
         action.yearofplenty_brick = 1
-    if selected_action == 40:
+    if selected_action == 35:
         action.yearofplenty_ore = 1
-    if selected_action == 41:
+    if selected_action == 36:
         action.monopoly_lumber = 1
-    if selected_action == 42:
+    if selected_action == 37:
         action.monopoly_wool = 1
-    if selected_action == 43:
+    if selected_action == 38:
         action.monopoly_grain = 1
-    if selected_action == 44:
+    if selected_action == 39:
         action.monopoly_brick = 1
-    if selected_action == 45:
+    if selected_action == 40:
         action.monopoly_ore = 1      
 
     env.action_executor()
