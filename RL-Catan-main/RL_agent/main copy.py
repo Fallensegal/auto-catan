@@ -142,24 +142,26 @@ class Catan_Training:
         if self.training:
             dict = {
                 'Episode': episode,
-                'player_0_win': self.game.winner,  # Boolean
-                'player_0_knights': self.env.player0.knight_cards_played,
-                'player_1_knights': self.env.player1.knight_cards_played,
-                'player_0_roads': 1,
-                'player_1_roads': 8,
-                'player_0_settlements': 4,
-                'player_1_settlements': 5,
-                'player_0_cities': 2,
-                'player_1_cities': 1,
-                'player_0_dev_cards_bought': 3,
-                'player_1_dev_cards_bought': 4,
-                'player_0_dev_cards_played': 2,
-                'player_1_dev_cards_played': 3,
+                'player_0_win': int(self.game.winner==0),
+                'game_length': self.env.phase.gamemoves +1,  #0 based  
+                'player_0_knights': self.env.player0_log.average_knights_played[0],
+                'player_1_knights': self.env.player1_log.average_knights_played[0],
+                'player_0_roads': self.env.player0_log.average_roads_built[0],
+                'player_1_roads': self.env.player1_log.average_roads_built[0],
+                'player_0_settlements': self.env.player0_log.average_settlements_built[0],
+                'player_1_settlements': self.env.player1_log.average_settlements_built[0],
+                'player_0_cities': self.env.player0_log.average_cities_built[0],
+                'player_1_cities': self.env.player1_log.average_cities_built[0],
+                'player_0_dev_cards_bought': self.env.player0_log.average_development_cards_bought[0],
+                'player_1_dev_cards_bought': self.env.player1_log.average_development_cards_bought[0],
+                'player_0_dev_cards_played': self.env.player0_log.average_development_cards_used[0],
+                'player_1_dev_cards_played': self.env.player1_log.average_development_cards_used[0],
+                'player_0_dev_card_VP':self.env.player0.victorypoints_cards_new+self.env.player0.victorypoints_cards_new,
+                'player_0_dev_card_VP':self.env.player1.victorypoints_cards_new+self.env.player1.victorypoints_cards_new,
                 'player_0_victory_points': self.env.player0.victorypoints,
                 'player_1_victory_points': self.env.player1.victorypoints,
-                'game_length': self.env.phase.gamemoves +1,  #0 based
-                'player_0_num_trades': 2,
-                'player_1_num_trades': 1,
+                'player_0_num_trades': self.env.player0_log.average_resources_traded[0],
+                'player_1_num_trades': self.env.player1_log.average_resources_traded[0],
                 'average_model_loss': 0.1234,
                 }
         else:
