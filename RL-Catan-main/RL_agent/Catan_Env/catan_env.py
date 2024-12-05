@@ -1811,23 +1811,7 @@ class Catan_Env:
                 self.move_finished() #need to take a look at this function too
         
         if player.discard_resources_started == 1:
-            a = 0
-            b = 0
-            c = 0
-            d = 0
-            e = 0
-            if keepresources.keep_lumber == 1: 
-                a = 1
-            elif keepresources.keep_wool == 1: 
-                b = 1
-            elif keepresources.keep_grain == 1: 
-                c = 1
-            elif keepresources.keep_brick == 1: 
-                d = 1
-            elif keepresources.keep_ore == 1: 
-                e = 1
-            if a != 0 or b != 0 or c != 0 or d != 0 or e != 0:
-                self.discard_resources(a,b,c,d,e)
+                self.discard_resources()
         
 
         if player.knight_move_pending != 1 and player.monopoly_move_pending != 1 and player.roadbuilding_move_pending != 1 and player.yearofplenty_move_pending != 1 and game.placement_phase_pending != 1 and player.discard_resources_started != 1:
