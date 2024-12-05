@@ -98,7 +98,7 @@ class Catan_Training:
         self.env = Catan_Env(reward_function)
         self.game = self.env.game
         self.num_episodes = num_episodes
-        self.benchmark_games = 100
+        self.benchmark_games = 10
         #turn into hyperparameter for benchmark number of games
         self.device = device
         self.NEURAL_NET = model
@@ -354,6 +354,8 @@ class Catan_Training:
             sys.stdout = logFile
             self.new_game()
             winner = self.simulate_match()
+            self.add_epsiode_data(game_number)
+            self.log.clear()
             if winner == 0:
                 trained_policy_wins += 1
                 print("Trained Policy Wins")
@@ -549,7 +551,7 @@ def main(MEMORY,MODEL_SELECT,REWARD_FUNCTION,NUM_EPISODES,
             training.benchmark(PRINT_ACTIONS, logFile=f, checkpoint='agent39_policy_net_0_1_1.pth')
 
     PushArtifacts(Experiment_name,param_dict,model,training.EpisodeData,MLFLOW_ADDRESS,TrainingData=True,TestingData=False,TagID=0)
-    training.train(PRINT_ACTIONS, logFile=f, gameStatePrintLevel=0)
-    PushArtifacts(Experiment_name,param_dict,model,training.EpisodeData,MLFLOW_ADDRESS,TrainingData=True,TestingData=False,TagID=1)
+    training.benchmark(PRINT_ACTIONS, logFile= None, checkpoint = 'Artifcats/model_parameters.pth')
+    PushArtifacts(Experiment_name,param_dict,model,training.EpisodeData,MLFLOW_ADDRESS,TrainingData=False,TestingData=True,TagID=0)
 
-main(MEMORY,MODEL_SELECT,REWARD_FUNCTION,NUM_EPISODES,LR_START,LR_END,LR_DECAY,EPS_START,EPS_END,EPS_DECAY,GAMMA,BATCH_SIZE,PRINT_ACTIONS,None)
+main(MEMORY,MODEL_SELECT,REWARD_FUNCTION,NUM_EPISODES,LR_START,LR_END,LR_DECAY,EPS_START,EPS_END,EPS_DECAY,GAMMA,BATCH_SIZE,PRINT_ACTIONS,MLFLOW_ADDRESS)

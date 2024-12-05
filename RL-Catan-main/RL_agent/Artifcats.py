@@ -20,12 +20,12 @@ def PushArtifacts(experiment_name:str, params:dict,Model,Results,MLFLOW_ADDRESS:
         mlflow.set_experiment(experiment_name)
         with mlflow.start_run():
             mlflow.log_params(params)
-            mlflow.log_artifact('Results.csv')
-            mlflow.log_artifact('Model_Parameters.pth')
+            mlflow.log_artifact('Artifacts/Results.csv')
+            mlflow.log_artifact('Artifacts/Model_Parameters.pth')
             if TrainingData is True:
                 mlflow.log_metric('average moves', np.mean(DF.game_length))
                 mlflow.log_metric('average reward per move', np.mean(DF.Reward_over_episode))
-                mlflow.log_metric('average loss', np.mean(DF.AverageQloss))
+                mlflow.log_metric('average loss', np.mean(DF.average_model_loss))
                 mlflow.set_tag("Training Run", str(TagID))
             if TestingData is True:
                 mlflow.log_metric('Win rate',np.sum(DF.player_0_win)/len(DF.player_0_win))
