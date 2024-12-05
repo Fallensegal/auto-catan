@@ -1267,10 +1267,8 @@ class Catan_Env:
         cur_player = self.game.cur_player
         if self.RewardFunction=='Differential_VP': #baseline reward (0.75) + a small ammount fo how much you won by
             if self.players[cur_player].victorypoints >= 10:
-                print('Game Over')
                 if cur_player == 0:
                     self.phase.reward += 0.75 + (self.players[0].victorypoints - self.players[1].victorypoints) * 0.02
-                    print(f'Reward: {self.phase.reward}')
                     self.phase.victoryreward = 1
                     self.phase.victorypointreward = (self.players[0].victorypoints - self.players[1].victorypoints) * 0.02
                     self.phase.legalmovesreward = (self.phase.statechangecount - self.phase.statechangecountafter) * 0.0002
@@ -1279,7 +1277,6 @@ class Catan_Env:
                     return 1
                 elif cur_player ==1:
                     self.phase.reward -= 1*(0.75 + (self.players[1].victorypoints - self.players[0].victorypoints) * 0.02)
-                    print(f'Reward: {self.phase.reward}')
                     self.phase.victoryreward = -1
                     self.phase.victorypointreward = -(self.players[1].victorypoints - self.players[0].victorypoints) * 0.02
                     self.phase.legalmovesreward = (self.phase.statechangecount - self.phase.statechangecountafter) * 0.0002
@@ -1302,13 +1299,11 @@ class Catan_Env:
                 if cur_player ==0: 
                     self.phase.reward+=20
                     #print(f'Reward: {self.phase.reward}')
-                    print(f'victory points for player 0: {self.players[0].victorypoints}, and player 1: {self.players[1].victorypoints}')
                     self.player0.wins+=1
                     return 1
                 elif cur_player ==1: 
                     self.phase.reward-=20
                     #print(f'Reward: {self.phase.reward}')
-                    print(f'victory points for player 0: {self.players[0].victorypoints}, and player 1: {self.players[1].victorypoints}')
                     self.player1.wins+=1
                     return 1
                 else: 
@@ -1317,10 +1312,8 @@ class Catan_Env:
                 return 0           
         else: # If nothing is defined then just 10 points for winning and -10 points for losing. (a.k.a. High_Sparsity_VP)
             if self.players[cur_player].victorypoints >=10:
-                print('Game Over')
                 if cur_player == 0:
                     self.phase.reward += 10
-                    print(f'Reward: {self.phase.reward}')
                     self.phase.victoryreward = 0
                     self.phase.victorypointreward = 0
                     self.phase.legalmovesreward = 0
@@ -1329,7 +1322,6 @@ class Catan_Env:
                     return 1
                 elif cur_player ==1:
                     self.phase.reward -= 10
-                    print(f'Reward: {self.phase.reward}')
                     self.phase.victoryreward = 0
                     self.phase.victorypointreward = 0
                     self.phase.legalmovesreward = 0
@@ -1675,7 +1667,6 @@ class Catan_Env:
 
     def new_game(self):
         game = self.game    
-        print("new game")
         self.new_initial_state()
         self.setup()
         game.placement_phase_pending = 1

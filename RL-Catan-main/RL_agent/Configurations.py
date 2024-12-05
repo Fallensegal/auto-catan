@@ -1,5 +1,3 @@
-PRINT_ACTIONS = True
-
 # Starting learning rate for the optimizer
 LR_START = 0.0000003
 
@@ -46,12 +44,18 @@ MODEL_SELECT = 'Small'
 STOCHASTIC = False #true if you want to use a stochastic policy instead of a deterministic one
 
 #number of episodes
-NUM_EPISODES = 10
+TRAINING_LOOPS = 10
+EPISODES_PER_LOOP = 10
+GAMES_PER_BENCHMARK = 50
 
 MEMORY = 1000
 
 # Total number of possible actions in the environment
 TOTAL_ACTIONS = 21*11*4 + 41
+
+# debugging options
+PRINT_ACTIONS = True
+LOG_FILE = f'log_{REWARD_FUNCTION}_{MODEL_SELECT}.txt'
 
 #I might do a mix later on
 #target_net_state_dict = target_net.state_dict()
