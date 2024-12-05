@@ -26,35 +26,16 @@ from Configurations import *
 #different types of reward shaping: Immidiate rewards vps, immidiate rewards legal/illegal, immidiate rewards ressources produced, rewards at the end for winning/losing (+vps +legal/illegal)
 class Log:
     def __init__(self):
-        self.average_victory_points = []
-        self.average_resources_found = []
-        self.final_board_state = 0 
-        self.AI_function_calls = 0 
-        self.successful_AI_function_calls = 0
-        self.average_development_cards_bought = []
-        self.average_roads_built = []
-        self.average_settlements_built = []
-        self.average_cities_built = []
-        self.average_knights_played = []
-        self.average_development_cards_used = []
-        self.average_resources_traded = []
-        self.average_longest_road = []
-
-        self.total_resources_found = 0
-        self.total_development_cards_bought = 0
-        self.total_roads_built = 0
-        self.total_settlements_built = 0
-        self.total_cities_built = 0
-        self.total_development_cards_used = 0
-        self.total_resources_traded = 0
-        self.total_knights_played = 0
-
-        self.steps_done = 0
         self.episodeRewardTracker =[]
-
+        self.episodeRewardStep = []
         self.action_counts = [0] * TOTAL_ACTIONS
         self.random_action_counts = [0] * TOTAL_ACTIONS
-        self.episode_durations = []
+
+    def clear(self):
+        self.episodeRewardTracker =[]
+        self.episodeRewardStep = []
+        self.action_counts = [0] * TOTAL_ACTIONS
+        self.random_action_counts = [0] * TOTAL_ACTIONS
 
 class policy:
     def __init__(self, model_net, device, stochastic = False):
@@ -127,6 +108,7 @@ class Catan_Training:
         self.agent_target_net = self.agent.target_net
         self.optimizer = self.agent.optimizer
         self.memory = self.agent.memory
+        self.gamma = GAMMA
         self.steps_done = self.agent.steps_done
         self.cur_boardstate = None
         self.cur_vectorstate = None
@@ -163,29 +145,35 @@ class Catan_Training:
                 'player_1_victory_points': self.env.player1.victorypoints,
                 'player_0_num_trades': self.env.player0_log.average_resources_traded[0],
                 'player_1_num_trades': self.env.player1_log.average_resources_traded[0],
-                'average_model_loss': 0.1234,
+                'average_model_loss': np.mean(self.game.average_q_value_loss),
+                'Reward_over_episode':   sum(R*(self.gamma**T) for R,T in zip(self.log.episodeRewardTracker,self.log.episodeRewardStep))
                 }
         else:
             dict = {
                 'Episode': episode,
-                'player_0_win': self.game.winner,  # Boolean
-                'player_0_knights': self.env.player0.knight_cards_played,
-                'player_1_knights': self.env.player1.knight_cards_played,
-                'player_0_roads': 1,
-                'player_1_roads': 8,
-                'player_0_settlements': 4,
-                'player_1_settlements': 5,
-                'player_0_cities': 2,
-                'player_1_cities': 1,
-                'player_0_dev_cards_bought': 3,
-                'player_1_dev_cards_bought': 4,
-                'player_0_dev_cards_played': 2,
-                'player_1_dev_cards_played': 3,
+                'player_0_win': int(self.game.winner==0),
+                'game_length': self.env.phase.gamemoves +1,  #0 based  
+                'player_0_knights': self.env.player0_log.average_knights_played[0],
+                'player_1_knights': self.env.player1_log.average_knights_played[0],
+                'player_0_roads': self.env.player0_log.average_roads_built[0],
+                'player_1_roads': self.env.player1_log.average_roads_built[0],
+                'player_0_settlements': self.env.player0_log.average_settlements_built[0],
+                'player_1_settlements': self.env.player1_log.average_settlements_built[0],
+                'player_0_cities': self.env.player0_log.average_cities_built[0],
+                'player_1_cities': self.env.player1_log.average_cities_built[0],
+                'player_0_dev_cards_bought': self.env.player0_log.average_development_cards_bought[0],
+                'player_1_dev_cards_bought': self.env.player1_log.average_development_cards_bought[0],
+                'player_0_dev_cards_played': self.env.player0_log.average_development_cards_used[0],
+                'player_1_dev_cards_played': self.env.player1_log.average_development_cards_used[0],
+                'player_0_dev_card_VP':self.env.player0.victorypoints_cards_new+self.env.player0.victorypoints_cards_new,
+                'player_0_dev_card_VP':self.env.player1.victorypoints_cards_new+self.env.player1.victorypoints_cards_new,
                 'player_0_victory_points': self.env.player0.victorypoints,
                 'player_1_victory_points': self.env.player1.victorypoints,
-                'game_length': self.env.phase.gamemoves +1,  #0 based
+                'player_0_num_trades': self.env.player0_log.average_resources_traded[0],
+                'player_1_num_trades': self.env.player1_log.average_resources_traded[0],
             }
         self.EpisodeData.append(dict)
+        self.log.clear()
 
 
 
