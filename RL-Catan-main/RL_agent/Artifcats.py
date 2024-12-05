@@ -4,7 +4,7 @@ import mlflow
 import torch
 import os
 
-def PushArtifacts(experiment_name:str, params:dict,Model,Results:List[Dict],MLFLOW_ADDRESS:str,TrainingData:bool=False,TestingData:bool = False,TagID:int = 0) -> bool:
+def PushArtifacts(experiment_name:str, params:dict,Model,Results,MLFLOW_ADDRESS:str,TrainingData:bool=False,TestingData:bool = False,TagID:int = 0) -> bool:
     if (TrainingData == False and TestingData == False) or (TrainingData == True and TestingData == True):
         print("Error: Either TrainingData or TestingData must be True, but not both.")
         return False
