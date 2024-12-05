@@ -550,8 +550,9 @@ def main(MEMORY,MODEL_SELECT,REWARD_FUNCTION,NUM_EPISODES,
         else:
             training.benchmark(PRINT_ACTIONS, logFile=f, checkpoint='agent39_policy_net_0_1_1.pth')
 
-    PushArtifacts(Experiment_name,param_dict,model,training.EpisodeData,MLFLOW_ADDRESS,TrainingData=True,TestingData=False,TagID=0)
-    training.benchmark(PRINT_ACTIONS, logFile= None, checkpoint = 'Artifcats/model_parameters.pth')
+
+    PushArtifacts(Experiment_name,param_dict,training.agent_policy_net,training.EpisodeData,MLFLOW_ADDRESS,TrainingData=True,TestingData=False,TagID=0)
+    training.benchmark(PRINT_ACTIONS, logFile= None, checkpoint = 'Artifacts/Model_Parameters.pth')
     PushArtifacts(Experiment_name,param_dict,model,training.EpisodeData,MLFLOW_ADDRESS,TrainingData=False,TestingData=True,TagID=0)
 
 main(MEMORY,MODEL_SELECT,REWARD_FUNCTION,NUM_EPISODES,LR_START,LR_END,LR_DECAY,EPS_START,EPS_END,EPS_DECAY,GAMMA,BATCH_SIZE,PRINT_ACTIONS,MLFLOW_ADDRESS)

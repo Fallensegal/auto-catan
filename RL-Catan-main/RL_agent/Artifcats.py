@@ -13,7 +13,7 @@ def PushArtifacts(experiment_name:str, params:dict,Model,Results,MLFLOW_ADDRESS:
     DF.to_csv('Artifacts/Results.csv')
     torch.save(Model.state_dict(),'Artifacts/Model_Parameters.pth')
     if MLFLOW_ADDRESS is None: 
-        print('not pushing to ML Flow. Returned artifacts in')
+        print('not pushing to ML Flow. Returned artifacts in Artifacts directory')
         return True
     else:
         mlflow.set_tracking_uri(uri=MLFLOW_ADDRESS)
