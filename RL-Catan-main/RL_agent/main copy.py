@@ -406,6 +406,7 @@ class Catan_Training:
                             ##add a sanity check on rewards. 
                             if reward != 0:
                                 self.log.episodeRewardTracker.append(reward)
+                                self.log.episodeRewardStep.append(t)
                             reward = torch.tensor([reward], device=self.device)
                             next_board_state = next_board_state.clone().detach().unsqueeze(0).to(self.device).float()
                             next_vector_state = next_vector_state.clone().detach().unsqueeze(0).to(self.device).float()
@@ -424,7 +425,6 @@ class Catan_Training:
                             self.env.phase.gamemoves = t
                             print("done1")
                             self.game.is_finished = 0
-                            self.log.episode_durations.append(t+1)
                             break
                 elif self.game.cur_player == 0:
                     self.cur_boardstate =  state_changer(self.env)[0]
@@ -436,6 +436,9 @@ class Catan_Training:
                         InterpretActions(0,action, self.env, gameStatePrintLevel, action_was_random)
                     if self.env.phase.statechange == 1:
                         next_board_state, next_vector_state, reward, done = state_changer(self.env)[0], state_changer(self.env)[1], self.env.phase.reward, self.game.is_finished
+                        if reward != 0:
+                            self.log.episodeRewardTracker.append(reward)
+                            self.log.episodeRewardStep.append(t)
                         reward = torch.tensor([reward], device=self.device)
                         next_board_state = next_board_state.clone().detach().unsqueeze(0).to(self.device).float()
                         next_vector_state = next_vector_state.clone().detach().unsqueeze(0).to(self.device).float()
@@ -452,7 +455,6 @@ class Catan_Training:
                         if done == 1:
                             self.env.phase.gamemoves = t
                             self.game.is_finished = 0
-                            self.log.episode_durations.append(t+1)
                             break
                     else:
                         sample = random.random()
