@@ -50,6 +50,12 @@ MEMORY = 1000
 # Total number of possible actions in the environment
 TOTAL_ACTIONS = 21*11*4 + 41
 
+'''
+MLFLOW Address is so you can easily push your artifacts to MLFLOW/Minio. 
+If you want to store things locally, just use "None." But note that it won't increment or add numbers to your local artifacts
+'''
+MLFLOW_ADDRESS = 'http://192.168.161.128:8250/'
+
 #I might do a mix later on
 #target_net_state_dict = target_net.state_dict()
 #policy_net_state_dict = agent1_policy_net.state_dict()

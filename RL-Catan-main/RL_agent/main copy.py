@@ -23,6 +23,8 @@ from Catan_Env.random_action import random_assignment
 from Catan_Env.game import Game
 from Catan_Env.Interpreter import InterpretActions
 from Configurations import *
+from Artifcats import *
+
 #different types of reward shaping: Immidiate rewards vps, immidiate rewards legal/illegal, immidiate rewards ressources produced, rewards at the end for winning/losing (+vps +legal/illegal)
 class Log:
     def __init__(self):
@@ -96,7 +98,7 @@ class Catan_Training:
         self.env = Catan_Env(reward_function)
         self.game = self.env.game
         self.num_episodes = num_episodes
-        self.benchmark_games = 100
+        self.benchmark_games = 10
         #turn into hyperparameter for benchmark number of games
         self.device = device
         self.NEURAL_NET = model
@@ -352,6 +354,8 @@ class Catan_Training:
             sys.stdout = logFile
             self.new_game()
             winner = self.simulate_match()
+            self.add_epsiode_data(game_number)
+            self.log.clear()
             if winner == 0:
                 trained_policy_wins += 1
                 print("Trained Policy Wins")
@@ -503,10 +507,11 @@ class Catan_Training:
 
 def main(MEMORY,MODEL_SELECT,REWARD_FUNCTION,NUM_EPISODES,
          LR_START,LR_END,LR_DECAY,EPS_START,EPS_END,EPS_DECAY,
-         GAMMA,BATCH_SIZE,PRINT_ACTIONS):
+         GAMMA,BATCH_SIZE,PRINT_ACTIONS,MLFLOW_ADDRESS):
     torch.manual_seed(2)
     train = True
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    
     if MODEL_SELECT =='Large':
         from DQN.Neural_Networks.DQN_Big import DQN as dqn
     elif MODEL_SELECT =='Medium':
@@ -516,10 +521,28 @@ def main(MEMORY,MODEL_SELECT,REWARD_FUNCTION,NUM_EPISODES,
     model = dqn()
     model.to(device)
 
+    param_dict = {
+    "MEMORY": MEMORY,  # Size of the replay memory
+    "MODEL_SELECT": MODEL_SELECT,  # Model selection (example: 'DQN_Big', 'DQN_Medium', 'DQN_Small')
+    "REWARD_FUNCTION": REWARD_FUNCTION,  # Reward function used in the environment
+    "NUM_EPISODES": NUM_EPISODES,  # Number of episodes for training
+    "LR_START": LR_START,  # Initial learning rate
+    "LR_END": LR_END,  # Final learning rate
+    "LR_DECAY": LR_DECAY,  # Decay factor for the learning rate
+    "EPS_START": EPS_START,  # Initial epsilon for exploration
+    "EPS_END": EPS_END,  # Final epsilon for exploration
+    "EPS_DECAY": EPS_DECAY,  # Decay factor for epsilon
+    "GAMMA": GAMMA,  # Discount factor
+    "BATCH_SIZE": BATCH_SIZE  # Batch size for training
+    }
+
     training = Catan_Training(REWARD_FUNCTION, device, model, num_episodes=NUM_EPISODES, memory=MEMORY,
                               LR_START=LR_START, LR_END=LR_END, LR_DECAY=LR_DECAY,
                               EPS_START=EPS_START, EPS_END=EPS_END,
                               EPS_DECAY=EPS_DECAY, GAMMA=GAMMA, BATCH_SIZE=BATCH_SIZE)
+    
+    Experiment_name = MODEL_SELECT + REWARD_FUNCTION
+
     with open(f'log_{REWARD_FUNCTION}_{MODEL_SELECT}.txt', 'w') as f:
         f.write(f"\nStart of log for {REWARD_FUNCTION} with {MODEL_SELECT} model\n\n")
         if train:
@@ -527,5 +550,8 @@ def main(MEMORY,MODEL_SELECT,REWARD_FUNCTION,NUM_EPISODES,
         else:
             training.benchmark(PRINT_ACTIONS, logFile=f, checkpoint='agent39_policy_net_0_1_1.pth')
 
+    PushArtifacts(Experiment_name,param_dict,model,training.EpisodeData,MLFLOW_ADDRESS,TrainingData=True,TestingData=False,TagID=0)
+    training.benchmark(PRINT_ACTIONS, logFile= None, checkpoint = 'Artifcats/model_parameters.pth')
+    PushArtifacts(Experiment_name,param_dict,model,training.EpisodeData,MLFLOW_ADDRESS,TrainingData=False,TestingData=True,TagID=0)
 
-main(MEMORY,MODEL_SELECT,REWARD_FUNCTION,NUM_EPISODES,LR_START,LR_END,LR_DECAY,EPS_START,EPS_END,EPS_DECAY,GAMMA,BATCH_SIZE,PRINT_ACTIONS)
+main(MEMORY,MODEL_SELECT,REWARD_FUNCTION,NUM_EPISODES,LR_START,LR_END,LR_DECAY,EPS_START,EPS_END,EPS_DECAY,GAMMA,BATCH_SIZE,PRINT_ACTIONS,MLFLOW_ADDRESS)
