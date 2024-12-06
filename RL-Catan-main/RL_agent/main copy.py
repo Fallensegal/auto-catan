@@ -126,12 +126,18 @@ class Catan_Training:
         self.steps_done = self.agent.steps_done
         self.EpisodeData = []
         self.training = True
-        self.train_test_change = False
+        self.testing  = False
+        self.previous = 'Train'
         
         
     def add_epsiode_data(self,episode):
-        if self.train_test_change:
-            self.train_test_change = False
+        if self.testing == True and self.previous == 'Train':
+            self.training = False
+            self.previous = 'Test'
+            self.EpisodeData = []
+        if self.training == True and self.previous == 'Test':
+            self.testing = False
+            self.previous = 'Train'
             self.EpisodeData = []
         if self.training:
             dict = {
@@ -340,6 +346,7 @@ class Catan_Training:
         return game.winner
 
     def benchmark(self, PRINT_ACTIONS = False):
+        self.testing = True
         # Load the network weights from a .pth file
         if self.checkpoint is not None:
             self.agent_policy_net.load_state_dict(torch.load(self.checkpoint, map_location=self.device, weights_only=True))
@@ -370,6 +377,7 @@ class Catan_Training:
 
 
     def train(self, PRINT_ACTIONS = False):
+        self.training = True
         for i_episode in range(self.num_episodes_per_loop):
             self.total_episodes += 1   
             time_new_start = time.time()
