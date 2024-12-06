@@ -524,10 +524,10 @@ def main(TRAINING_LOOPS,EPISODES_PER_LOOP,GAMES_PER_BENCHMARK,MEMORY,MODEL_SELEC
                               EPS_DECAY=EPS_DECAY, GAMMA=GAMMA, BATCH_SIZE=BATCH_SIZE, LOG_FILE=log_file)
         
         start_time = time.time()
-
-        Experiment_name = f'EPISODE_{(training.total_episodes + 1)}_{REWARD_FUNCTION}_{MODEL_SELECT}'
+  
         for _ in range(TRAINING_LOOPS):
             training.train(PRINT_ACTIONS)
+            Experiment_name = f'EPISODE_{(training.total_episodes + 1)}_{REWARD_FUNCTION}_{MODEL_SELECT}'
             PushArtifacts(Experiment_name,param_dict,training.agent_policy_net,training.EpisodeData,MLFLOW_ADDRESS,TrainingData=True,TestingData=False,TagID=0)
             should_break_training = training.benchmark(PRINT_ACTIONS)
             PushArtifacts(Experiment_name,param_dict,model,training.EpisodeData,MLFLOW_ADDRESS,TrainingData=False,TestingData=True,TagID=0)
