@@ -1,7 +1,6 @@
 def action_selecter(env,selected_action, selected_position_x = 0, selected_position_y = 0):
     board = env.board
     action = env.player_action[env.game.cur_player]
-    keepresources = env.player_keepresources[env.game.cur_player]
     trading = env.player_trading[env.game.cur_player]
 
     env.total_step += 1
@@ -11,12 +10,6 @@ def action_selecter(env,selected_action, selected_position_x = 0, selected_posit
     action.settlement_place = action.settlement_place * board.ZEROBOARD
     action.city_place = action.city_place * board.ZEROBOARD
     action.end_turn = 0
-
-    #keepresources.keep_lumber = 0
-    #keepresources.keep_wool = 0
-    #keepresources.keep_grain = 0
-    #keepresources.keep_brick = 0
-    #keepresources.keep_ore = 0
 
     trading.give_lumber_get_wool = 0
     trading.give_lumber_get_grain = 0

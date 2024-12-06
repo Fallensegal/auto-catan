@@ -40,12 +40,6 @@ class Catan_Env:
 
         self.player_action = [self.player0_action, self.player1_action]
 
-
-        self.player0_keepresources = self.player0.Keepresources()
-        self.player1_keepresources = self.player1.Keepresources()
-
-        self.player_keepresources = [self.player0_keepresources, self.player1_keepresources]
-
         self.player0_trading = self.player0.Trading()
         self.player1_trading = self.player1.Trading()
 
@@ -1640,11 +1634,9 @@ class Catan_Env:
         game = self.game
         board = self.board
         player_action = self.player_action
-        #player_keepresources = self.player_keepresources
         player_trading = self.player_trading
         player = players[game.cur_player]
         action = player_action[game.cur_player]
-        #keepresources = player_keepresources[game.cur_player]
         trading = player_trading[game.cur_player]
 
         if game.seven_rolled == 1:
