@@ -302,6 +302,7 @@ class Catan_Training:
         game = self.game
         game.is_finished = 0
         done = False
+        self.env.phase.gamemoves = 0
         while not done:
             if game.cur_player == 0:
                 with torch.no_grad():
@@ -342,6 +343,7 @@ class Catan_Training:
             self.env.phase.reward = 0
             if game.is_finished == 1:
                 done = True
+            self.env.phase.gamemoves +=1
 
         return game.winner
 
@@ -509,7 +511,7 @@ def main(TRAINING_LOOPS,EPISODES_PER_LOOP,GAMES_PER_BENCHMARK,MEMORY,MODEL_SELEC
     torch.manual_seed(2)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
-    if MODEL_SELECT =='Small Pooling':
+    if MODEL_SELECT =='Small_Pooling':
         from DQN.Neural_Networks.DQN_Small_w_pooling import DQN as dqn
     elif MODEL_SELECT =='Medium':
         from DQN.Neural_Networks.DQN_Medium import DQN as dqn
@@ -530,15 +532,16 @@ def main(TRAINING_LOOPS,EPISODES_PER_LOOP,GAMES_PER_BENCHMARK,MEMORY,MODEL_SELEC
         
         start_time = time.time()
   
-        for _ in range(TRAINING_LOOPS):
+        for i in range(TRAINING_LOOPS):
             training.train(PRINT_ACTIONS)
             if STOCHASTIC:
                 Experiment_name = f'{REWARD_FUNCTION}_{MODEL_SELECT}_Stochastic'
             else:
                 Experiment_name = f'{REWARD_FUNCTION}_{MODEL_SELECT}_deteministic'
-            PushArtifacts(Experiment_name,param_dict,training.agent_policy_net,training.EpisodeData,MLFLOW_ADDRESS,TrainingData=True,TestingData=False,TagID=0)
+            PushArtifacts(Experiment_name,param_dict,training.agent_policy_net,training.EpisodeData,MLFLOW_ADDRESS,RunName = None, TrainingData=True,TestingData=False)
+            training.min_win_rate = 0.0
             should_break_training = training.benchmark(PRINT_ACTIONS)
-            PushArtifacts(Experiment_name,param_dict,model,training.EpisodeData,MLFLOW_ADDRESS,TrainingData=False,TestingData=True,TagID=0)
+            PushArtifacts(Experiment_name,param_dict,model,training.EpisodeData,MLFLOW_ADDRESS,RunName = None, TrainingData=False,TestingData=True)
             if should_break_training:
                 print("Training stopped due to low win rate")
                 break

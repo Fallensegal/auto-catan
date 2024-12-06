@@ -34,11 +34,12 @@ REWARD_FUNCTION = 'Incremental_All'
 '''
 
 MODEL_SELECT = 'Small'
+MODEL_SELECT = 'Small_Pooling'
 '''
         There are 3 model sizes: 
         1. 'Small'
         2. 'Medium'
-        3. 'Small Pooling'
+        3. 'Small_Pooling'
 '''
 
 STOCHASTIC = False #true if you want to use a stochastic policy instead of a deterministic one
