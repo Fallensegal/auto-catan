@@ -1,7 +1,16 @@
 [project]
 name = "catan-ml"
 version = "0.1.0"
-description = "Add your description here"
+description = "Dramatiq task runner for auto-catan"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "catan-dramatiq",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv.sources]
+catan-dramatiq = { workspace = true }

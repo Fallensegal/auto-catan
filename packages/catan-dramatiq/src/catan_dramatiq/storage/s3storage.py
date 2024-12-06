@@ -1,5 +1,4 @@
 from minio import Minio
-from io import BytesIO
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings
 
