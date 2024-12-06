@@ -23,37 +23,21 @@ from Catan_Env.random_action import random_assignment
 from Catan_Env.game import Game
 from Catan_Env.Interpreter import InterpretActions
 from Configurations import *
+from Artifcats import *
+
 #different types of reward shaping: Immidiate rewards vps, immidiate rewards legal/illegal, immidiate rewards ressources produced, rewards at the end for winning/losing (+vps +legal/illegal)
 class Log:
     def __init__(self):
-        self.average_victory_points = []
-        self.average_resources_found = []
-        self.final_board_state = 0 
-        self.AI_function_calls = 0 
-        self.successful_AI_function_calls = 0
-        self.average_development_cards_bought = []
-        self.average_roads_built = []
-        self.average_settlements_built = []
-        self.average_cities_built = []
-        self.average_knights_played = []
-        self.average_development_cards_used = []
-        self.average_resources_traded = []
-        self.average_longest_road = []
-
-        self.total_resources_found = 0
-        self.total_development_cards_bought = 0
-        self.total_roads_built = 0
-        self.total_settlements_built = 0
-        self.total_cities_built = 0
-        self.total_development_cards_used = 0
-        self.total_resources_traded = 0
-        self.total_knights_played = 0
-
-        self.steps_done = 0
-
+        self.episodeRewardTracker =[]
+        self.episodeRewardStep = []
         self.action_counts = [0] * TOTAL_ACTIONS
         self.random_action_counts = [0] * TOTAL_ACTIONS
-        self.episode_durations = []
+
+    def clear(self):
+        self.episodeRewardTracker =[]
+        self.episodeRewardStep = []
+        self.action_counts = [0] * TOTAL_ACTIONS
+        self.random_action_counts = [0] * TOTAL_ACTIONS
 
 class policy:
     def __init__(self, stochastic = False):
@@ -123,7 +107,6 @@ class Catan_Training:
 
         self.env = Catan_Env(reward_function)
         self.game = self.env.game
-
         self.device = device
         self.NEURAL_NET = model
         self.agent = DQNAgent(model, device, memory,
@@ -135,6 +118,7 @@ class Catan_Training:
         self.agent_target_net = self.agent.target_net
         self.optimizer = self.agent.optimizer
         self.memory = self.agent.memory
+        self.gamma = GAMMA
         self.cur_boardstate = None
         self.cur_vectorstate = None
 
@@ -143,6 +127,69 @@ class Catan_Training:
         self.checkpoint = CHECKPOINT
         self.total_episodes = 0
         self.steps_done = self.agent.steps_done
+        self.EpisodeData = []
+        self.training = True
+        self.train_test_change = False
+        
+        
+    def add_epsiode_data(self,episode):
+        if self.train_test_change:
+            self.train_test_change = False
+            self.EpisodeData = []
+        if self.training:
+            dict = {
+                'Episode': episode,
+                'player_0_win': int(self.game.winner==0),
+                'game_length': self.env.phase.gamemoves +1,  #0 based  
+                'player_0_knights': self.env.player0_log.average_knights_played[0],
+                'player_0_roads': self.env.player0_log.average_roads_built[0],
+                'player_0_settlements': self.env.player0_log.average_settlements_built[0],
+                'player_0_cities': self.env.player0_log.average_cities_built[0],
+                'player_0_dev_cards_bought': self.env.player0_log.average_development_cards_bought[0],
+                'player_0_dev_cards_played': self.env.player0_log.average_development_cards_used[0],
+                'player_0_dev_card_VP':self.env.player0.victorypoints_cards_new+self.env.player0.victorypoints_cards_new,
+                'player_0_num_trades': self.env.player0_log.average_resources_traded[0],
+                'player_1_knights': self.env.player1_log.average_knights_played[0],
+                'player_1_roads': self.env.player1_log.average_roads_built[0],
+                'player_1_settlements': self.env.player1_log.average_settlements_built[0],
+                'player_1_cities': self.env.player1_log.average_cities_built[0],
+                'player_1_dev_cards_bought': self.env.player1_log.average_development_cards_bought[0],
+                'player_1_dev_cards_played': self.env.player1_log.average_development_cards_used[0],
+                'player_1_dev_card_VP':self.env.player1.victorypoints_cards_new+self.env.player1.victorypoints_cards_new,
+                'player_1_num_trades': self.env.player1_log.average_resources_traded[0],
+                'player_0_victory_points': self.env.player0.victorypoints,
+                'player_1_victory_points': self.env.player1.victorypoints,
+                'average_model_loss': np.mean(self.game.average_q_value_loss),
+                'Reward_over_episode':   sum(R*(self.gamma**T) for R,T in zip(self.log.episodeRewardTracker,self.log.episodeRewardStep))
+                }
+        else:
+            dict = {
+                'Episode': episode,
+                'player_0_win': int(self.game.winner==0),
+                'game_length': self.env.phase.gamemoves +1,  #0 based  
+                'player_0_knights': self.env.player0_log.average_knights_played[0],
+                'player_0_roads': self.env.player0_log.average_roads_built[0],
+                'player_0_settlements': self.env.player0_log.average_settlements_built[0],
+                'player_0_cities': self.env.player0_log.average_cities_built[0],
+                'player_0_dev_cards_bought': self.env.player0_log.average_development_cards_bought[0],
+                'player_0_dev_cards_played': self.env.player0_log.average_development_cards_used[0],
+                'player_0_dev_card_VP':self.env.player0.victorypoints_cards_new+self.env.player0.victorypoints_cards_new,
+                'player_0_num_trades': self.env.player0_log.average_resources_traded[0],
+                'player_1_knights': self.env.player1_log.average_knights_played[0],
+                'player_1_roads': self.env.player1_log.average_roads_built[0],
+                'player_1_settlements': self.env.player1_log.average_settlements_built[0],
+                'player_1_cities': self.env.player1_log.average_cities_built[0],
+                'player_1_dev_cards_bought': self.env.player1_log.average_development_cards_bought[0],
+                'player_1_dev_cards_played': self.env.player1_log.average_development_cards_used[0],
+                'player_1_dev_card_VP':self.env.player1.victorypoints_cards_new+self.env.player1.victorypoints_cards_new,
+                'player_1_num_trades': self.env.player1_log.average_resources_traded[0],
+                'player_0_victory_points': self.env.player0.victorypoints,
+                'player_1_victory_points': self.env.player1.victorypoints,
+            }
+        self.EpisodeData.append(dict)
+        self.log.clear()
+
+
 
     def new_game(self):
         self.env.new_game()
@@ -227,6 +274,7 @@ class Catan_Training:
         next_state_expected_value[non_final_mask] = self.policy.get_expected_q_value(next_state_q_values)
         expected_state_action_values = (next_state_expected_value * GAMMA) + reward_batch 
 
+        #TO DO: Add hyper-parameter to select L1 vs MSE
         loss = F.mse_loss(state_action_values, expected_state_action_values.unsqueeze(1))
         
         self.game.average_q_value_loss.insert(0, loss.mean().item())
@@ -260,6 +308,10 @@ class Catan_Training:
                     legal_actions = self.env.checklegalmoves()
                     policy_action = self.policy.get_legal_action(q_values, legal_actions)
                     can_end_turn = legal_actions[0][4*21*11]
+                    legal_indices = np.where(legal_actions == 1)[1]
+                    #maybe change to valid_q_value_indices so it's clear its an array of valid actions with associated action numbers
+                    valid_q_values = [q_values[i] for i in legal_indices]
+                    policy_action = legal_indices[np.argmax(valid_q_values)]
                     if policy_action >= 4*11*21:
                         action_type = int(policy_action - 4*11*21 + 5)
                         position_y = 0
@@ -272,15 +324,16 @@ class Catan_Training:
                         if can_end_turn: #ends turn after 5 policy actions
                             action_selecter(self.env,5,0,0)
                         else: #tries random actions if it can't end turn
+                            # TO DO: evaluate trying to remove keep/discard resources from policy -> can we just randomly discard resources for both players when required. 
                             action_tensor = self.select_action_randomly()
                             random_action = True
-                    else:
+                    else: 
                         action_selecter(self.env, action_type, position_x, position_y)
                         random_action = False
                         action_tensor = torch.tensor([[policy_action]], device=self.device, dtype=torch.long)
-                if PRINT_ACTIONS:
+                if self.print_actions:
                     InterpretActions(0,action_tensor, self.env, action_was_random=random_action, log_file=self.log_file)
-            else:
+            else:#Random AI takes turn
                 self.env.phase.actionstarted = 0
                 action = self.select_action_randomly()
                 if PRINT_ACTIONS:
@@ -305,6 +358,8 @@ class Catan_Training:
             self.log_file.write(f"Starting Game {game_number}")
             self.new_game()
             winner = self.simulate_match(PRINT_ACTIONS)
+            self.add_epsiode_data(game_number)
+            self.log.clear()
             if winner == 0:
                 trained_policy_wins += 1
                 self.log_file.write("Trained Policy Wins")
@@ -342,6 +397,10 @@ class Catan_Training:
                             cur_boardstate = self.cur_boardstate.clone().detach().unsqueeze(0).to(self.device).float()        
                             cur_vectorstate = self.cur_vectorstate.clone().detach().unsqueeze(0).to(self.device).float()
                             next_board_state, next_vector_state, reward, done = state_changer(self.env)[0], state_changer(self.env)[1], self.env.phase.reward, self.game.is_finished
+                            ##add a sanity check on rewards. 
+                            if reward != 0:
+                                self.log.episodeRewardTracker.append(reward)
+                                self.log.episodeRewardStep.append(t)
                             reward = torch.tensor([reward], device=self.device)
                             next_board_state = next_board_state.clone().detach().unsqueeze(0).to(self.device).float()
                             next_vector_state = next_vector_state.clone().detach().unsqueeze(0).to(self.device).float()
@@ -360,7 +419,6 @@ class Catan_Training:
                             self.env.phase.gamemoves = t
                             self.log_file.write("done1")
                             self.game.is_finished = 0
-                            self.log.episode_durations.append(t+1)
                             break
                 elif self.game.cur_player == 0:
                     self.cur_boardstate =  state_changer(self.env)[0]
@@ -372,6 +430,9 @@ class Catan_Training:
                         InterpretActions(0, action, self.env, action_was_random, self.log_file)
                     if self.env.phase.statechange == 1:
                         next_board_state, next_vector_state, reward, done = state_changer(self.env)[0], state_changer(self.env)[1], self.env.phase.reward, self.game.is_finished
+                        if reward != 0:
+                            self.log.episodeRewardTracker.append(reward)
+                            self.log.episodeRewardStep.append(t)
                         reward = torch.tensor([reward], device=self.device)
                         next_board_state = next_board_state.clone().detach().unsqueeze(0).to(self.device).float()
                         next_vector_state = next_vector_state.clone().detach().unsqueeze(0).to(self.device).float()
@@ -388,7 +449,6 @@ class Catan_Training:
                         if done == 1:
                             self.env.phase.gamemoves = t
                             self.game.is_finished = 0
-                            self.log.episode_durations.append(t+1)
                             break
                     else:
                         sample = random.random()
@@ -404,7 +464,7 @@ class Catan_Training:
                 self.env.phase.statechange = 0
                 self.game.random_action_made = 0
                 self.env.phase.reward = 0
-
+            self.add_epsiode_data(i_episode)
             self.game.average_time.insert(0, time.time() - time_new_start)
             if len(self.game.average_time) > 10:
                 self.game.average_time.pop(10)
@@ -425,12 +485,29 @@ class Catan_Training:
 
         torch.save(self.agent_policy_net.state_dict(), f'agent_{(self.total_episodes + 1)}_{REWARD_FUNCTION}_{MODEL_SELECT}_policy_net.pth')
 
-def main(TRAINING_LOOPS, EPISODES_PER_LOOP,GAMES_PER_BENCHMARK,MEMORY,MODEL_SELECT,REWARD_FUNCTION,STOCHASTIC,
-         LR_START,LR_END,LR_DECAY,EPS_START,EPS_END,EPS_DECAY,
-         GAMMA,BATCH_SIZE,PRINT_ACTIONS, LOG_FILE_NAME, ):
+def main(TRAINING_LOOPS,EPISODES_PER_LOOP,GAMES_PER_BENCHMARK,MEMORY,MODEL_SELECT,REWARD_FUNCTION,STOCHASTIC,
+         LR_START,LR_END,LR_DECAY,EPS_START,EPS_END,EPS_DECAY,GAMMA,BATCH_SIZE,PRINT_ACTIONS,LOG_FILE_NAME,MLFLOW_ADDRESS):
+    
+    param_dict = {
+    "MEMORY": MEMORY,  # Size of the replay memory
+    "MODEL_SELECT": MODEL_SELECT,  # Model selection (example: 'DQN_Big', 'DQN_Medium', 'DQN_Small')
+    "REWARD_FUNCTION": REWARD_FUNCTION,  # Reward function used in the environment
+    "TRAINING_LOOPS": TRAINING_LOOPS,  # Number of training loops
+    "EPISODES_PER_LOOP": EPISODES_PER_LOOP, # Number of episodes per training loop
+    "GAMES_PER_BENCHMARK": GAMES_PER_BENCHMARK, # Number of games for benchmarking winrate
+    "LR_START": LR_START,  # Initial learning rate
+    "LR_END": LR_END,  # Final learning rate
+    "LR_DECAY": LR_DECAY,  # Decay factor for the learning rate
+    "EPS_START": EPS_START,  # Initial epsilon for exploration
+    "EPS_END": EPS_END,  # Final epsilon for exploration
+    "EPS_DECAY": EPS_DECAY,  # Decay factor for epsilon
+    "GAMMA": GAMMA,  # Discount factor
+    "BATCH_SIZE": BATCH_SIZE  # Batch size for training
+    }
+    
     torch.manual_seed(2)
-    train = False
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    
     if MODEL_SELECT =='Large':
         from DQN.Neural_Networks.DQN_Big import DQN as dqn
     elif MODEL_SELECT =='Medium':
@@ -450,7 +527,9 @@ def main(TRAINING_LOOPS, EPISODES_PER_LOOP,GAMES_PER_BENCHMARK,MEMORY,MODEL_SELE
 
         for _ in range(TRAINING_LOOPS):
             training.train(PRINT_ACTIONS)
+            PushArtifacts(Experiment_name,param_dict,training.agent_policy_net,training.EpisodeData,MLFLOW_ADDRESS,TrainingData=True,TestingData=False,TagID=0)
             should_break_training = training.benchmark(PRINT_ACTIONS)
+            PushArtifacts(Experiment_name,param_dict,model,training.EpisodeData,MLFLOW_ADDRESS,TrainingData=False,TestingData=True,TagID=0)
             if should_break_training:
                 print("Training stopped due to low win rate")
                 break
@@ -463,4 +542,6 @@ def main(TRAINING_LOOPS, EPISODES_PER_LOOP,GAMES_PER_BENCHMARK,MEMORY,MODEL_SELE
         print(f'Optimizer Loss avg: {np.mean(training.game.average_q_value_loss)}')
 
 
-main(TRAINING_LOOPS,EPISODES_PER_LOOP,GAMES_PER_BENCHMARK,MEMORY,MODEL_SELECT,REWARD_FUNCTION,STOCHASTIC,LR_START,LR_END,LR_DECAY,EPS_START,EPS_END,EPS_DECAY,GAMMA,BATCH_SIZE,PRINT_ACTIONS, LOG_FILE)
+
+main(TRAINING_LOOPS,EPISODES_PER_LOOP,GAMES_PER_BENCHMARK,MEMORY,MODEL_SELECT,REWARD_FUNCTION,STOCHASTIC,LR_START,LR_END,LR_DECAY,EPS_START,EPS_END,EPS_DECAY,GAMMA,BATCH_SIZE,PRINT_ACTIONS,LOG_FILE,MLFLOW_ADDRESS)
+

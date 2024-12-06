@@ -62,16 +62,11 @@ class Player:
         self.yearofplenty1 = 0
         self.yearofplenty2 = 0
 
-        self.discard_resources_started = 0
         self.discard_resources_turn = 0
+        self.num_discarded_resources = 0
         self.discard_first_time = 0
         self.total_resources = 0
 
-        self.discard_resources_lumber = 0
-        self.discard_resources_wool = 0
-        self.discard_resources_grain = 0
-        self.discard_resources_brick = 0
-        self.discard_resources_ore = 0
 
         #__________________game-specific resource_____________
         #roads
@@ -196,12 +191,5 @@ class Player:
             self.total_development_cards_used = 0
             self.total_resources_traded = 0
             self.total_knights_played = 0
-    class Keepresources:
-        def __init__(self):
-            self.keep_lumber = 0
-            self.keep_wool = 0
-            self.keep_grain = 0
-            self.keep_brick = 0
-            self.keep_ore = 0
 
     

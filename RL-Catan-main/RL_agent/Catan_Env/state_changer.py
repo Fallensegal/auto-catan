@@ -75,7 +75,6 @@ def state_changer(env):
         player.monopoly_move_pending,
         player.roadbuilding_move_pending,
         player.yearofplenty_move_pending,
-        player.discard_resources_started,
     ))
     torch_board_tensor = torch.from_numpy(np_board_tensor[None,:]).float()
     torch_vector_tensor = torch.from_numpy(np_vector_tensor[None,:]).float()

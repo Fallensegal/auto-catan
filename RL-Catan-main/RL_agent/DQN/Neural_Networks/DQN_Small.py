@@ -7,14 +7,14 @@ class DQN(nn.Module):
         super().__init__()
 
         self.denselayer = nn.Sequential(
-            nn.Linear(35,64),
+            nn.Linear(34,64),
             nn.ReLU(),
             nn.Linear(64,64),
 
         
         )
         self.denseFinal = nn.Sequential(
-            nn.Linear(128,41),
+            nn.Linear(128,36),
         )
         
 
@@ -45,7 +45,7 @@ class DQN(nn.Module):
         )
         #That might be too much of an incline, but let's see how it goes
         self.DenseConv = nn.Sequential(
-            nn.Linear(35,64),
+            nn.Linear(34,64),
             nn.ReLU(),
             nn.Linear(64,128),
         )

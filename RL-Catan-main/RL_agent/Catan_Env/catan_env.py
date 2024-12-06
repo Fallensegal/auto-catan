@@ -40,12 +40,6 @@ class Catan_Env:
 
         self.player_action = [self.player0_action, self.player1_action]
 
-
-        self.player0_keepresources = self.player0.Keepresources()
-        self.player1_keepresources = self.player1.Keepresources()
-
-        self.player_keepresources = [self.player0_keepresources, self.player1_keepresources]
-
         self.player0_trading = self.player0.Trading()
         self.player1_trading = self.player1.Trading()
 
@@ -1064,88 +1058,45 @@ class Catan_Env:
 
 
 
-    def discard_resources(self,lumber, wool, grain, brick, ore):
+    def discard_resources(self):
         """
-        Discard resources from the player's inventory until half of the ressources have been discarded. 
-
-        There is always only 1 argument "1" and the rest "0"
-        
-        Args:
-            lumber (int): The number of lumber resources to discard.
-            wool (int): The number of wool resources to discard.
-            grain (int): The number of grain resources to discard.
-            brick (int): The number of brick resources to discard.
-            ore (int): The number of ore resources to discard.
+        Discard resources from the player's inventory until half of the ressources have been discarded.
+        12/5/2024 - we made the decision to remove this from the action space. After several training runs we found the policy can get stuck in a loop
+        Always trying to "keep lumber"
+        So we made it a random selection for both players -> now it's a part of the environment without over-simplifying the game
         """
 
         random_testing = self.random_testing
         player = self.players[self.game.cur_player]
         random_testing.discard_resources += 1
         if player.discard_first_time == 1:
-            player.total_resources = player.resource_lumber + player.resource_brick + player.resource_grain + player.resource_ore + player.resource_wool 
-            player.discard_resources_lumber = player.resource_lumber
-            player.discard_resources_wool = player.resource_wool
-            player.discard_resources_grain = player.resource_grain
-            player.discard_resources_brick = player.resource_brick
-            player.discard_resources_ore = player.resource_ore
-            player.resource_lumber = 0
-            player.resource_wool = 0
-            player.resource_grain = 0
-            player.resource_brick = 0
-            player.resource_ore = 0
-            player.discard_first_time = 0
 
-        if lumber == 1:  
-            if player.discard_resources_lumber != 0:
-                player.resource_lumber += 1
-                player.discard_resources_lumber -= 1 
-                player.discard_resources_turn += 1
-                
-                self.phase.statechange = 1
-        elif wool == 1:
-            if player.discard_resources_wool != 0:
-                player.resource_wool += 1
-                player.discard_resources_wool -= 1
-                player.discard_resources_turn += 1
-                
-                self.phase.statechange = 1
-        elif grain == 1:
-            if player.discard_resources_grain != 0:
-                player.resource_grain += 1
-                player.discard_resources_grain -= 1 
-                player.discard_resources_turn += 1
-                
-                self.phase.statechange = 1
-        elif brick == 1:
-            if player.discard_resources_brick != 0:
-                player.resource_brick += 1
-                player.discard_resources_brick -= 1 
-                player.discard_resources_turn += 1
-                
-                self.phase.statechange = 1
-        elif ore == 1:
-            if player.discard_resources_ore != 0:
-                player.resource_ore += 1
-                player.discard_resources_ore -= 1 
-                player.discard_resources_turn += 1
-                
-                self.phase.statechange = 1
-        
-        if player.discard_resources_turn > math.ceil(player.total_resources/2):
-            print("ERROR: Discard resources turn is greater than half of total resources")
-            print("Discard resources turn: ", player.discard_resources_turn)
-            print("Total resources: ", player.total_resources)
-        if player.discard_resources_lumber == 0 and player.discard_resources_wool == 0 and player.discard_resources_grain == 0 and player.discard_resources_brick == 0 and player.discard_resources_ore == 0:
-            print("ERROR: All discard resources are 0")
-        if player.discard_resources_turn >= math.ceil(player.total_resources/2) or (player.discard_resources_lumber == 0 and player.discard_resources_wool == 0 and player.discard_resources_grain == 0 and player.discard_resources_brick == 0 and player.discard_resources_ore == 0):
-            player.discard_resources_lumber = 0
-            player.discard_resources_wool = 0
-            player.discard_resources_grain = 0
-            player.discard_resources_brick = 0
-            player.discard_resources_ore = 0
-            player.discard_resources_turn = 0
-            player.discard_resources_started = 0
+            player.total_resources = player.resource_lumber + player.resource_brick + player.resource_grain + player.resource_ore + player.resource_wool
+            temp_num_resources_to_discard = int(math.ceil(player.total_resources/2))
+            player.num_discarded_resources+=temp_num_resources_to_discard
+            resource_pool = (['lumber'] * int(player.resource_lumber) +
+                            ['wool'] * int(player.resource_wool) +
+                            ['grain'] * int(player.resource_grain) +
+                            ['brick'] * int(player.resource_brick) +
+                            ['ore'] * int(player.resource_ore))
+            discarded_resources = random.sample(resource_pool, temp_num_resources_to_discard)
+            #temporary
+            print('discarding resources',discarded_resources)
+            for resource in discarded_resources:
+                if resource == 'lumber':
+                    player.resource_lumber -= 1
+                elif resource == 'wool':
+                    player.resource_wool -= 1
+                elif resource == 'grain':
+                    player.resource_grain -= 1
+                elif resource == 'brick':
+                    player.resource_brick -= 1
+                elif resource == 'ore':
+                    player.resource_ore -= 1
+
             random_testing.successful_discard_resources += 1
+            player.discard_first_time = 0
+            self.phase.statechange = 1
             self.steal_card()
 
     def longest_road(self,i, j, prev_move):
@@ -1604,16 +1555,11 @@ class Catan_Env:
             player.yearofplenty1 = 0
             player.yearofplenty2 = 0
 
-            player.discard_resources_started = 0
             player.discard_resources_turn = 0
+            player.num_discarded_resources = 0
             player.discard_first_time = 0
             player.total_resources = 0
 
-            player.discard_resources_lumber = 0
-            player.discard_resources_wool = 0
-            player.discard_resources_grain = 0
-            player.discard_resources_brick = 0
-            player.discard_resources_ore = 0
 
             #__________________game-specific resource_____________
             #roads
@@ -1680,11 +1626,9 @@ class Catan_Env:
         game = self.game
         board = self.board
         player_action = self.player_action
-        player_keepresources = self.player_keepresources
         player_trading = self.player_trading
         player = players[game.cur_player]
         action = player_action[game.cur_player]
-        keepresources = player_keepresources[game.cur_player]
         trading = player_trading[game.cur_player]
 
         if game.seven_rolled == 1:
@@ -1697,7 +1641,7 @@ class Catan_Env:
                     self.move_rober(d,e)
                     if player.resource_lumber + player.resource_wool + player.resource_grain + player.resource_brick + player.resource_ore >= 7:
                         player.discard_first_time = 1
-                        player.discard_resources_started = 1
+                        self.discard_resources() #rather than log doing it as an action - just update the hand...
                     else:
                         self.steal_card()
                     game.seven_rolled = 0
@@ -1760,7 +1704,7 @@ class Catan_Env:
                                 game.placement_phase_pending = 0
                                 game.placement_phase_turns_made = 0
         
-        if player.knight_move_pending != 1 and player.monopoly_move_pending != 1 and player.roadbuilding_move_pending != 1 and player.yearofplenty_move_pending != 1 and game.placement_phase_pending != 1 and player.discard_resources_started != 1:
+        if player.knight_move_pending != 1 and player.monopoly_move_pending != 1 and player.roadbuilding_move_pending != 1 and player.yearofplenty_move_pending != 1 and game.placement_phase_pending != 1:
             random_testing.howmuchisthisaccsessed += 1
             if np.any(action.settlement_place == 1):
                 b,c = np.where(action.settlement_place == 1)
@@ -1797,31 +1741,11 @@ class Catan_Env:
                         
 
                 
-        if player.knight_move_pending != 1 and player.monopoly_move_pending != 1 and player.roadbuilding_move_pending != 1 and player.yearofplenty_move_pending != 1 and game.placement_phase_pending != 1 and player.discard_resources_started != 1:
+        if player.knight_move_pending != 1 and player.monopoly_move_pending != 1 and player.roadbuilding_move_pending != 1 and player.yearofplenty_move_pending != 1 and game.placement_phase_pending != 1:
             if action.end_turn == 1:
                 self.move_finished() #need to take a look at this function too
-        
-        if player.discard_resources_started == 1:
-            a = 0
-            b = 0
-            c = 0
-            d = 0
-            e = 0
-            if keepresources.keep_lumber == 1: 
-                a = 1
-            elif keepresources.keep_wool == 1: 
-                b = 1
-            elif keepresources.keep_grain == 1: 
-                c = 1
-            elif keepresources.keep_brick == 1: 
-                d = 1
-            elif keepresources.keep_ore == 1: 
-                e = 1
-            if a != 0 or b != 0 or c != 0 or d != 0 or e != 0:
-                self.discard_resources(a,b,c,d,e)
-        
 
-        if player.knight_move_pending != 1 and player.monopoly_move_pending != 1 and player.roadbuilding_move_pending != 1 and player.yearofplenty_move_pending != 1 and game.placement_phase_pending != 1 and player.discard_resources_started != 1:
+        if player.knight_move_pending != 1 and player.monopoly_move_pending != 1 and player.roadbuilding_move_pending != 1 and player.yearofplenty_move_pending != 1 and game.placement_phase_pending != 1:
             if trading.give_lumber_get_wool == 1:
                 self.trade_resources(1,2)
             if trading.give_lumber_get_grain == 1:
@@ -1943,7 +1867,7 @@ class Catan_Env:
         player1 = players[1]
         distribution = self.distribution
 
-        self.legal_actions = np.zeros((1,(4*21*11+41)))
+        self.legal_actions = np.zeros((1,(4*21*11+36)))
         a = 0
         if player.roadbuilding_move_pending == 1:
             if player.roads_left > 0:
@@ -1954,28 +1878,6 @@ class Catan_Env:
                             a = 1
             if a == 0:
                 player.roadbuilding_move_pending = 0
-
-        b = 0
-        if player.discard_resources_started == 1:
-            if player.discard_resources_lumber != 0 or player.resource_lumber != 0:
-                self.legal_actions[0][4*21*11 + 1] = 1
-                b = 1
-            if player.discard_resources_wool != 0 or player.resource_wool != 0:
-                self.legal_actions[0][4*21*11 + 2] = 1
-                b = 1
-            if player.discard_resources_grain != 0 or player.resource_grain != 0:
-                self.legal_actions[0][4*21*11 + 3] = 1
-                b = 1
-            if player.discard_resources_brick != 0 or player.resource_brick != 0:
-                self.legal_actions[0][4*21*11 + 4] = 1
-                b = 1
-            if player.discard_resources_ore != 0 or player.resource_ore != 0:
-                self.legal_actions[0][4*21*11 + 5] = 1
-                b = 1
-            if b == 0:
-                print("something is wrong with the discard resources")
-                player.discard_resources_started = 0
-
         
         if game.seven_rolled == 1:
             for i in range(0,11):
@@ -1995,7 +1897,7 @@ class Catan_Env:
                     if ((((i + 1) == game.placement_phase_settlement_coordinate1 or (i - 1)  == game.placement_phase_settlement_coordinate1) and j == game.placement_phase_settlement_coordinate2) or (((j + 1) == game.placement_phase_settlement_coordinate2 or (j - 1)  == game.placement_phase_settlement_coordinate2) and i == game.placement_phase_settlement_coordinate1)):
                         self.legal_actions[0][21*11 + i*21+j] = 1
 
-        if player.knight_move_pending != 1 and player.monopoly_move_pending != 1 and player.roadbuilding_move_pending != 1 and player.yearofplenty_move_pending != 1 and game.placement_phase_pending != 1 and player.discard_resources_started != 1:
+        if player.knight_move_pending != 1 and player.monopoly_move_pending != 1 and player.roadbuilding_move_pending != 1 and player.yearofplenty_move_pending != 1 and game.placement_phase_pending != 1:
             if player.resource_brick > 0 and player.resource_lumber > 0:
                 if player.roads_left > 0:
                     for i in range(0,11):
@@ -2003,7 +1905,7 @@ class Catan_Env:
                             if self.road_possible_check(i,j) == 1:
                                 self.legal_actions[0][21*11 + i*21+j] = 1
 
-        if player.knight_move_pending != 1 and player.monopoly_move_pending != 1 and player.roadbuilding_move_pending != 1 and player.yearofplenty_move_pending != 1 and game.placement_phase_pending != 1 and player.discard_resources_started != 1:
+        if player.knight_move_pending != 1 and player.monopoly_move_pending != 1 and player.roadbuilding_move_pending != 1 and player.yearofplenty_move_pending != 1 and game.placement_phase_pending != 1:
             if player.resource_brick > 0 and player.resource_lumber > 0 and player.resource_grain > 0 and player.resource_wool > 0:
                 board.settlements_used = (1-player0.settlements)*(1-player1.settlements)
                 board.settlements_free = board.settlements_available * board.settlements_used
@@ -2024,7 +1926,7 @@ class Catan_Env:
                                 self.legal_actions[0][21*11 + 21*11 + i*21+j] = 1
 
     
-        if player.knight_move_pending != 1 and player.monopoly_move_pending != 1 and player.roadbuilding_move_pending != 1 and player.yearofplenty_move_pending != 1 and game.placement_phase_pending != 1 and player.discard_resources_started != 1:
+        if player.knight_move_pending != 1 and player.monopoly_move_pending != 1 and player.roadbuilding_move_pending != 1 and player.yearofplenty_move_pending != 1 and game.placement_phase_pending != 1:
             if player.resource_grain > 1 and player.resource_ore > 2:
                 if player.cities_left > 0:
                     for i in range(0,11):
@@ -2032,119 +1934,120 @@ class Catan_Env:
                             if player.settlements[i][j] == 1:
                                 self.legal_actions[0][21*11 + 21*11 + 21*11 + i*21+j] = 1
     
-        if player.knight_move_pending != 1 and player.monopoly_move_pending != 1 and player.roadbuilding_move_pending != 1 and player.yearofplenty_move_pending != 1 and game.placement_phase_pending != 1 and player.discard_resources_started != 1:
+        if player.knight_move_pending != 1 and player.monopoly_move_pending != 1 and player.roadbuilding_move_pending != 1 and player.yearofplenty_move_pending != 1 and game.placement_phase_pending != 1:
             self.legal_actions[0][4*21*11] = 1
         
-        if player.knight_move_pending != 1 and player.monopoly_move_pending != 1 and player.roadbuilding_move_pending != 1 and player.yearofplenty_move_pending != 1 and game.placement_phase_pending != 1 and player.discard_resources_started != 1:
+        trading_offset = 4 * 21 * 11
+        if player.knight_move_pending != 1 and player.monopoly_move_pending != 1 and player.roadbuilding_move_pending != 1 and player.yearofplenty_move_pending != 1 and game.placement_phase_pending != 1:
             if (board.harbor_lumber * player.settlements + board.harbor_lumber * player.cities).any() != 0:
                 if player.resource_lumber > 1:
-                    self.legal_actions[0][4*21*11 + 6] = 1
-                    self.legal_actions[0][4*21*11 + 7] = 1
-                    self.legal_actions[0][4*21*11 + 8] = 1
-                    self.legal_actions[0][4*21*11 + 9] = 1
+                    self.legal_actions[0][trading_offset + 1] = 1
+                    self.legal_actions[0][trading_offset + 2] = 1
+                    self.legal_actions[0][trading_offset + 3] = 1
+                    self.legal_actions[0][trading_offset + 4] = 1
             if (board.harbor_wool * player.settlements + board.harbor_wool * player.cities).any() != 0:
                 if player.resource_wool > 1:
-                    self.legal_actions[0][4*21*11 + 10] = 1
-                    self.legal_actions[0][4*21*11 + 11] = 1
-                    self.legal_actions[0][4*21*11 + 12] = 1
-                    self.legal_actions[0][4*21*11 + 13] = 1
+                    self.legal_actions[0][trading_offset + 5] = 1
+                    self.legal_actions[0][trading_offset + 6] = 1
+                    self.legal_actions[0][trading_offset + 7] = 1
+                    self.legal_actions[0][trading_offset + 8] = 1
             if (board.harbor_grain * player.settlements + board.harbor_grain * player.cities).any() != 0:
                 if player.resource_grain > 1:
-                    self.legal_actions[0][4*21*11 + 14] = 1
-                    self.legal_actions[0][4*21*11 + 15] = 1
-                    self.legal_actions[0][4*21*11 + 16] = 1
-                    self.legal_actions[0][4*21*11 + 17] = 1
+                    self.legal_actions[0][trading_offset + 9] = 1
+                    self.legal_actions[0][trading_offset + 10] = 1
+                    self.legal_actions[0][trading_offset + 11] = 1
+                    self.legal_actions[0][trading_offset + 12] = 1
             if (board.harbor_brick * player.settlements + board.harbor_brick * player.cities).any() != 0:
                 if player.resource_brick > 1:
-                    self.legal_actions[0][4*21*11 + 18] = 1
-                    self.legal_actions[0][4*21*11 + 19] = 1
-                    self.legal_actions[0][4*21*11 + 20] = 1
-                    self.legal_actions[0][4*21*11 + 21] = 1
+                    self.legal_actions[0][trading_offset + 13] = 1
+                    self.legal_actions[0][trading_offset + 14] = 1
+                    self.legal_actions[0][trading_offset + 15] = 1
+                    self.legal_actions[0][trading_offset + 16] = 1
             if (board.harbor_ore * player.settlements + board.harbor_ore * player.cities).any() != 0:
                 if player.resource_ore > 1:
-                    self.legal_actions[0][4*21*11 + 22] = 1
-                    self.legal_actions[0][4*21*11 + 23] = 1
-                    self.legal_actions[0][4*21*11 + 24] = 1
-                    self.legal_actions[0][4*21*11 + 25] = 1
+                    self.legal_actions[0][trading_offset + 17] = 1
+                    self.legal_actions[0][trading_offset + 18] = 1
+                    self.legal_actions[0][trading_offset + 19] = 1
+                    self.legal_actions[0][trading_offset + 20] = 1
             if (board.harbor_three_one * player.settlements + board.harbor_three_one * player.cities).any() != 0:
                 if player.resource_lumber > 2:
-                    self.legal_actions[0][4*21*11 + 6] = 1
-                    self.legal_actions[0][4*21*11 + 7] = 1
-                    self.legal_actions[0][4*21*11 + 8] = 1
-                    self.legal_actions[0][4*21*11 + 9] = 1
+                    self.legal_actions[0][trading_offset + 1] = 1
+                    self.legal_actions[0][trading_offset + 2] = 1
+                    self.legal_actions[0][trading_offset + 3] = 1
+                    self.legal_actions[0][trading_offset + 4] = 1
                 if player.resource_wool > 2:
-                    self.legal_actions[0][4*21*11 + 10] = 1
-                    self.legal_actions[0][4*21*11 + 11] = 1
-                    self.legal_actions[0][4*21*11 + 12] = 1
-                    self.legal_actions[0][4*21*11 + 13] = 1
+                    self.legal_actions[0][trading_offset + 5] = 1
+                    self.legal_actions[0][trading_offset + 6] = 1
+                    self.legal_actions[0][trading_offset + 7] = 1
+                    self.legal_actions[0][trading_offset + 8] = 1
                 if player.resource_grain > 2:
-                    self.legal_actions[0][4*21*11 + 14] = 1
-                    self.legal_actions[0][4*21*11 + 15] = 1
-                    self.legal_actions[0][4*21*11 + 16] = 1
-                    self.legal_actions[0][4*21*11 + 17] = 1
+                    self.legal_actions[0][trading_offset + 9] = 1
+                    self.legal_actions[0][trading_offset + 10] = 1
+                    self.legal_actions[0][trading_offset + 11] = 1
+                    self.legal_actions[0][trading_offset + 12] = 1
                 if player.resource_brick > 2:
-                    self.legal_actions[0][4*21*11 + 18] = 1
-                    self.legal_actions[0][4*21*11 + 19] = 1
-                    self.legal_actions[0][4*21*11 + 20] = 1
-                    self.legal_actions[0][4*21*11 + 21] = 1
+                    self.legal_actions[0][trading_offset + 13] = 1
+                    self.legal_actions[0][trading_offset + 14] = 1
+                    self.legal_actions[0][trading_offset + 15] = 1
+                    self.legal_actions[0][trading_offset + 16] = 1
                 if player.resource_ore > 2:
-                    self.legal_actions[0][4*21*11 + 22] = 1
-                    self.legal_actions[0][4*21*11 + 23] = 1
-                    self.legal_actions[0][4*21*11 + 24] = 1
-                    self.legal_actions[0][4*21*11 + 25] = 1
+                    self.legal_actions[0][trading_offset + 17] = 1
+                    self.legal_actions[0][trading_offset + 18] = 1
+                    self.legal_actions[0][trading_offset + 19] = 1
+                    self.legal_actions[0][trading_offset + 20] = 1
             if player.resource_lumber > 3:
-                self.legal_actions[0][4*21*11 + 6] = 1
-                self.legal_actions[0][4*21*11 + 7] = 1
-                self.legal_actions[0][4*21*11 + 8] = 1
-                self.legal_actions[0][4*21*11 + 9] = 1
+                    self.legal_actions[0][trading_offset + 1] = 1
+                    self.legal_actions[0][trading_offset + 2] = 1
+                    self.legal_actions[0][trading_offset + 3] = 1
+                    self.legal_actions[0][trading_offset + 4] = 1
             if player.resource_wool > 3:
-                self.legal_actions[0][4*21*11 + 10] = 1
-                self.legal_actions[0][4*21*11 + 11] = 1
-                self.legal_actions[0][4*21*11 + 12] = 1
-                self.legal_actions[0][4*21*11 + 13] = 1
+                    self.legal_actions[0][trading_offset + 5] = 1
+                    self.legal_actions[0][trading_offset + 6] = 1
+                    self.legal_actions[0][trading_offset + 7] = 1
+                    self.legal_actions[0][trading_offset + 8] = 1
             if player.resource_grain > 3:
-                self.legal_actions[0][4*21*11 + 14] = 1
-                self.legal_actions[0][4*21*11 + 15] = 1
-                self.legal_actions[0][4*21*11 + 16] = 1
-                self.legal_actions[0][4*21*11 + 17] = 1
+                    self.legal_actions[0][trading_offset + 9] = 1
+                    self.legal_actions[0][trading_offset + 10] = 1
+                    self.legal_actions[0][trading_offset + 11] = 1
+                    self.legal_actions[0][trading_offset + 12] = 1
             if player.resource_brick > 3:
-                self.legal_actions[0][4*21*11 + 18] = 1
-                self.legal_actions[0][4*21*11 + 19] = 1
-                self.legal_actions[0][4*21*11 + 20] = 1
-                self.legal_actions[0][4*21*11 + 21] = 1
+                    self.legal_actions[0][trading_offset + 13] = 1
+                    self.legal_actions[0][trading_offset + 14] = 1
+                    self.legal_actions[0][trading_offset + 15] = 1
+                    self.legal_actions[0][trading_offset + 16] = 1
             if player.resource_ore > 3:
-                self.legal_actions[0][4*21*11 + 22] = 1
-                self.legal_actions[0][4*21*11 + 23] = 1
-                self.legal_actions[0][4*21*11 + 24] = 1
-                self.legal_actions[0][4*21*11 + 25] = 1
+                    self.legal_actions[0][trading_offset + 17] = 1
+                    self.legal_actions[0][trading_offset + 18] = 1
+                    self.legal_actions[0][trading_offset + 19] = 1
+                    self.legal_actions[0][trading_offset + 20] = 1
             if player.resource_wool > 0 and player.resource_grain > 0 and player.resource_ore > 0 and distribution.development_cards_bought < 25:
-                self.legal_actions[0][4*21*11 + 26] = 1
+                self.legal_actions[0][trading_offset + 21] = 1
         
             if player.knight_cards_old >= 1:
-                self.legal_actions[0][4*21*11 + 27] = 1
+                self.legal_actions[0][trading_offset + 22] = 1
 
             if player.roadbuilding_cards_old >= 1:
-                self.legal_actions[0][4*21*11 + 28] = 1
+                self.legal_actions[0][trading_offset + 23] = 1
         
             if player.yearofplenty_cards_old >= 1:
-                self.legal_actions[0][4*21*11 + 29] = 1
+                self.legal_actions[0][trading_offset + 24] = 1
 
             if player.monopoly_cards_old >= 1:
-                self.legal_actions[0][4*21*11 + 30] = 1
+                self.legal_actions[0][trading_offset + 25] = 1
 
         if player.yearofplenty_move_pending == 1:
-            self.legal_actions[0][4*21*11 + 31] = 1
-            self.legal_actions[0][4*21*11 + 32] = 1
-            self.legal_actions[0][4*21*11 + 33] = 1
-            self.legal_actions[0][4*21*11 + 34] = 1
-            self.legal_actions[0][4*21*11 + 35] = 1
+                self.legal_actions[0][trading_offset + 26] = 1  # Lumber
+                self.legal_actions[0][trading_offset + 27] = 1  # Wool
+                self.legal_actions[0][trading_offset + 28] = 1  # Grain
+                self.legal_actions[0][trading_offset + 29] = 1  # Brick
+                self.legal_actions[0][trading_offset + 30] = 1  # Ore
 
         if player.monopoly_move_pending == 1:
-            self.legal_actions[0][4*21*11 + 36] = 1
-            self.legal_actions[0][4*21*11 + 37] = 1
-            self.legal_actions[0][4*21*11 + 38] = 1
-            self.legal_actions[0][4*21*11 + 39] = 1
-            self.legal_actions[0][4*21*11 + 40] = 1
+            self.legal_actions[0][trading_offset + 31] = 1
+            self.legal_actions[0][trading_offset + 32] = 1
+            self.legal_actions[0][trading_offset + 33] = 1
+            self.legal_actions[0][trading_offset + 34] = 1
+            self.legal_actions[0][trading_offset + 35] = 1
 
         if self.legal_actions.any() != 1:
             print("something is blocking it")
