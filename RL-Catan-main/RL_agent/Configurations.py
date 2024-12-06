@@ -1,8 +1,8 @@
 # Starting learning rate for the optimizer
-LR_START = 0.0000003
+LR_START = 0.00000005
 
 # Ending learning rate for the optimizer
-LR_END = 0.0000001
+LR_END = 0.00000001
 
 # Decay rate for the learning rate
 LR_DECAY = 2000000
@@ -11,10 +11,10 @@ LR_DECAY = 2000000
 EPS_START = 1
 
 # Ending value for the exploration rate (epsilon) in the epsilon-greedy policy
-EPS_END = 0.05
+EPS_END = 0.1
 
 # Decay rate for the exploration rate (epsilon) in the epsilon-greedy policy
-EPS_DECAY = 200000
+EPS_DECAY = 100000
 
 # Discount factor for future rewards in the Q-learning algorithm
 GAMMA = 0.99
@@ -45,8 +45,8 @@ STOCHASTIC = False #true if you want to use a stochastic policy instead of a det
 
 #number of episodes
 TRAINING_LOOPS = 10
-EPISODES_PER_LOOP = 10
-GAMES_PER_BENCHMARK = 50
+EPISODES_PER_LOOP = 3
+GAMES_PER_BENCHMARK = 5
 
 MEMORY = 1000
 

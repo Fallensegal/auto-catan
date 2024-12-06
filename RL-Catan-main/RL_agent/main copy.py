@@ -322,7 +322,8 @@ class Catan_Training:
 
 
     def train(self, PRINT_ACTIONS = False):
-        for i_episode in range(self.num_episodes_per_loop):   
+        for i_episode in range(self.num_episodes_per_loop):
+            self.total_episodes += 1   
             time_new_start = time.time()
             print(f"Starting Episode {i_episode}")
             self.new_game()
@@ -422,7 +423,7 @@ class Catan_Training:
             print(f"Episode {self.total_episodes} finished in {episode_time} seconds")
             print(f'latest Optimizer Loss Avg: {np.mean(self.game.average_q_value_loss)}')
 
-        torch.save(self.agent_policy_net.state_dict(), f'agent{self.total_episodes + 1}_{REWARD_FUNCTION}_{MODEL_SELECT}_policy_net.pth')
+        torch.save(self.agent_policy_net.state_dict(), f'agent_{(self.total_episodes + 1)}_{REWARD_FUNCTION}_{MODEL_SELECT}_policy_net.pth')
 
 def main(TRAINING_LOOPS, EPISODES_PER_LOOP,GAMES_PER_BENCHMARK,MEMORY,MODEL_SELECT,REWARD_FUNCTION,STOCHASTIC,
          LR_START,LR_END,LR_DECAY,EPS_START,EPS_END,EPS_DECAY,
