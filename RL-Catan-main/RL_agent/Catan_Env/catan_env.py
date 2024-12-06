@@ -1907,28 +1907,6 @@ class Catan_Env:
                             a = 1
             if a == 0:
                 player.roadbuilding_move_pending = 0
-
-        b = 0
-        if player.discard_resources_started == 1:
-            if player.discard_resources_lumber != 0 or player.resource_lumber != 0:
-                self.legal_actions[0][4*21*11 + 1] = 1
-                b = 1
-            if player.discard_resources_wool != 0 or player.resource_wool != 0:
-                self.legal_actions[0][4*21*11 + 2] = 1
-                b = 1
-            if player.discard_resources_grain != 0 or player.resource_grain != 0:
-                self.legal_actions[0][4*21*11 + 3] = 1
-                b = 1
-            if player.discard_resources_brick != 0 or player.resource_brick != 0:
-                self.legal_actions[0][4*21*11 + 4] = 1
-                b = 1
-            if player.discard_resources_ore != 0 or player.resource_ore != 0:
-                self.legal_actions[0][4*21*11 + 5] = 1
-                b = 1
-            if b == 0:
-                print("something is wrong with the discard resources")
-                player.discard_resources_started = 0
-
         
         if game.seven_rolled == 1:
             for i in range(0,11):
@@ -1988,116 +1966,117 @@ class Catan_Env:
         if player.knight_move_pending != 1 and player.monopoly_move_pending != 1 and player.roadbuilding_move_pending != 1 and player.yearofplenty_move_pending != 1 and game.placement_phase_pending != 1 and player.discard_resources_started != 1:
             self.legal_actions[0][4*21*11] = 1
         
+        trading_offset = 4 * 21 * 11
         if player.knight_move_pending != 1 and player.monopoly_move_pending != 1 and player.roadbuilding_move_pending != 1 and player.yearofplenty_move_pending != 1 and game.placement_phase_pending != 1 and player.discard_resources_started != 1:
             if (board.harbor_lumber * player.settlements + board.harbor_lumber * player.cities).any() != 0:
                 if player.resource_lumber > 1:
-                    self.legal_actions[0][4*21*11 + 6] = 1
-                    self.legal_actions[0][4*21*11 + 7] = 1
-                    self.legal_actions[0][4*21*11 + 8] = 1
-                    self.legal_actions[0][4*21*11 + 9] = 1
+                    self.legal_actions[0][trading_offset + 1] = 1
+                    self.legal_actions[0][trading_offset + 2] = 1
+                    self.legal_actions[0][trading_offset + 3] = 1
+                    self.legal_actions[0][trading_offset + 4] = 1
             if (board.harbor_wool * player.settlements + board.harbor_wool * player.cities).any() != 0:
                 if player.resource_wool > 1:
-                    self.legal_actions[0][4*21*11 + 10] = 1
-                    self.legal_actions[0][4*21*11 + 11] = 1
-                    self.legal_actions[0][4*21*11 + 12] = 1
-                    self.legal_actions[0][4*21*11 + 13] = 1
+                    self.legal_actions[0][trading_offset + 5] = 1
+                    self.legal_actions[0][trading_offset + 6] = 1
+                    self.legal_actions[0][trading_offset + 7] = 1
+                    self.legal_actions[0][trading_offset + 8] = 1
             if (board.harbor_grain * player.settlements + board.harbor_grain * player.cities).any() != 0:
                 if player.resource_grain > 1:
-                    self.legal_actions[0][4*21*11 + 14] = 1
-                    self.legal_actions[0][4*21*11 + 15] = 1
-                    self.legal_actions[0][4*21*11 + 16] = 1
-                    self.legal_actions[0][4*21*11 + 17] = 1
+                    self.legal_actions[0][trading_offset + 9] = 1
+                    self.legal_actions[0][trading_offset + 10] = 1
+                    self.legal_actions[0][trading_offset + 11] = 1
+                    self.legal_actions[0][trading_offset + 12] = 1
             if (board.harbor_brick * player.settlements + board.harbor_brick * player.cities).any() != 0:
                 if player.resource_brick > 1:
-                    self.legal_actions[0][4*21*11 + 18] = 1
-                    self.legal_actions[0][4*21*11 + 19] = 1
-                    self.legal_actions[0][4*21*11 + 20] = 1
-                    self.legal_actions[0][4*21*11 + 21] = 1
+                    self.legal_actions[0][trading_offset + 13] = 1
+                    self.legal_actions[0][trading_offset + 14] = 1
+                    self.legal_actions[0][trading_offset + 15] = 1
+                    self.legal_actions[0][trading_offset + 16] = 1
             if (board.harbor_ore * player.settlements + board.harbor_ore * player.cities).any() != 0:
                 if player.resource_ore > 1:
-                    self.legal_actions[0][4*21*11 + 22] = 1
-                    self.legal_actions[0][4*21*11 + 23] = 1
-                    self.legal_actions[0][4*21*11 + 24] = 1
-                    self.legal_actions[0][4*21*11 + 25] = 1
+                    self.legal_actions[0][trading_offset + 17] = 1
+                    self.legal_actions[0][trading_offset + 18] = 1
+                    self.legal_actions[0][trading_offset + 19] = 1
+                    self.legal_actions[0][trading_offset + 20] = 1
             if (board.harbor_three_one * player.settlements + board.harbor_three_one * player.cities).any() != 0:
                 if player.resource_lumber > 2:
-                    self.legal_actions[0][4*21*11 + 6] = 1
-                    self.legal_actions[0][4*21*11 + 7] = 1
-                    self.legal_actions[0][4*21*11 + 8] = 1
-                    self.legal_actions[0][4*21*11 + 9] = 1
+                    self.legal_actions[0][trading_offset + 1] = 1
+                    self.legal_actions[0][trading_offset + 2] = 1
+                    self.legal_actions[0][trading_offset + 3] = 1
+                    self.legal_actions[0][trading_offset + 4] = 1
                 if player.resource_wool > 2:
-                    self.legal_actions[0][4*21*11 + 10] = 1
-                    self.legal_actions[0][4*21*11 + 11] = 1
-                    self.legal_actions[0][4*21*11 + 12] = 1
-                    self.legal_actions[0][4*21*11 + 13] = 1
+                    self.legal_actions[0][trading_offset + 5] = 1
+                    self.legal_actions[0][trading_offset + 6] = 1
+                    self.legal_actions[0][trading_offset + 7] = 1
+                    self.legal_actions[0][trading_offset + 8] = 1
                 if player.resource_grain > 2:
-                    self.legal_actions[0][4*21*11 + 14] = 1
-                    self.legal_actions[0][4*21*11 + 15] = 1
-                    self.legal_actions[0][4*21*11 + 16] = 1
-                    self.legal_actions[0][4*21*11 + 17] = 1
+                    self.legal_actions[0][trading_offset + 9] = 1
+                    self.legal_actions[0][trading_offset + 10] = 1
+                    self.legal_actions[0][trading_offset + 11] = 1
+                    self.legal_actions[0][trading_offset + 12] = 1
                 if player.resource_brick > 2:
-                    self.legal_actions[0][4*21*11 + 18] = 1
-                    self.legal_actions[0][4*21*11 + 19] = 1
-                    self.legal_actions[0][4*21*11 + 20] = 1
-                    self.legal_actions[0][4*21*11 + 21] = 1
+                    self.legal_actions[0][trading_offset + 13] = 1
+                    self.legal_actions[0][trading_offset + 14] = 1
+                    self.legal_actions[0][trading_offset + 15] = 1
+                    self.legal_actions[0][trading_offset + 16] = 1
                 if player.resource_ore > 2:
-                    self.legal_actions[0][4*21*11 + 22] = 1
-                    self.legal_actions[0][4*21*11 + 23] = 1
-                    self.legal_actions[0][4*21*11 + 24] = 1
-                    self.legal_actions[0][4*21*11 + 25] = 1
+                    self.legal_actions[0][trading_offset + 17] = 1
+                    self.legal_actions[0][trading_offset + 18] = 1
+                    self.legal_actions[0][trading_offset + 19] = 1
+                    self.legal_actions[0][trading_offset + 20] = 1
             if player.resource_lumber > 3:
-                self.legal_actions[0][4*21*11 + 6] = 1
-                self.legal_actions[0][4*21*11 + 7] = 1
-                self.legal_actions[0][4*21*11 + 8] = 1
-                self.legal_actions[0][4*21*11 + 9] = 1
+                    self.legal_actions[0][trading_offset + 1] = 1
+                    self.legal_actions[0][trading_offset + 2] = 1
+                    self.legal_actions[0][trading_offset + 3] = 1
+                    self.legal_actions[0][trading_offset + 4] = 1
             if player.resource_wool > 3:
-                self.legal_actions[0][4*21*11 + 10] = 1
-                self.legal_actions[0][4*21*11 + 11] = 1
-                self.legal_actions[0][4*21*11 + 12] = 1
-                self.legal_actions[0][4*21*11 + 13] = 1
+                    self.legal_actions[0][trading_offset + 5] = 1
+                    self.legal_actions[0][trading_offset + 6] = 1
+                    self.legal_actions[0][trading_offset + 7] = 1
+                    self.legal_actions[0][trading_offset + 8] = 1
             if player.resource_grain > 3:
-                self.legal_actions[0][4*21*11 + 14] = 1
-                self.legal_actions[0][4*21*11 + 15] = 1
-                self.legal_actions[0][4*21*11 + 16] = 1
-                self.legal_actions[0][4*21*11 + 17] = 1
+                    self.legal_actions[0][trading_offset + 9] = 1
+                    self.legal_actions[0][trading_offset + 10] = 1
+                    self.legal_actions[0][trading_offset + 11] = 1
+                    self.legal_actions[0][trading_offset + 12] = 1
             if player.resource_brick > 3:
-                self.legal_actions[0][4*21*11 + 18] = 1
-                self.legal_actions[0][4*21*11 + 19] = 1
-                self.legal_actions[0][4*21*11 + 20] = 1
-                self.legal_actions[0][4*21*11 + 21] = 1
+                    self.legal_actions[0][trading_offset + 13] = 1
+                    self.legal_actions[0][trading_offset + 14] = 1
+                    self.legal_actions[0][trading_offset + 15] = 1
+                    self.legal_actions[0][trading_offset + 16] = 1
             if player.resource_ore > 3:
-                self.legal_actions[0][4*21*11 + 22] = 1
-                self.legal_actions[0][4*21*11 + 23] = 1
-                self.legal_actions[0][4*21*11 + 24] = 1
-                self.legal_actions[0][4*21*11 + 25] = 1
+                    self.legal_actions[0][trading_offset + 17] = 1
+                    self.legal_actions[0][trading_offset + 18] = 1
+                    self.legal_actions[0][trading_offset + 19] = 1
+                    self.legal_actions[0][trading_offset + 20] = 1
             if player.resource_wool > 0 and player.resource_grain > 0 and player.resource_ore > 0 and distribution.development_cards_bought < 25:
-                self.legal_actions[0][4*21*11 + 26] = 1
+                self.legal_actions[0][trading_offset + 21] = 1
         
             if player.knight_cards_old >= 1:
-                self.legal_actions[0][4*21*11 + 27] = 1
+                self.legal_actions[0][trading_offset + 22] = 1
 
             if player.roadbuilding_cards_old >= 1:
-                self.legal_actions[0][4*21*11 + 28] = 1
+                self.legal_actions[0][trading_offset + 23] = 1
         
             if player.yearofplenty_cards_old >= 1:
-                self.legal_actions[0][4*21*11 + 29] = 1
+                self.legal_actions[0][trading_offset + 24] = 1
 
             if player.monopoly_cards_old >= 1:
-                self.legal_actions[0][4*21*11 + 30] = 1
+                self.legal_actions[0][trading_offset + 25] = 1
 
         if player.yearofplenty_move_pending == 1:
-            self.legal_actions[0][4*21*11 + 31] = 1
-            self.legal_actions[0][4*21*11 + 32] = 1
-            self.legal_actions[0][4*21*11 + 33] = 1
-            self.legal_actions[0][4*21*11 + 34] = 1
-            self.legal_actions[0][4*21*11 + 35] = 1
+                self.legal_actions[0][trading_offset + 26] = 1  # Lumber
+                self.legal_actions[0][trading_offset + 27] = 1  # Wool
+                self.legal_actions[0][trading_offset + 28] = 1  # Grain
+                self.legal_actions[0][trading_offset + 29] = 1  # Brick
+                self.legal_actions[0][trading_offset + 30] = 1  # Ore
 
         if player.monopoly_move_pending == 1:
-            self.legal_actions[0][4*21*11 + 36] = 1
-            self.legal_actions[0][4*21*11 + 37] = 1
-            self.legal_actions[0][4*21*11 + 38] = 1
-            self.legal_actions[0][4*21*11 + 39] = 1
-            self.legal_actions[0][4*21*11 + 40] = 1
+            self.legal_actions[0][trading_offset + 31] = 1
+            self.legal_actions[0][trading_offset + 32] = 1
+            self.legal_actions[0][trading_offset + 33] = 1
+            self.legal_actions[0][trading_offset + 34] = 1
+            self.legal_actions[0][trading_offset + 35] = 1
 
         if self.legal_actions.any() != 1:
             print("something is blocking it")
