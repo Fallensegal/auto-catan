@@ -1262,7 +1262,39 @@ class Catan_Env:
                     return 0
             else:
                 return 0
-        elif self.RewardFunction == 'Large Magnitude':
+        if self.RewardFunction == 'Incremental_All':
+            if(self.game.placement_phase_pending ==0):
+                if cur_player == 0:
+                    #everytime the player gains victory points, get a reward the size of the victory point
+                    #if the player loses longest road or largest army, then they would lose victory points and get negative reward
+                    #DQN implicity tracks discounted reward using Q function
+                    self.phase.reward+=int(self.player0_log.total_resources_found           - self.player0_log.old_total_resources_found)*.001
+                    self.phase.reward+=int(self.player0_log.total_development_cards_bought  - self.player0_log.old_total_development_cards_bought)*.01
+                    self.phase.reward+=int(self.player0_log.total_roads_built               - self.player0_log.old_total_roads_built)*.01
+                    self.phase.reward+=int(self.player0_log.total_settlements_built         - self.player0_log.old_total_settlements_built)*.1
+                    self.phase.reward+=int(self.player0_log.total_cities_built              - self.player0_log.old_total_cities_built)*.2
+                    self.phase.reward+=int(self.player0_log.total_development_cards_used    - self.player0_log.old_total_development_cards_used)*.01
+                    self.phase.reward+=int(self.player0_log.total_knights_played            - self.player0_log.old_total_knights_played)*.01
+                    self.phase.reward+=int(self.players[cur_player].victorypoints - self.players[1-cur_player].victorypoints)*.1 #discourage falling behind
+                if self.players[cur_player].victorypoints >= 10:
+                    if cur_player ==0: 
+                        self.phase.reward+=5
+                        #print(f'Reward: {self.phase.reward}')
+                        self.player0.wins+=1
+                        return 1
+                    elif cur_player ==1: 
+                        self.phase.reward-=5
+                        #print(f'Reward: {self.phase.reward}')
+                        self.player1.wins+=1
+                        return 1
+                    else: 
+                        return 0
+                else:
+                    return 0
+            else:
+                return 0
+            
+        elif self.RewardFunction == 'Large_Magnitude':
             if self.players[cur_player].victorypoints >=10:
                 if cur_player == 0:
                     self.phase.reward += 10
@@ -1293,7 +1325,7 @@ class Catan_Env:
                     self.player0.wins+=1
                     return 1
                 elif cur_player ==1:
-                    self.phase.reward -= 10
+                    self.phase.reward -= 1
                     self.phase.victoryreward = 0
                     self.phase.victorypointreward = 0
                     self.phase.legalmovesreward = 0
@@ -1353,6 +1385,10 @@ class Catan_Env:
         
 
         self.game.is_finished = self.update_rewards()
+        if self.game.cur_player==0:
+            player0_log.UpdateOldLog()
+        else:
+            player1_log.UpdateOldLog()
         if self.game.is_finished == 1:
             self.game.winner = self.game.cur_player
         player0.victorypoints_before = player0.victorypoints

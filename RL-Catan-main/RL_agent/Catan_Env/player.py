@@ -192,4 +192,22 @@ class Player:
             self.total_resources_traded = 0
             self.total_knights_played = 0
 
+            self.old_total_resources_found = 0
+            self.old_total_development_cards_bought = 0
+            self.old_total_roads_built = 0
+            self.old_total_settlements_built = 0
+            self.old_total_cities_built = 0
+            self.old_total_development_cards_used = 0
+            self.old_total_resources_traded = 0
+            self.old_total_knights_played = 0
+            
+        def UpdateOldLog(self):
+            self.old_total_self_resources_found          = self.total_resources_found
+            self.old_total_self_development_cards_bought = self.total_development_cards_bought
+            self.old_total_self_roads_built              = self.total_roads_built             
+            self.old_total_self_settlements_built        = self.total_settlements_built
+            self.old_total_self_cities_built             = self.total_cities_built
+            self.old_total_self_development_cards_used   = self.total_development_cards_used
+            self.old_total_self_resources_traded         = self.total_resources_traded
+            self.old_total_self_knights_played           = self.total_knights_played
     
