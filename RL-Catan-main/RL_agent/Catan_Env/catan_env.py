@@ -1064,88 +1064,52 @@ class Catan_Env:
 
 
 
-    def discard_resources(self,lumber, wool, grain, brick, ore):
+    def discard_resources(self):
         """
-        Discard resources from the player's inventory until half of the ressources have been discarded. 
-
-        There is always only 1 argument "1" and the rest "0"
-        
-        Args:
-            lumber (int): The number of lumber resources to discard.
-            wool (int): The number of wool resources to discard.
-            grain (int): The number of grain resources to discard.
-            brick (int): The number of brick resources to discard.
-            ore (int): The number of ore resources to discard.
+        Discard resources from the player's inventory until half of the ressources have been discarded.
+        12/5/2024 - we made the decision to remove this from the action space. After several training runs we found the policy can get stuck in a loop
+        Always trying to "keep lumber"
+        So we made it a random selection for both players -> now it's a part of the environment without over-simplifying the game
         """
 
         random_testing = self.random_testing
         player = self.players[self.game.cur_player]
         random_testing.discard_resources += 1
         if player.discard_first_time == 1:
-            player.total_resources = player.resource_lumber + player.resource_brick + player.resource_grain + player.resource_ore + player.resource_wool 
-            player.discard_resources_lumber = player.resource_lumber
-            player.discard_resources_wool = player.resource_wool
-            player.discard_resources_grain = player.resource_grain
-            player.discard_resources_brick = player.resource_brick
-            player.discard_resources_ore = player.resource_ore
-            player.resource_lumber = 0
-            player.resource_wool = 0
-            player.resource_grain = 0
-            player.resource_brick = 0
-            player.resource_ore = 0
-            player.discard_first_time = 0
 
-        if lumber == 1:  
-            if player.discard_resources_lumber != 0:
-                player.resource_lumber += 1
-                player.discard_resources_lumber -= 1 
-                player.discard_resources_turn += 1
-                
-                self.phase.statechange = 1
-        elif wool == 1:
-            if player.discard_resources_wool != 0:
-                player.resource_wool += 1
-                player.discard_resources_wool -= 1
-                player.discard_resources_turn += 1
-                
-                self.phase.statechange = 1
-        elif grain == 1:
-            if player.discard_resources_grain != 0:
-                player.resource_grain += 1
-                player.discard_resources_grain -= 1 
-                player.discard_resources_turn += 1
-                
-                self.phase.statechange = 1
-        elif brick == 1:
-            if player.discard_resources_brick != 0:
-                player.resource_brick += 1
-                player.discard_resources_brick -= 1 
-                player.discard_resources_turn += 1
-                
-                self.phase.statechange = 1
-        elif ore == 1:
-            if player.discard_resources_ore != 0:
-                player.resource_ore += 1
-                player.discard_resources_ore -= 1 
-                player.discard_resources_turn += 1
-                
-                self.phase.statechange = 1
-        
-        if player.discard_resources_turn > math.ceil(player.total_resources/2):
-            print("ERROR: Discard resources turn is greater than half of total resources")
-            print("Discard resources turn: ", player.discard_resources_turn)
-            print("Total resources: ", player.total_resources)
-        if player.discard_resources_lumber == 0 and player.discard_resources_wool == 0 and player.discard_resources_grain == 0 and player.discard_resources_brick == 0 and player.discard_resources_ore == 0:
-            print("ERROR: All discard resources are 0")
-        if player.discard_resources_turn >= math.ceil(player.total_resources/2) or (player.discard_resources_lumber == 0 and player.discard_resources_wool == 0 and player.discard_resources_grain == 0 and player.discard_resources_brick == 0 and player.discard_resources_ore == 0):
-            player.discard_resources_lumber = 0
-            player.discard_resources_wool = 0
-            player.discard_resources_grain = 0
-            player.discard_resources_brick = 0
-            player.discard_resources_ore = 0
-            player.discard_resources_turn = 0
-            player.discard_resources_started = 0
+            player.total_resources = player.resource_lumber + player.resource_brick + player.resource_grain + player.resource_ore + player.resource_wool
+            temp_num_resources_to_discard = int(math.ceil(player.total_resources/2))
+            player.num_discarded_resources+=temp_num_resources_to_discard
+            resource_pool = (['lumber'] * player.resource_lumber +
+                            ['wool'] * player.resource_wool +
+                            ['grain'] * player.resource_grain +
+                            ['brick'] * player.resource_brick +
+                            ['ore'] * player.resource_ore)
+            discarded_resources = random.sample(resource_pool, temp_num_resources_to_discard)
+            for resource in discarded_resources:
+                if resource == 'lumber':
+                    player.resource_lumber -= 1
+                elif resource == 'wool':
+                    player.resource_wool -= 1
+                elif resource == 'grain':
+                    player.resource_grain -= 1
+                elif resource == 'brick':
+                    player.resource_brick -= 1
+                elif resource == 'ore':
+                    player.resource_ore -= 1
+            #player.discard_resources_lumber = player.resource_lumber
+            #player.discard_resources_wool = player.resource_wool
+            #player.discard_resources_grain = player.resource_grain
+            #player.discard_resources_brick = player.resource_brick
+            #player.discard_resources_ore = player.resource_ore
+            #player.resource_lumber = 0
+            #player.resource_wool = 0
+            #player.resource_grain = 0
+            #player.resource_brick = 0
+            #player.resource_ore = 0
             random_testing.successful_discard_resources += 1
+            player.discard_first_time = 0
+            self.phase.statechange = 1
             self.steal_card()
 
     def longest_road(self,i, j, prev_move):
