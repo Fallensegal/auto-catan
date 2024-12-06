@@ -1546,7 +1546,7 @@ class Catan_Env:
         distribution.harbor_random_numbers = np.random.choice(distribution.harbor_numbers,9,replace=False)
         distribution.plate_numbers = [2,3,3,4,4,5,5,6,6,8,8,9,9,10,10,11,11,12]
         distribution.plate_random_numbers = np.random.choice(distribution.plate_numbers, 18, replace=False)
-        distribution.development_card_numbers = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,3,3,4,4,5,5]
+        distribution.development_card_numbers = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,3,3,4,4,4,4] #removed road builder
         distribution.development_card_random_number = np.random.choice(distribution.development_card_numbers,25,replace=False)
         distribution.development_cards_bought = 0
         

@@ -12,7 +12,7 @@ class Distribution:
         self.plate_numbers = [2,3,3,4,4,5,5,6,6,8,8,9,9,10,10,11,11,12]
         self.plate_random_numbers = np.random.choice(self.plate_numbers, 18, replace=False)
 
-        self.development_card_numbers = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,3,3,4,4,5,5]
+        self.development_card_numbers = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,3,3,4,4,4,4] #removed road builder card (5)
         self.development_card_random_number = np.random.choice(self.development_card_numbers,25,replace=False)
         self.development_cards_bought = 0
 
