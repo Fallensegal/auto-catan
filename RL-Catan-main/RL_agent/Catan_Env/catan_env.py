@@ -1080,8 +1080,6 @@ class Catan_Env:
                             ['brick'] * int(player.resource_brick) +
                             ['ore'] * int(player.resource_ore))
             discarded_resources = random.sample(resource_pool, temp_num_resources_to_discard)
-            #temporary
-            print('discarding resources',discarded_resources)
             for resource in discarded_resources:
                 if resource == 'lumber':
                     player.resource_lumber -= 1
