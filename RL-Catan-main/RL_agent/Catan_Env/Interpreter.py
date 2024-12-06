@@ -1,5 +1,5 @@
 import math 
-def InterpretActions(player, selected_action, env, gameStatePrintLevel = 0, action_was_random = True):
+def InterpretActions(player, selected_action, env, action_was_random = True, log_file = None, gameStatePrintLevel = 0):
     selected_action = selected_action.item()
     if selected_action >= 4*11*21:
         final_action = selected_action - 4*11*21 + 5
@@ -57,26 +57,27 @@ def InterpretActions(player, selected_action, env, gameStatePrintLevel = 0, acti
     # Fetch and print the appropriate message
     message = action_messages.get(final_action, "Unknown action")
     
-    if action_was_random:
-        message = "Randomly selected " + message
-    else:
-        message = "Policy selected " + message
-    print(f"Player: {player}, {message}")
-    if final_action == 5:
-        print(f"Reward for player 0: {env.phase.reward}\n")
-        if gameStatePrintLevel == 1:
-            print(f"\nPlayer 0 Stats:")
-            print(env.player0)
-            print(f"\nPlayer 1 Stats:")
-            print(env.player1)
-        elif gameStatePrintLevel == 2:
-            print(f"\nBoard state:")
-            print(env.board)
-        elif gameStatePrintLevel == 3:
-            print(f"\nPlayer 0 Stats:")
-            print(env.player0)
-            print(f"\nPlayer 1 Stats:")
-            print(env.player1)
-            print(f"\nBoard state:")
-            print(env.board)
+    if log_file is not None:
+        if action_was_random:
+            message = "Randomly selected " + message
+        else:
+            message = "Policy selected " + message
+        log_file.write(f"Player: {player}, {message}\nReward for the agent: {env.phase.reward}\n")
+        if final_action == 5:
+            if gameStatePrintLevel == 1:
+                log_file.write(f"\nPlayer 0 Stats:")
+                log_file.write(env.player0)
+                log_file.write(f"\nPlayer 1 Stats:")
+                log_file.write(env.player1)
+            elif gameStatePrintLevel == 2:
+                log_file.write(f"\nBoard state:")
+                log_file.write(env.board)
+            elif gameStatePrintLevel == 3:
+                log_file.write(f"\nPlayer 0 Stats:")
+                log_file.write(env.player0)
+                log_file.write(f"\nPlayer 1 Stats:")
+                log_file.write(env.player1)
+                log_file.write(f"\nBoard state:")
+                log_file.write(env.board)
+
 
