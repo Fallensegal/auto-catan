@@ -14,7 +14,7 @@ class DQN(nn.Module):
         
         )
         self.denseFinal = nn.Sequential(
-            nn.Linear(128,41),
+            nn.Linear(128,36),
         )
         
 
