@@ -1237,32 +1237,55 @@ class Catan_Env:
             else:
                 return 0 #game not over
         if self.RewardFunction == 'Incremental_VP':
-            if cur_player == 0:
-                #everytime the player gains victory points, get a reward the size of the victory point
-                #if the player loses longest road or largest army, then they would lose victory points and get negative reward
-                #DQN implicity tracks discounted reward using Q function
-                if self.players[cur_player].victorypoints != self.players[cur_player].victorypoints_before:
-                    self.phase.reward += (self.players[cur_player].victorypoints - self.players[cur_player].victorypoints_before)
-                    #print(self.phase.reward)
-            if self.players[cur_player].victorypoints >= 10:
-                if cur_player ==0: 
-                    self.phase.reward+=20
-                    #print(f'Reward: {self.phase.reward}')
-                    self.player0.wins+=1
-                    return 1
-                elif cur_player ==1: 
-                    self.phase.reward-=20
-                    #print(f'Reward: {self.phase.reward}')
-                    self.player1.wins+=1
-                    return 1
-                else: 
+            if(self.game.placement_phase_pending ==0):
+                if cur_player == 0:
+                    #everytime the player gains victory points, get a reward the size of the victory point
+                    #if the player loses longest road or largest army, then they would lose victory points and get negative reward
+                    #DQN implicity tracks discounted reward using Q function
+                    if self.players[cur_player].victorypoints != self.players[cur_player].victorypoints_before:
+                        self.phase.reward += (self.players[cur_player].victorypoints - self.players[cur_player].victorypoints_before)*.1
+                        #print(self.phase.reward)
+                if self.players[cur_player].victorypoints >= 10:
+                    if cur_player ==0: 
+                        self.phase.reward+=1
+                        #print(f'Reward: {self.phase.reward}')
+                        self.player0.wins+=1
+                        return 1
+                    elif cur_player ==1: 
+                        self.phase.reward-=1
+                        #print(f'Reward: {self.phase.reward}')
+                        self.player1.wins+=1
+                        return 1
+                    else: 
+                        return 0
+                else:
                     return 0
             else:
-                return 0           
-        else: # If nothing is defined then just 10 points for winning and -10 points for losing. (a.k.a. High_Sparsity_VP)
+                return 0
+        elif self.RewardFunction == 'Large Magnitude':
             if self.players[cur_player].victorypoints >=10:
                 if cur_player == 0:
                     self.phase.reward += 10
+                    self.phase.victoryreward = 0
+                    self.phase.victorypointreward = 0
+                    self.phase.legalmovesreward = 0
+                    self.phase.illegalmovesreward = 0
+                    self.player0.wins+=1
+                    return 1
+                elif cur_player ==1:
+                    self.phase.reward -= 10
+                    self.phase.victoryreward = 0
+                    self.phase.victorypointreward = 0
+                    self.phase.legalmovesreward = 0
+                    self.phase.illegalmovesreward = 0
+                    self.player1.wins+=1
+                    return 1
+                else: 
+                    return 0 #Error/incorrect state.Go another turn
+        else: # If nothing is defined then just 1 points for winning and -10 points for losing. (a.k.a. Basic)
+            if self.players[cur_player].victorypoints >=10:
+                if cur_player == 0:
+                    self.phase.reward += 1
                     self.phase.victoryreward = 0
                     self.phase.victorypointreward = 0
                     self.phase.legalmovesreward = 0
