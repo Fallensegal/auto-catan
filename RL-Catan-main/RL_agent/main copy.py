@@ -525,6 +525,7 @@ def main(TRAINING_LOOPS,EPISODES_PER_LOOP,GAMES_PER_BENCHMARK,MEMORY,MODEL_SELEC
         
         start_time = time.time()
 
+        Experiment_name = f'EPISODE_{(training.total_episodes + 1)}_{REWARD_FUNCTION}_{MODEL_SELECT}'
         for _ in range(TRAINING_LOOPS):
             training.train(PRINT_ACTIONS)
             PushArtifacts(Experiment_name,param_dict,training.agent_policy_net,training.EpisodeData,MLFLOW_ADDRESS,TrainingData=True,TestingData=False,TagID=0)
