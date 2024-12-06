@@ -1074,11 +1074,11 @@ class Catan_Env:
             player.total_resources = player.resource_lumber + player.resource_brick + player.resource_grain + player.resource_ore + player.resource_wool
             temp_num_resources_to_discard = int(math.ceil(player.total_resources/2))
             player.num_discarded_resources+=temp_num_resources_to_discard
-            resource_pool = (['lumber'] * player.resource_lumber +
-                            ['wool'] * player.resource_wool +
-                            ['grain'] * player.resource_grain +
-                            ['brick'] * player.resource_brick +
-                            ['ore'] * player.resource_ore)
+            resource_pool = (['lumber'] * int(player.resource_lumber) +
+                            ['wool'] * int(player.resource_wool) +
+                            ['grain'] * int(player.resource_grain) +
+                            ['brick'] * int(player.resource_brick) +
+                            ['ore'] * int(player.resource_ore))
             discarded_resources = random.sample(resource_pool, temp_num_resources_to_discard)
             for resource in discarded_resources:
                 if resource == 'lumber':
