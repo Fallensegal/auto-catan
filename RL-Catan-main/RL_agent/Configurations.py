@@ -33,12 +33,12 @@ REWARD_FUNCTION = 'Incremental_VP'
         5. 'High_Sparsity_VP'
 '''
 
-MODEL_SELECT = 'Small'
+MODEL_SELECT = 'Small Pooling'
 '''
         There are 3 model sizes: 
         1. 'Small'
         2. 'Medium'
-        3. 'Large'
+        3. 'Small Pooling'
 '''
 
 STOCHASTIC = False #true if you want to use a stochastic policy instead of a deterministic one
