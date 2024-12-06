@@ -499,8 +499,8 @@ def main(TRAINING_LOOPS,EPISODES_PER_LOOP,GAMES_PER_BENCHMARK,MEMORY,MODEL_SELEC
     torch.manual_seed(2)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
-    if MODEL_SELECT =='Large':
-        from DQN.Neural_Networks.DQN_Big import DQN as dqn
+    if MODEL_SELECT =='Small Pooling':
+        from DQN.Neural_Networks.DQN_Small_w_pooling import DQN as dqn
     elif MODEL_SELECT =='Medium':
         from DQN.Neural_Networks.DQN_Medium import DQN as dqn
     else: 
