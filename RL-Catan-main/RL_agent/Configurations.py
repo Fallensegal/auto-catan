@@ -44,9 +44,9 @@ MODEL_SELECT = 'Small'
 STOCHASTIC = False #true if you want to use a stochastic policy instead of a deterministic one
 
 #number of episodes
-TRAINING_LOOPS = 10
-EPISODES_PER_LOOP = 10
-GAMES_PER_BENCHMARK = 50
+TRAINING_LOOPS = 30
+EPISODES_PER_LOOP = 5
+GAMES_PER_BENCHMARK = 10
 
 MEMORY = 1000
 
@@ -57,10 +57,10 @@ TOTAL_ACTIONS = 21*11*4 + 36
 MLFLOW Address is so you can easily push your artifacts to MLFLOW/Minio. 
 If you want to store things locally, just use "None." But note that it won't increment or add numbers to your local artifacts
 '''
-MLFLOW_ADDRESS = 'http://192.168.161.128:8250/'
+MLFLOW_ADDRESS = None
 
 # debugging options
-PRINT_ACTIONS = True
+PRINT_ACTIONS = False
 
 #I might do a mix later on
 #target_net_state_dict = target_net.state_dict()

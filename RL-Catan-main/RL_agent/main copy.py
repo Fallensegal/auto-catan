@@ -507,7 +507,10 @@ def main(TRAINING_LOOPS,EPISODES_PER_LOOP,GAMES_PER_BENCHMARK,MEMORY,MODEL_SELEC
         from DQN.Neural_Networks.DQN_Small import DQN as dqn
     model = dqn()
     model.to(device)
-    LOG_FILE_NAME = f'Artifacts/log_{REWARD_FUNCTION}_{MODEL_SELECT}.txt'
+    if STOCHASTIC:
+        LOG_FILE_NAME = f'Artifacts/log_{REWARD_FUNCTION}_{MODEL_SELECT}_Stochastic.txt'
+    else:
+        LOG_FILE_NAME = f'Artifacts/log_{REWARD_FUNCTION}_{MODEL_SELECT}_Deterministic.txt'
     with open(LOG_FILE_NAME, 'w') as log_file:
         log_file.write(f"\nStart of log for {REWARD_FUNCTION} with {MODEL_SELECT} model\n\n")
         training = Catan_Training(EPISODES_PER_LOOP, GAMES_PER_BENCHMARK, REWARD_FUNCTION, device, model, stochastic_policy=STOCHASTIC, memory=MEMORY,
@@ -519,7 +522,10 @@ def main(TRAINING_LOOPS,EPISODES_PER_LOOP,GAMES_PER_BENCHMARK,MEMORY,MODEL_SELEC
   
         for _ in range(TRAINING_LOOPS):
             training.train(PRINT_ACTIONS)
-            Experiment_name = f'{REWARD_FUNCTION}_{MODEL_SELECT}'
+            if STOCHASTIC:
+                Experiment_name = f'{REWARD_FUNCTION}_{MODEL_SELECT}_Stochastic'
+            else:
+                Experiment_name = f'{REWARD_FUNCTION}_{MODEL_SELECT}_deteministic'
             PushArtifacts(Experiment_name,param_dict,training.agent_policy_net,training.EpisodeData,MLFLOW_ADDRESS,TrainingData=True,TestingData=False,TagID=0)
             should_break_training = training.benchmark(PRINT_ACTIONS)
             PushArtifacts(Experiment_name,param_dict,model,training.EpisodeData,MLFLOW_ADDRESS,TrainingData=False,TestingData=True,TagID=0)
