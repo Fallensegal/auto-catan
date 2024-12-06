@@ -40,35 +40,41 @@ class Log:
         self.random_action_counts = [0] * TOTAL_ACTIONS
 
 class policy:
-    def __init__(self, model_net, device, stochastic = False):
-        self.model_net = model_net.to(device)
+    def __init__(self, stochastic = False):
+        self.stochastic = stochastic
 
-        def get_actions_probabilities(self, boardstate, vectorstate):
-            return F.softmax(self.model_net(boardstate, vectorstate))
-        
-        def get_q_values(self, boardstate, vectorstate):
-            return self.model_net(boardstate, vectorstate)
-        
-        def get_action(self, boardstate, vectorstate):
-            if self.stochastic:
-                action_probabilities = self.get_actions_probabilities(boardstate, vectorstate)
-                action_distribution = Categorical(action_probabilities)
-                action = action_distribution.sample()
-            else:
-                q_values = self.get_q_values(boardstate, vectorstate)
-                action = torch.argmax(q_values)
-            return action
-        
-        def get_expected_state_action_value(self, boardstate, vectorstate):
-            if self.stochastic:
-                actions_probabilities = self.get_actions_probabilities(boardstate, vectorstate)
-                q_values = self.get_q_values(boardstate, vectorstate)
-                expected_state_action_value = torch.sum(actions_probabilities * q_values)
-            else:
-                q_values = self.get_q_values(boardstate, vectorstate)
-                expected_state_action_value = torch.max(q_values)    
-            return expected_state_action_value
+    def get_action(self, predicted_model_q_values):
+        if self.stochastic:
+            action_probabilities = F.softmax(predicted_model_q_values, dim=1)
+            action_distribution = Categorical(action_probabilities)
+            action = action_distribution.sample().item()
+        else:
+            action = F.argmax(predicted_model_q_values)
 
+        return action
+    
+    def get_expected_q_value(self,predicted_model_q_values):
+        if self.stochastic:
+            action_probabilities = F.softmax(predicted_model_q_values, dim=1)
+            expected_q_value = torch.sum(action_probabilities * predicted_model_q_values, dim=1).detach()
+        else:
+            expected_q_value = predicted_model_q_values.max(1)[0].detach()
+        return expected_q_value
+    
+    def get_legal_action(self, predicted_model_q_values, legal_actions):
+        legal_indices = np.where(legal_actions == 1)[1]
+        list_of_legal_q_values = [predicted_model_q_values[0][i].unsqueeze(0) for i in legal_indices]
+        try:
+            legal_actions_q_values = torch.cat(list_of_legal_q_values, dim=0)
+        except:
+            print("something went wrong creating the legal actions q values")
+        if self.stochastic:
+            legal_action_probabilities = F.softmax(legal_actions_q_values, dim=0)
+            legal_action_distribution = Categorical(legal_action_probabilities)
+            legal_policy_action = legal_indices[legal_action_distribution.sample().item()]
+        else: 
+            legal_policy_action = legal_indices[np.argmax(legal_actions_q_values)]
+        return legal_policy_action
 
 class DQNAgent:
     def __init__(self, model, device, memory_capacity=10000,
@@ -115,6 +121,7 @@ class Catan_Training:
         self.cur_boardstate = None
         self.cur_vectorstate = None
         self.log = Log()
+        self.policy = policy(stochastic=True)
         self.EpisodeData = []
         self.training = True
         self.train_test_change = False
@@ -197,11 +204,9 @@ class Catan_Training:
             with torch.no_grad():
                 if self.game.cur_player == 0:
                     self.env.phase.actionstarted += 1
-                    normalized_q_values = F.softmax(self.agent_policy_net(boardstate, vectorstate), dim=1).tolist()[0]
+                    q_values = self.agent_policy_net(boardstate, vectorstate)
                     legal_actions = self.env.checklegalmoves()
-                    legal_indices = np.where(legal_actions == 1)[1]
-                    valid_q_values = [normalized_q_values[i] for i in legal_indices]
-                    policy_action = legal_indices[np.argmax(valid_q_values)]
+                    policy_action = self.policy.get_legal_action(q_values, legal_actions)
                     if policy_action >= 4*11*21:
                         action_type = int(policy_action - 4*11*21 + 5)
                         position_y = 0
@@ -259,9 +264,10 @@ class Catan_Training:
 
         # the Q values calculated using next state max Q value of all possible state action pairs (for all valid board and vector state combinations in the batch)
         # calculated by the DQN model and the actual reward received from current state-action pair
-        next_state_values = torch.zeros(self.agent.BATCH_SIZE, device=self.device)
-        next_state_values[non_final_mask] = self.agent_target_net(non_final_next_board_states, non_final_next_vector_states).max(1)[0].detach()
-        expected_state_action_values = (next_state_values * GAMMA) + reward_batch 
+        next_state_expected_value = torch.zeros(self.agent.BATCH_SIZE, device=self.device)
+        next_state_q_values = self.agent_target_net(non_final_next_board_states, non_final_next_vector_states)
+        next_state_expected_value[non_final_mask] = self.policy.get_expected_q_value(next_state_q_values)
+        expected_state_action_values = (next_state_expected_value * GAMMA) + reward_batch 
 
         #TO DO: Add hyper-parameter to select L1 vs MSE
         loss = F.mse_loss(state_action_values, expected_state_action_values.unsqueeze(1))
@@ -290,15 +296,16 @@ class Catan_Training:
         done = False
         while not done:
             if game.cur_player == 0:
-                cur_boardstate, cur_vectorstate = state_changer(self.env)
                 with torch.no_grad():
                     self.env.phase.actionstarted += 1
-                    normalized_q_values = F.softmax(self.agent_policy_net(cur_boardstate, cur_vectorstate), dim=1).tolist()[0]
+                    cur_boardstate, cur_vectorstate = state_changer(self.env)
+                    q_values = self.agent_policy_net(cur_boardstate, cur_vectorstate)
                     legal_actions = self.env.checklegalmoves()
+                    policy_action = self.policy.get_legal_action(q_values, legal_actions)
                     can_end_turn = legal_actions[0][4*21*11]
                     legal_indices = np.where(legal_actions == 1)[1]
                     #maybe change to valid_q_value_indices so it's clear its an array of valid actions with associated action numbers
-                    valid_q_values = [normalized_q_values[i] for i in legal_indices]
+                    valid_q_values = [q_values[i] for i in legal_indices]
                     policy_action = legal_indices[np.argmax(valid_q_values)]
                     if policy_action >= 4*11*21:
                         action_type = int(policy_action - 4*11*21 + 5)

@@ -42,6 +42,9 @@ MODEL_SELECT = 'Small'
         2. 'Medium'
         3. 'Large'
 '''
+
+STOCHASTIC = False #true if you want to use a stochastic policy instead of a deterministic one
+
 #number of episodes
 NUM_EPISODES = 10
 
