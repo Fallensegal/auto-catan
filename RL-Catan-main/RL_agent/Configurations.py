@@ -34,7 +34,6 @@ REWARD_FUNCTION = 'Incremental_All'
 '''
 
 MODEL_SELECT = 'Small'
-MODEL_SELECT = 'Small_Pooling'
 '''
         There are 3 model sizes: 
         1. 'Small'
@@ -45,7 +44,7 @@ MODEL_SELECT = 'Small_Pooling'
 STOCHASTIC = False #true if you want to use a stochastic policy instead of a deterministic one
 
 #number of episodes
-TRAINING_LOOPS = 30
+TRAINING_LOOPS = 2      
 EPISODES_PER_LOOP = 5
 GAMES_PER_BENCHMARK = 10
 
