@@ -1293,7 +1293,7 @@ class Catan_Env:
                     self.player0.wins+=1
                     return 1
                 elif cur_player ==1:
-                    self.phase.reward -= 10
+                    self.phase.reward -= 1
                     self.phase.victoryreward = 0
                     self.phase.victorypointreward = 0
                     self.phase.legalmovesreward = 0
