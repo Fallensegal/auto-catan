@@ -5,5 +5,8 @@ dependencies:
 - name: minio
   repository: https://charts.bitnami.com/bitnami
   version: 14.8.5
-digest: sha256:9c8023b8222be3be67d554a2f94e844a4ea85f632fe09d9f38ec855c729846ff
-generated: "2024-11-26T07:23:33.303775644Z"
+- name: keda
+  repository: https://kedacore.github.io/charts
+  version: 2.16.0
+digest: sha256:11e2ebe9c8780586e6647236d170f61d31b916557669178fdc2e2a7d7bb976f6
+generated: "2024-12-04T07:38:55.164754697Z"
