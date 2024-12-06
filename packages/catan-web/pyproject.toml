@@ -13,6 +13,7 @@ dependencies = [
     "pydantic>=2.10.3",
     "uvicorn[standard]>=0.32.1",
     "minio>=7.2.12",
+    "dramatiq[redis]>=1.17.1",
 ]
 
 [project.scripts]

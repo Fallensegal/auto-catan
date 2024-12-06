@@ -3,14 +3,13 @@ name = "catan-dramatiq"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-authors = [
-    { name = "Wasif Islam", email = "islamwasif3@gmail.com" }
-]
 requires-python = ">=3.12"
-dependencies = []
-
-[project.scripts]
-catan-dramatiq = "catan_dramatiq:main"
+dependencies = [
+    "dramatiq[redis]>=1.17.1",
+    "minio>=7.2.12",
+    "pydantic>=2.10.3",
+    "pydantic-settings>=2.6.1",
+]
 
 [build-system]
 requires = ["hatchling"]
