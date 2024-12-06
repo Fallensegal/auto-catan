@@ -48,7 +48,7 @@ NUM_EPISODES = 10
 MEMORY = 1000
 
 # Total number of possible actions in the environment
-TOTAL_ACTIONS = 21*11*4 + 41
+TOTAL_ACTIONS = 21*11*4 + 36
 
 '''
 MLFLOW Address is so you can easily push your artifacts to MLFLOW/Minio. 
