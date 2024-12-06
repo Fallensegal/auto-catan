@@ -65,17 +65,7 @@ def action_selecter(env,selected_action, selected_position_x = 0, selected_posit
     if selected_action == 4:
         action.city_place[selected_position_y] [selected_position_x] = 1
     if selected_action == 5:
-        action.end_turn = 1
-    #if selected_action == 6:    
-    #    keepresources.keep_lumber = 1
-    #if selected_action == 7:    
-    #    keepresources.keep_wool = 1
-    #if selected_action == 8:    
-    #    keepresources.keep_grain = 1
-    #if selected_action == 9:    
-    #    keepresources.keep_brick = 1
-    #if selected_action == 10:    
-    #    keepresources.keep_ore = 1   
+        action.end_turn = 1  
     if selected_action == 6:  
         trading.give_lumber_get_wool = 1
     if selected_action == 7:

@@ -1097,16 +1097,7 @@ class Catan_Env:
                     player.resource_brick -= 1
                 elif resource == 'ore':
                     player.resource_ore -= 1
-            #player.discard_resources_lumber = player.resource_lumber
-            #player.discard_resources_wool = player.resource_wool
-            #player.discard_resources_grain = player.resource_grain
-            #player.discard_resources_brick = player.resource_brick
-            #player.discard_resources_ore = player.resource_ore
-            #player.resource_lumber = 0
-            #player.resource_wool = 0
-            #player.resource_grain = 0
-            #player.resource_brick = 0
-            #player.resource_ore = 0
+
             random_testing.successful_discard_resources += 1
             player.discard_first_time = 0
             self.phase.statechange = 1
