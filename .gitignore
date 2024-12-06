@@ -168,3 +168,5 @@ cython_debug/
 # Ignore all .pth files
 *.pth
 
+Artifacts/
+None/

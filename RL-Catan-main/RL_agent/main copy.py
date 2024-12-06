@@ -1,16 +1,13 @@
 import numpy as np
 import random
 import math 
-from collections import namedtuple, deque
+from collections import namedtuple
 from itertools import count
 import time
-import sys
 
 import torch
-import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
-import torch.multiprocessing as mp
 from torch.distributions import Categorical
 
 from Catan_Env.state_changer import state_changer
@@ -23,7 +20,7 @@ from Catan_Env.random_action import random_assignment
 from Catan_Env.game import Game
 from Catan_Env.Interpreter import InterpretActions
 from Configurations import *
-from Artifcats import *
+from Artifacts import *
 
 #different types of reward shaping: Immidiate rewards vps, immidiate rewards legal/illegal, immidiate rewards ressources produced, rewards at the end for winning/losing (+vps +legal/illegal)
 class Log:
@@ -308,10 +305,6 @@ class Catan_Training:
                     legal_actions = self.env.checklegalmoves()
                     policy_action = self.policy.get_legal_action(q_values, legal_actions)
                     can_end_turn = legal_actions[0][4*21*11]
-                    legal_indices = np.where(legal_actions == 1)[1]
-                    #maybe change to valid_q_value_indices so it's clear its an array of valid actions with associated action numbers
-                    valid_q_values = [q_values[i] for i in legal_indices]
-                    policy_action = legal_indices[np.argmax(valid_q_values)]
                     if policy_action >= 4*11*21:
                         action_type = int(policy_action - 4*11*21 + 5)
                         position_y = 0
@@ -331,7 +324,7 @@ class Catan_Training:
                         action_selecter(self.env, action_type, position_x, position_y)
                         random_action = False
                         action_tensor = torch.tensor([[policy_action]], device=self.device, dtype=torch.long)
-                if self.print_actions:
+                if PRINT_ACTIONS:
                     InterpretActions(0,action_tensor, self.env, action_was_random=random_action, log_file=self.log_file)
             else:#Random AI takes turn
                 self.env.phase.actionstarted = 0
@@ -380,7 +373,7 @@ class Catan_Training:
         for i_episode in range(self.num_episodes_per_loop):
             self.total_episodes += 1   
             time_new_start = time.time()
-            print(f"Starting Episode {i_episode}")
+            print(f"Starting Episode {self.total_episodes}")
             self.new_game()
             self.log_file.write(f"\n\n\nNew Game\n\n")
             for t in count():
@@ -483,8 +476,6 @@ class Catan_Training:
             print(f"Episode {self.total_episodes} finished in {episode_time} seconds")
             print(f'latest Optimizer Loss Avg: {np.mean(self.game.average_q_value_loss)}')
 
-        torch.save(self.agent_policy_net.state_dict(), f'agent_{self.total_episodes}_{REWARD_FUNCTION}_{MODEL_SELECT}_policy_net.pth')
-
 def main(TRAINING_LOOPS,EPISODES_PER_LOOP,GAMES_PER_BENCHMARK,MEMORY,MODEL_SELECT,REWARD_FUNCTION,STOCHASTIC,
          LR_START,LR_END,LR_DECAY,EPS_START,EPS_END,EPS_DECAY,GAMMA,BATCH_SIZE,PRINT_ACTIONS,MLFLOW_ADDRESS):
     
@@ -516,7 +507,7 @@ def main(TRAINING_LOOPS,EPISODES_PER_LOOP,GAMES_PER_BENCHMARK,MEMORY,MODEL_SELEC
         from DQN.Neural_Networks.DQN_Small import DQN as dqn
     model = dqn()
     model.to(device)
-    LOG_FILE_NAME = f'log_{REWARD_FUNCTION}_{MODEL_SELECT}.txt'
+    LOG_FILE_NAME = f'Artifacts/log_{REWARD_FUNCTION}_{MODEL_SELECT}.txt'
     with open(LOG_FILE_NAME, 'w') as log_file:
         log_file.write(f"\nStart of log for {REWARD_FUNCTION} with {MODEL_SELECT} model\n\n")
         training = Catan_Training(EPISODES_PER_LOOP, GAMES_PER_BENCHMARK, REWARD_FUNCTION, device, model, stochastic_policy=STOCHASTIC, memory=MEMORY,
@@ -528,7 +519,7 @@ def main(TRAINING_LOOPS,EPISODES_PER_LOOP,GAMES_PER_BENCHMARK,MEMORY,MODEL_SELEC
   
         for _ in range(TRAINING_LOOPS):
             training.train(PRINT_ACTIONS)
-            Experiment_name = f'EPISODE_{(training.total_episodes + 1)}_{REWARD_FUNCTION}_{MODEL_SELECT}'
+            Experiment_name = f'{REWARD_FUNCTION}_{MODEL_SELECT}'
             PushArtifacts(Experiment_name,param_dict,training.agent_policy_net,training.EpisodeData,MLFLOW_ADDRESS,TrainingData=True,TestingData=False,TagID=0)
             should_break_training = training.benchmark(PRINT_ACTIONS)
             PushArtifacts(Experiment_name,param_dict,model,training.EpisodeData,MLFLOW_ADDRESS,TrainingData=False,TestingData=True,TagID=0)
