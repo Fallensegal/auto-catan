@@ -64,14 +64,10 @@ class Player:
 
         self.discard_resources_started = 0
         self.discard_resources_turn = 0
+        self.num_discarded_resources = 0
         self.discard_first_time = 0
         self.total_resources = 0
 
-        self.discard_resources_lumber = 0
-        self.discard_resources_wool = 0
-        self.discard_resources_grain = 0
-        self.discard_resources_brick = 0
-        self.discard_resources_ore = 0
 
         #__________________game-specific resource_____________
         #roads
