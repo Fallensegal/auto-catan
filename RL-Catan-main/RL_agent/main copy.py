@@ -374,6 +374,8 @@ class Catan_Training:
             self.total_episodes += 1   
             time_new_start = time.time()
             print(f"Starting Episode {self.total_episodes}")
+            if (i_episode%100) ==0:
+                self.agent_target_net.load_state_dict(self.agent_policy_net.state_dict())
             self.new_game()
             self.log_file.write(f"\n\n\nNew Game\n\n")
             for t in count():
