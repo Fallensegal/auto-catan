@@ -1896,7 +1896,7 @@ class Catan_Env:
         player1 = players[1]
         distribution = self.distribution
 
-        self.legal_actions = np.zeros((1,(4*21*11+41)))
+        self.legal_actions = np.zeros((1,(4*21*11+36)))
         a = 0
         if player.roadbuilding_move_pending == 1:
             if player.roads_left > 0:
