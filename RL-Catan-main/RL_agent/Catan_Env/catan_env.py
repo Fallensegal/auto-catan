@@ -1080,6 +1080,8 @@ class Catan_Env:
                             ['brick'] * int(player.resource_brick) +
                             ['ore'] * int(player.resource_ore))
             discarded_resources = random.sample(resource_pool, temp_num_resources_to_discard)
+            #temporary
+            print('discarding resources',discarded_resources)
             for resource in discarded_resources:
                 if resource == 'lumber':
                     player.resource_lumber -= 1
@@ -1649,7 +1651,7 @@ class Catan_Env:
                     self.move_rober(d,e)
                     if player.resource_lumber + player.resource_wool + player.resource_grain + player.resource_brick + player.resource_ore >= 7:
                         player.discard_first_time = 1
-                        player.discard_resources_started = 1
+                        self.discard_resources() #rather than log doing it as an action - just update the hand...
                     else:
                         self.steal_card()
                     game.seven_rolled = 0
@@ -1752,10 +1754,6 @@ class Catan_Env:
         if player.knight_move_pending != 1 and player.monopoly_move_pending != 1 and player.roadbuilding_move_pending != 1 and player.yearofplenty_move_pending != 1 and game.placement_phase_pending != 1 and player.discard_resources_started != 1:
             if action.end_turn == 1:
                 self.move_finished() #need to take a look at this function too
-        
-        if player.discard_resources_started == 1:
-                self.discard_resources()
-        
 
         if player.knight_move_pending != 1 and player.monopoly_move_pending != 1 and player.roadbuilding_move_pending != 1 and player.yearofplenty_move_pending != 1 and game.placement_phase_pending != 1 and player.discard_resources_started != 1:
             if trading.give_lumber_get_wool == 1:
