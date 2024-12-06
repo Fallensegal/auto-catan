@@ -355,17 +355,17 @@ class Catan_Training:
         trained_policy_wins = 0
         random_policy_wins = 0
         for game_number in range(self.benchmark_games):
-            self.log_file.write(f"Starting Game {game_number}")
+            self.log_file.write(f"\nStarting Game {game_number}")
             self.new_game()
             winner = self.simulate_match(PRINT_ACTIONS)
             self.add_epsiode_data(game_number)
             self.log.clear()
             if winner == 0:
                 trained_policy_wins += 1
-                self.log_file.write("Trained Policy Wins")
+                self.log_file.write(f"\nTrained Policy Wins")
             elif winner == 1:
                 random_policy_wins += 1
-                self.log_file.write("Random Policy Wins")
+                self.log_file.write(f"\nRandom Policy Wins")
         trained_policy_win_rate = trained_policy_wins / self.benchmark_games
         random_policy_win_rate = random_policy_wins / self.benchmark_games
         print(f"benchmark finished in {time.time() - start_time} seconds")
@@ -382,7 +382,7 @@ class Catan_Training:
             time_new_start = time.time()
             print(f"Starting Episode {i_episode}")
             self.new_game()
-            self.log_file.write("New Game")
+            self.log_file.write(f"\n\n\nNew Game\n\n")
             for t in count():
                 if self.game.cur_player == 1:
                     action = self.select_action_randomly() #player 1 uses random policy
@@ -406,7 +406,7 @@ class Catan_Training:
                             next_vector_state = next_vector_state.clone().detach().unsqueeze(0).to(self.device).float()
                             if done == 1:
                                 self.env.phase.gamemoves = t
-                                self.log_file.write("done0")
+                                self.log_file.write(f"\ndone0")
                                 next_board_state = None
                                 next_vector_state = None
                             self.memory.push(cur_boardstate, cur_vectorstate,action,next_board_state, next_vector_state,reward)
@@ -417,7 +417,7 @@ class Catan_Training:
                             next_vector_state = None
                         if self.game.is_finished == 1:
                             self.env.phase.gamemoves = t
-                            self.log_file.write("done1")
+                            self.log_file.write(f"\ndone1")
                             self.game.is_finished = 0
                             break
                 elif self.game.cur_player == 0:
@@ -438,7 +438,7 @@ class Catan_Training:
                         next_vector_state = next_vector_state.clone().detach().unsqueeze(0).to(self.device).float()
                         if done == 1:
                             self.env.phase.gamemoves = t
-                            self.log_file.write("done0")
+                            self.log_file.write(f"\ndone0")
                             next_board_state = None
                             next_vector_state = None
                         self.memory.push(cur_boardstate, cur_vectorstate,action,next_board_state, next_vector_state,reward)
@@ -483,10 +483,10 @@ class Catan_Training:
             print(f"Episode {self.total_episodes} finished in {episode_time} seconds")
             print(f'latest Optimizer Loss Avg: {np.mean(self.game.average_q_value_loss)}')
 
-        torch.save(self.agent_policy_net.state_dict(), f'agent_{(self.total_episodes + 1)}_{REWARD_FUNCTION}_{MODEL_SELECT}_policy_net.pth')
+        torch.save(self.agent_policy_net.state_dict(), f'agent_{self.total_episodes}_{REWARD_FUNCTION}_{MODEL_SELECT}_policy_net.pth')
 
 def main(TRAINING_LOOPS,EPISODES_PER_LOOP,GAMES_PER_BENCHMARK,MEMORY,MODEL_SELECT,REWARD_FUNCTION,STOCHASTIC,
-         LR_START,LR_END,LR_DECAY,EPS_START,EPS_END,EPS_DECAY,GAMMA,BATCH_SIZE,PRINT_ACTIONS,LOG_FILE_NAME,MLFLOW_ADDRESS):
+         LR_START,LR_END,LR_DECAY,EPS_START,EPS_END,EPS_DECAY,GAMMA,BATCH_SIZE,PRINT_ACTIONS,MLFLOW_ADDRESS):
     
     param_dict = {
     "MEMORY": MEMORY,  # Size of the replay memory
@@ -516,6 +516,7 @@ def main(TRAINING_LOOPS,EPISODES_PER_LOOP,GAMES_PER_BENCHMARK,MEMORY,MODEL_SELEC
         from DQN.Neural_Networks.DQN_Small import DQN as dqn
     model = dqn()
     model.to(device)
+    LOG_FILE_NAME = f'log_{REWARD_FUNCTION}_{MODEL_SELECT}.txt'
     with open(LOG_FILE_NAME, 'w') as log_file:
         log_file.write(f"\nStart of log for {REWARD_FUNCTION} with {MODEL_SELECT} model\n\n")
         training = Catan_Training(EPISODES_PER_LOOP, GAMES_PER_BENCHMARK, REWARD_FUNCTION, device, model, stochastic_policy=STOCHASTIC, memory=MEMORY,
@@ -544,5 +545,5 @@ def main(TRAINING_LOOPS,EPISODES_PER_LOOP,GAMES_PER_BENCHMARK,MEMORY,MODEL_SELEC
 
 
 
-main(TRAINING_LOOPS,EPISODES_PER_LOOP,GAMES_PER_BENCHMARK,MEMORY,MODEL_SELECT,REWARD_FUNCTION,STOCHASTIC,LR_START,LR_END,LR_DECAY,EPS_START,EPS_END,EPS_DECAY,GAMMA,BATCH_SIZE,PRINT_ACTIONS,LOG_FILE,MLFLOW_ADDRESS)
+main(TRAINING_LOOPS,EPISODES_PER_LOOP,GAMES_PER_BENCHMARK,MEMORY,MODEL_SELECT,REWARD_FUNCTION,STOCHASTIC,LR_START,LR_END,LR_DECAY,EPS_START,EPS_END,EPS_DECAY,GAMMA,BATCH_SIZE,PRINT_ACTIONS,MLFLOW_ADDRESS)
 

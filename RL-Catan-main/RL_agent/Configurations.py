@@ -61,7 +61,6 @@ MLFLOW_ADDRESS = 'http://192.168.161.128:8250/'
 
 # debugging options
 PRINT_ACTIONS = True
-LOG_FILE = f'log_{REWARD_FUNCTION}_{MODEL_SELECT}.txt'
 
 #I might do a mix later on
 #target_net_state_dict = target_net.state_dict()
