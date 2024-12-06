@@ -23,17 +23,17 @@ GAMMA = 0.99
 BATCH_SIZE = 64
 
 #Reward Functions
-REWARD_FUNCTION = 'Incremental_VP'
+REWARD_FUNCTION = 'Incremental_All'
 '''
         There are several Reward Functions that can be called: 
         1. 'Basic'
-        2. 'Differential_VP'
-        3. 'Incremental_VP'
-        4. 'Large_Magnitude'
-        5. 'High_Sparsity_VP'
+        2. 'Large_Magnitude'
+        3. 'Differential_VP'
+        4. 'Incremental_VP'
+        5. 'Incremental_All'
 '''
 
-MODEL_SELECT = 'Small Pooling'
+MODEL_SELECT = 'Small'
 '''
         There are 3 model sizes: 
         1. 'Small'
