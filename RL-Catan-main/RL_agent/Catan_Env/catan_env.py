@@ -1563,7 +1563,6 @@ class Catan_Env:
             player.yearofplenty1 = 0
             player.yearofplenty2 = 0
 
-            player.discard_resources_started = 0
             player.discard_resources_turn = 0
             player.num_discarded_resources = 0
             player.discard_first_time = 0
@@ -1714,7 +1713,7 @@ class Catan_Env:
                                 game.placement_phase_pending = 0
                                 game.placement_phase_turns_made = 0
         
-        if player.knight_move_pending != 1 and player.monopoly_move_pending != 1 and player.roadbuilding_move_pending != 1 and player.yearofplenty_move_pending != 1 and game.placement_phase_pending != 1 and player.discard_resources_started != 1:
+        if player.knight_move_pending != 1 and player.monopoly_move_pending != 1 and player.roadbuilding_move_pending != 1 and player.yearofplenty_move_pending != 1 and game.placement_phase_pending != 1:
             random_testing.howmuchisthisaccsessed += 1
             if np.any(action.settlement_place == 1):
                 b,c = np.where(action.settlement_place == 1)
@@ -1751,11 +1750,11 @@ class Catan_Env:
                         
 
                 
-        if player.knight_move_pending != 1 and player.monopoly_move_pending != 1 and player.roadbuilding_move_pending != 1 and player.yearofplenty_move_pending != 1 and game.placement_phase_pending != 1 and player.discard_resources_started != 1:
+        if player.knight_move_pending != 1 and player.monopoly_move_pending != 1 and player.roadbuilding_move_pending != 1 and player.yearofplenty_move_pending != 1 and game.placement_phase_pending != 1:
             if action.end_turn == 1:
                 self.move_finished() #need to take a look at this function too
 
-        if player.knight_move_pending != 1 and player.monopoly_move_pending != 1 and player.roadbuilding_move_pending != 1 and player.yearofplenty_move_pending != 1 and game.placement_phase_pending != 1 and player.discard_resources_started != 1:
+        if player.knight_move_pending != 1 and player.monopoly_move_pending != 1 and player.roadbuilding_move_pending != 1 and player.yearofplenty_move_pending != 1 and game.placement_phase_pending != 1:
             if trading.give_lumber_get_wool == 1:
                 self.trade_resources(1,2)
             if trading.give_lumber_get_grain == 1:
@@ -1907,7 +1906,7 @@ class Catan_Env:
                     if ((((i + 1) == game.placement_phase_settlement_coordinate1 or (i - 1)  == game.placement_phase_settlement_coordinate1) and j == game.placement_phase_settlement_coordinate2) or (((j + 1) == game.placement_phase_settlement_coordinate2 or (j - 1)  == game.placement_phase_settlement_coordinate2) and i == game.placement_phase_settlement_coordinate1)):
                         self.legal_actions[0][21*11 + i*21+j] = 1
 
-        if player.knight_move_pending != 1 and player.monopoly_move_pending != 1 and player.roadbuilding_move_pending != 1 and player.yearofplenty_move_pending != 1 and game.placement_phase_pending != 1 and player.discard_resources_started != 1:
+        if player.knight_move_pending != 1 and player.monopoly_move_pending != 1 and player.roadbuilding_move_pending != 1 and player.yearofplenty_move_pending != 1 and game.placement_phase_pending != 1:
             if player.resource_brick > 0 and player.resource_lumber > 0:
                 if player.roads_left > 0:
                     for i in range(0,11):
@@ -1915,7 +1914,7 @@ class Catan_Env:
                             if self.road_possible_check(i,j) == 1:
                                 self.legal_actions[0][21*11 + i*21+j] = 1
 
-        if player.knight_move_pending != 1 and player.monopoly_move_pending != 1 and player.roadbuilding_move_pending != 1 and player.yearofplenty_move_pending != 1 and game.placement_phase_pending != 1 and player.discard_resources_started != 1:
+        if player.knight_move_pending != 1 and player.monopoly_move_pending != 1 and player.roadbuilding_move_pending != 1 and player.yearofplenty_move_pending != 1 and game.placement_phase_pending != 1:
             if player.resource_brick > 0 and player.resource_lumber > 0 and player.resource_grain > 0 and player.resource_wool > 0:
                 board.settlements_used = (1-player0.settlements)*(1-player1.settlements)
                 board.settlements_free = board.settlements_available * board.settlements_used
@@ -1936,7 +1935,7 @@ class Catan_Env:
                                 self.legal_actions[0][21*11 + 21*11 + i*21+j] = 1
 
     
-        if player.knight_move_pending != 1 and player.monopoly_move_pending != 1 and player.roadbuilding_move_pending != 1 and player.yearofplenty_move_pending != 1 and game.placement_phase_pending != 1 and player.discard_resources_started != 1:
+        if player.knight_move_pending != 1 and player.monopoly_move_pending != 1 and player.roadbuilding_move_pending != 1 and player.yearofplenty_move_pending != 1 and game.placement_phase_pending != 1:
             if player.resource_grain > 1 and player.resource_ore > 2:
                 if player.cities_left > 0:
                     for i in range(0,11):
@@ -1944,11 +1943,11 @@ class Catan_Env:
                             if player.settlements[i][j] == 1:
                                 self.legal_actions[0][21*11 + 21*11 + 21*11 + i*21+j] = 1
     
-        if player.knight_move_pending != 1 and player.monopoly_move_pending != 1 and player.roadbuilding_move_pending != 1 and player.yearofplenty_move_pending != 1 and game.placement_phase_pending != 1 and player.discard_resources_started != 1:
+        if player.knight_move_pending != 1 and player.monopoly_move_pending != 1 and player.roadbuilding_move_pending != 1 and player.yearofplenty_move_pending != 1 and game.placement_phase_pending != 1:
             self.legal_actions[0][4*21*11] = 1
         
         trading_offset = 4 * 21 * 11
-        if player.knight_move_pending != 1 and player.monopoly_move_pending != 1 and player.roadbuilding_move_pending != 1 and player.yearofplenty_move_pending != 1 and game.placement_phase_pending != 1 and player.discard_resources_started != 1:
+        if player.knight_move_pending != 1 and player.monopoly_move_pending != 1 and player.roadbuilding_move_pending != 1 and player.yearofplenty_move_pending != 1 and game.placement_phase_pending != 1:
             if (board.harbor_lumber * player.settlements + board.harbor_lumber * player.cities).any() != 0:
                 if player.resource_lumber > 1:
                     self.legal_actions[0][trading_offset + 1] = 1

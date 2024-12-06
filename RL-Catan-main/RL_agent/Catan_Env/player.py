@@ -62,7 +62,6 @@ class Player:
         self.yearofplenty1 = 0
         self.yearofplenty2 = 0
 
-        self.discard_resources_started = 0
         self.discard_resources_turn = 0
         self.num_discarded_resources = 0
         self.discard_first_time = 0
