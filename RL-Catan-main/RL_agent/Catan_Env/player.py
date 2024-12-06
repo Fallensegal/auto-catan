@@ -192,12 +192,5 @@ class Player:
             self.total_development_cards_used = 0
             self.total_resources_traded = 0
             self.total_knights_played = 0
-    class Keepresources:
-        def __init__(self):
-            self.keep_lumber = 0
-            self.keep_wool = 0
-            self.keep_grain = 0
-            self.keep_brick = 0
-            self.keep_ore = 0
 
     
