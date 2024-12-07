@@ -20,10 +20,10 @@ redis_client = Redis(
     password=app_settings.redis_password.get_secret_value(),
     port=6379,
     decode_responses=False,
-    socket_connect_timeout=0.1,
+    socket_connect_timeout=0.5,
 )
 
-results_backend = Results(backend=RedisBackend(client=redis_client))
+results_backend = Results(backend=RedisBackend(client=redis_client), store_results=True)
 
 redis_broker = RedisBroker(client=redis_client)
 redis_broker.add_middleware(results_backend)
