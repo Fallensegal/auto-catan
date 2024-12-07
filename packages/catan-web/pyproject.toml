@@ -15,7 +15,6 @@ dependencies = [
     "minio>=7.2.12",
     "dramatiq[redis]>=1.17.1",
     "catan-dramatiq",
-    "catan-ml",
 ]
 
 [project.scripts]
@@ -27,4 +26,3 @@ build-backend = "hatchling.build"
 
 [tool.uv.sources]
 catan-dramatiq = { workspace = true }
-catan-ml = { workspace = true }
