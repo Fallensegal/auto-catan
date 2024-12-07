@@ -22,7 +22,7 @@ def upload_file_from_fs( minio_client: Minio, bucket_name: str, obj_name: str, f
 
 minio_settings = MinioSettings()
 minio_client = Minio(
-    'chart-minio:9001',
+    'chart-minio:9000',
     access_key=minio_settings.minio_user,
     secret_key=minio_settings.minio_password.get_secret_value(),
     secure=False,
