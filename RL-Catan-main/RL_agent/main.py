@@ -20,7 +20,7 @@ from Catan_Env.random_action import random_assignment
 from Catan_Env.game import Game
 from Catan_Env.Interpreter import InterpretActions
 from Configurations import *
-from Artifacts import *
+from Artifacts import PushArtifacts
 
 #different types of reward shaping: Immidiate rewards vps, immidiate rewards legal/illegal, immidiate rewards ressources produced, rewards at the end for winning/losing (+vps +legal/illegal)
 class Log:
@@ -538,10 +538,12 @@ def main(TRAINING_LOOPS,EPISODES_PER_LOOP,GAMES_PER_BENCHMARK,MEMORY,MODEL_SELEC
                 Experiment_name = f'{REWARD_FUNCTION}_{MODEL_SELECT}_Stochastic'
             else:
                 Experiment_name = f'{REWARD_FUNCTION}_{MODEL_SELECT}_deteministic'
-            PushArtifacts(Experiment_name,param_dict,training.agent_policy_net,training.EpisodeData,MLFLOW_ADDRESS,RunName = None, TrainingData=True,TestingData=False)
+            run = Experiment_name + '_'+str(f'StartPoint_{i*EPISODES_PER_LOOP}_episodes_traing_{EPISODES_PER_LOOP}_episodes')
+            PushArtifacts(Experiment_name,param_dict,training.agent_policy_net,training.EpisodeData,MLFLOW_ADDRESS,RunName = run, TrainingData=True,TestingData=False)
             training.min_win_rate = 0.0
             should_break_training = training.benchmark(PRINT_ACTIONS)
-            PushArtifacts(Experiment_name,param_dict,model,training.EpisodeData,MLFLOW_ADDRESS,RunName = None, TrainingData=False,TestingData=True)
+            run = Experiment_name + '_'+str(f'Completed {(i+1)*EPISODES_PER_LOOP}_testing_{GAMES_PER_BENCHMARK}_games')
+            PushArtifacts(Experiment_name,param_dict,model,training.EpisodeData,MLFLOW_ADDRESS,RunName = run, TrainingData=False,TestingData=True)
             if should_break_training:
                 print("Training stopped due to low win rate")
                 break
