@@ -50,9 +50,57 @@ catan-web:
     requests:
       cpu: 100m
       memory: 256Mi
+
+  env:
+    - name: REDIS_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: chart-redis
+          key: redis-password
   
   autoscaling:
     enabled: false
+
+catan-ml:
+  name: "catan-ml"
+  labels:
+    app: autocatan
+    component: "catan-ml"
+
+  image:
+    repository: islam25/catan_ml
+    pullPolicy: Always
+    tag: "0.0.1"
+  
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 2000m
+      memory: 4096Mi
+
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 3
+  
+  env:
+    - name: REDIS_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: chart-redis
+          key: redis-password
+    - name: MINIO_USER
+      valueFrom:
+        secretKeyRef:
+          name: chart-minio
+          key: root-user
+    - name: MINIO_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: chart-minio
+          key: root-password
 
 minio:
   persistence:

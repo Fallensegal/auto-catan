@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ index .Values "catan-ml" "name" }}
+  labels: {{ index .Values "catan-ml" "labels" | toYaml | nindent 4 }}
+spec:
+  {{- if not (index .Values "catan-ml" "autoscaling" "enabled") }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{ index .Values "catan-ml" "labels" | toYaml | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{ index .Values "catan-ml" "labels" | toYaml | nindent 8 }}
+      {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ index .Values "catan-ml" "image" "repository" }}:{{ index .Values "catan-ml" "image" "tag" | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ index .Values "catan-ml" "image" "pullPolicy" }}
+          ports:
+            - name: http
+              containerPort: {{ index .Values "catan-ml" "service" "port" }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+                path: /healthz
+                port: http
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+                path: /healthz
+                port: http
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 5 
+          resources:
+            {{- toYaml (index .Values "catan-ml" "resources") | nindent 12 }}
+
