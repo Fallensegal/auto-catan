@@ -32,6 +32,14 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ index .Values "catan-ml" "image" "repository" }}:{{ index .Values "catan-ml" "image" "tag" | default .Chart.AppVersion }}"
           imagePullPolicy: {{ index .Values "catan-ml" "image" "pullPolicy" }}
+          env:
+            {{- range (index .Values "catan-ml" "env") }}
+            - name: {{ .name }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .valueFrom.secretKeyRef.name }}
+                  key: {{ .valueFrom.secretKeyRef.key }}
+            {{- end }}
           resources:
             {{- toYaml (index .Values "catan-ml" "resources") | nindent 12 }}
 
