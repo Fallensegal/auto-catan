@@ -36,6 +36,14 @@ spec:
             - name: http
               containerPort: {{ index .Values "catan-web" "service" "port" }}
               protocol: TCP
+          env:
+            {{- range (index .Values "catan-web" "env") }}
+            - name: {{ .name }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .valueFrom.secretKeyRef.name }}
+                  key: {{ .valueFrom.secretKeyRef.key }}
+            {{- end }}
           livenessProbe:
             httpGet:
                 path: /healthz
@@ -52,4 +60,3 @@ spec:
             timeoutSeconds: 5 
           resources:
             {{- toYaml (index .Values "catan-web" "resources") | nindent 12 }}
-

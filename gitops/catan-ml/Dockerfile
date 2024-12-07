@@ -9,8 +9,10 @@ RUN apt-get update && apt-get install -y \
     curl \
     ca-certificates
 
-COPY ./packages/catan-web .
+COPY . .
+
+WORKDIR /opt/app/packages/catan-ml
 
 RUN uv sync
 
-CMD ["uv", "run", "uvicorn", "catan_web:app", "--host=0.0.0.0", "--port=8251"]
+CMD ["uv", "run", "dramatiq", "catan_ml:redis_broker", "--threads=2", "--processes=1"]

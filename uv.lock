@@ -105,13 +105,20 @@ requires-dist = [
 [[package]]
 name = "catan-ml"
 version = "0.1.0"
-source = { virtual = "packages/catan-ml" }
+source = { editable = "packages/catan-ml" }
+dependencies = [
+    { name = "catan-dramatiq" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "catan-dramatiq", editable = "packages/catan-dramatiq" }]
 
 [[package]]
 name = "catan-web"
 version = "0.1.0"
 source = { editable = "packages/catan-web" }
 dependencies = [
+    { name = "catan-dramatiq" },
     { name = "dramatiq", extra = ["redis"] },
     { name = "fastapi" },
     { name = "minio" },
@@ -122,6 +129,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "catan-dramatiq", editable = "packages/catan-dramatiq" },
     { name = "dramatiq", extras = ["redis"], specifier = ">=1.17.1" },
     { name = "fastapi", specifier = ">=0.115.6" },
     { name = "minio", specifier = ">=7.2.12" },
