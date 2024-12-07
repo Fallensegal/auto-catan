@@ -1,7 +1,8 @@
 #import json
 import dramatiq
+from typing import Any
 from catan_dramatiq.broker.core import redis_broker, results_backend
-from catan_dramatiq.orm.config import TrainingInput
+#from catan_dramatiq.orm.config import TrainingInput
 
 redis_broker.add_middleware(results_backend)
 dramatiq.set_broker(broker=redis_broker)
@@ -15,6 +16,5 @@ def create_s3_bucket(bucket_name: str) -> str:
 # ML Operations
 
 @dramatiq.actor(broker=redis_broker)
-def receive_pydantic_model(config: TrainingInput) -> str:
-    config_dict = config.model_dump()
-    return config_dict['MLFLOW_ADDRESS']
+def receive_pydantic_model(config: dict[str, Any]) -> str:
+    return config['MLFLOW_ADDRESS']

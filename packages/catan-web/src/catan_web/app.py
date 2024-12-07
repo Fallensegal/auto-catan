@@ -35,7 +35,7 @@ def flush_broker() -> bool:
 # Inference Routes
 @inference_router.post("/training")
 def run_benchmark(training_config: TrainingInput) -> dict[str, str]:
-    msg = tasks.receive_pydantic_model.send(config=training_config)
+    msg = tasks.receive_pydantic_model.send(config=training_config.model_dump(mode='json'))
     return {'Server:': msg.get_result(timeout=100_000, block=True)}
 
 # Storage Routes
