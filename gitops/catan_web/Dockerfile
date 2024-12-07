@@ -9,7 +9,9 @@ RUN apt-get update && apt-get install -y \
     curl \
     ca-certificates
 
-COPY ./packages/catan-web .
+COPY . .
+
+WORKDIR /opt/app/packages/catan-web
 
 RUN uv sync
 

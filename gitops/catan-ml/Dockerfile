@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y \
     curl \
     ca-certificates
 
-COPY ./packages .
+COPY . .
 
 WORKDIR /opt/app/packages/catan-ml
 
