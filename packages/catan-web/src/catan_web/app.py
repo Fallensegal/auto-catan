@@ -35,6 +35,6 @@ def flush_broker() -> bool:
 @s3_router.post("/creat_bucket")
 def create_s3_bucket(s3_name: str) -> dict[str, str]:
     msg = tasks.create_s3_bucket.send(bucket_name=s3_name)
-    return {'Server:': msg.get_result(timeout=100_000, block=False)}
+    return {'Server:': msg.get_result(timeout=100_000, block=True)}
 
 app.include_router(s3_router)
