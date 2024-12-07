@@ -46,3 +46,4 @@ def create_s3_bucket(s3_name: str) -> dict[str, str]:
     return {'Server:': msg.get_result(timeout=100_000, block=True)}
 
 app.include_router(s3_router)
+app.include_router(inference_router)
