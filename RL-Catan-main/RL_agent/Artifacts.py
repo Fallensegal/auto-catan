@@ -11,7 +11,7 @@ def PushArtifacts(experiment_name:str, params:dict,Model,Results,MLFLOW_ADDRESS:
     os.makedirs("Artifacts", exist_ok=True)
     DF = pd.DataFrame(Results)
     DF.to_csv('Artifacts/Results.csv')
-    torch.save(Model.state_dict(),'Artifacts/Model_Parameters.pth')
+    torch.save(Model.state_dict(),f'Artifacts/{experiment_name}_Model_Parameters.pth')
     if MLFLOW_ADDRESS is None: 
         print('not pushing to ML Flow. Returned artifacts in Artifacts directory')
         return True

@@ -11,8 +11,8 @@ def state_changer(env):
 
     phase = env.phase
 
-    player = players[game.cur_player]
-    opponent = players[1 - game.cur_player]
+    player = players[0]
+    opponent = players[1]
     #23
     np_board_tensor = np.stack((
         board.rober_position,

@@ -1,11 +1,11 @@
 # Starting learning rate for the optimizer
-LR_START = 0.0000003
+LR_START = 0.0001
 
 # Ending learning rate for the optimizer
-LR_END = 0.0000001
+LR_END = 0.00001
 
 # Decay rate for the learning rate
-LR_DECAY = 2000000
+LR_DECAY = 200000
 
 # Starting value for the exploration rate (epsilon) in the epsilon-greedy policy
 EPS_START = 1
@@ -14,16 +14,16 @@ EPS_START = 1
 EPS_END = 0.05
 
 # Decay rate for the exploration rate (epsilon) in the epsilon-greedy policy
-EPS_DECAY = 200000
+EPS_DECAY = 20000
 
 # Discount factor for future rewards in the Q-learning algorithm
-GAMMA = 0.99
+GAMMA = 0.95
 
 # Batch size for training the DQN model
 BATCH_SIZE = 64
 
 #Reward Functions
-REWARD_FUNCTION = 'Incremental_All'
+REWARD_FUNCTION = 'Incremental_VP'
 '''
         There are several Reward Functions that can be called: 
         1. 'Basic'
@@ -33,22 +33,22 @@ REWARD_FUNCTION = 'Incremental_All'
         5. 'Incremental_All'
 '''
 
-MODEL_SELECT = 'Small'
+MODEL_SELECT = 'Small_Pooling'
 '''
         There are 3 model sizes: 
         1. 'Small'
         2. 'Medium'
-        3. 'Small_Pooling'
+        3. 'Small Pooling'
 '''
 
-STOCHASTIC = False #true if you want to use a stochastic policy instead of a deterministic one
+STOCHASTIC = True #true if you want to use a stochastic policy instead of a deterministic one
 
 #number of episodes
-TRAINING_LOOPS = 2      
-EPISODES_PER_LOOP = 5
+TRAINING_LOOPS = 1
+EPISODES_PER_LOOP = 3
 GAMES_PER_BENCHMARK = 10
 
-MEMORY = 1000
+MEMORY = 10000
 
 # Total number of possible actions in the environment
 TOTAL_ACTIONS = 21*11*4 + 36
@@ -60,7 +60,7 @@ If you want to store things locally, just use "None." But note that it won't inc
 MLFLOW_ADDRESS = None
 
 # debugging options
-PRINT_ACTIONS = False
+PRINT_ACTIONS = True
 
 #I might do a mix later on
 #target_net_state_dict = target_net.state_dict()

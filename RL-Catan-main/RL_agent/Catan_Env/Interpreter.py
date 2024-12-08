@@ -62,7 +62,7 @@ def InterpretActions(player, selected_action, env, action_was_random = True, log
             message = "Randomly selected " + message
         else:
             message = "Policy selected " + message
-        log_file.write(f"Player: {player}, {message}\nReward for the agent: {env.phase.reward}\n")
+        log_file.write(f"Player: {player}, {message}\n")
         if final_action == 5:
             if gameStatePrintLevel == 1:
                 log_file.write(f"\nPlayer 0 Stats:")

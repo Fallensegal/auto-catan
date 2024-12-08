@@ -79,12 +79,10 @@ class DQNAgent:
                  EPS_START = 1, EPS_END = .05, EPS_DECAY = 200000,
                  GAMMA = 0.999, BATCH_SIZE = 8):
         self.policy_net = model.to(device)
+        # self.policy_net.load_state_dict(torch.load('Artifacts/Model_Parameters.pth', weights_only=True))
         self.target_net = model.to(device)
         self.target_net.load_state_dict(self.policy_net.state_dict())
         self.memory = ReplayMemory(memory_capacity)
-        self.LR_START = LR_START
-        self.LR_END = LR_END
-        self.LR_DECAY = LR_DECAY
         self.EPS_START = EPS_START
         self.EPS_END = EPS_END
         self.EPS_DECAY = EPS_DECAY
@@ -203,10 +201,7 @@ class Catan_Training:
     def select_action_using_policy(self, boardstate, vectorstate):
         sample = random.random()
         eps_threshold = self.agent.EPS_END + (self.agent.EPS_START - self.agent.EPS_END)*math.exp(-1. * self.steps_done / self.agent.EPS_DECAY)
-        lr = self.agent.LR_END + (self.agent.LR_START - self.agent.LR_END) * math.exp(-1. * self.steps_done / self.agent.LR_DECAY)
-        # Update the learning rate
-        for param_group in self.optimizer.param_groups:
-            param_group['lr'] = lr
+
         if sample > eps_threshold:  # use epsilon greedy policy, select action from policy
             action_was_random = False
             with torch.no_grad():
@@ -277,9 +272,15 @@ class Catan_Training:
         next_state_expected_value[non_final_mask] = self.policy.get_expected_q_value(next_state_q_values)
         expected_state_action_values = (next_state_expected_value * GAMMA) + reward_batch 
 
+        action_probabilities = expected_state_action_values.softmax(dim=0)
+
+        epsilon = 1e-10
+        entropy = - (action_probabilities * (action_probabilities + epsilon).log()).sum(dim=0).mean()
+
         #TO DO: Add hyper-parameter to select L1 vs MSE
-        loss = F.mse_loss(state_action_values, expected_state_action_values.unsqueeze(1))
-        
+        loss = F.smooth_l1_loss(state_action_values, expected_state_action_values.unsqueeze(1))
+        loss += 0.1 * entropy
+
         self.game.average_q_value_loss.insert(0, loss.mean().item())
         while len(self.game.average_q_value_loss) > 1000:
             self.game.average_q_value_loss.pop(1000)
@@ -380,12 +381,11 @@ class Catan_Training:
 
     def train(self, PRINT_ACTIONS = False):
         self.training = True
+        self.agent_target_net.load_state_dict(self.agent_policy_net.state_dict())
         for i_episode in range(self.num_episodes_per_loop):
             self.total_episodes += 1   
             time_new_start = time.time()
             print(f"Starting Episode {self.total_episodes}")
-            if (i_episode%100) ==0:
-                self.agent_target_net.load_state_dict(self.agent_policy_net.state_dict())
             self.new_game()
             self.log_file.write(f"\n\n\nNew Game\n\n")
             for t in count():
@@ -420,11 +420,19 @@ class Catan_Training:
                             self.optimize_model()
                             next_board_state = None
                             next_vector_state = None
-                        if self.game.is_finished == 1:
                             self.env.phase.gamemoves = t
                             self.log_file.write(f"\ndone1")
                             self.game.is_finished = 0
                             break
+                            
+                        elif action.item() == 4*11*21:
+                            cur_boardstate = self.cur_boardstate.clone().detach().unsqueeze(0).to(self.device).float()
+                            cur_vectorstate = self.cur_vectorstate.clone().detach().unsqueeze(0).to(self.device).float()
+                            next_board_state, next_vector_state, reward= state_changer(self.env)[0], state_changer(self.env)[1], torch.tensor([self.env.phase.reward], device=self.device)
+                            self.memory.push(cur_boardstate, cur_vectorstate,action,next_board_state, next_vector_state,reward)
+                            self.log_file.write(f"Reward for the agent: {self.env.phase.reward}\n")
+                            
+
                 elif self.game.cur_player == 0:
                     self.cur_boardstate =  state_changer(self.env)[0]
                     self.cur_vectorstate = state_changer(self.env)[1]
@@ -433,7 +441,7 @@ class Catan_Training:
                     action, action_was_random = self.select_action_using_policy(cur_boardstate, cur_vectorstate) #player 0 uses trained policy
                     if PRINT_ACTIONS:
                         InterpretActions(0, action, self.env, action_was_random, self.log_file)
-                    if self.env.phase.statechange == 1:
+                    if self.env.phase.statechange == 1 and action.item() != 4*11*21:
                         next_board_state, next_vector_state, reward, done = state_changer(self.env)[0], state_changer(self.env)[1], self.env.phase.reward, self.game.is_finished
                         if reward != 0:
                             self.log.episodeRewardTracker.append(reward)
@@ -441,6 +449,7 @@ class Catan_Training:
                         reward = torch.tensor([reward], device=self.device)
                         next_board_state = next_board_state.clone().detach().unsqueeze(0).to(self.device).float()
                         next_vector_state = next_vector_state.clone().detach().unsqueeze(0).to(self.device).float()
+                        self.log_file.write(f"Reward for the agent: {self.env.phase.reward}\n")
                         if done == 1:
                             self.env.phase.gamemoves = t
                             self.log_file.write(f"\ndone0")
@@ -463,12 +472,12 @@ class Catan_Training:
                             next_board_state = next_board_state.clone().detach().unsqueeze(0).to(self.device).float()
                             next_vector_state = next_vector_state.clone().detach().unsqueeze(0).to(self.device).float()
                             self.memory.push(cur_boardstate, cur_vectorstate,action,next_board_state, next_vector_state,reward)
+                    self.env.phase.reward = 0
 
                 self.steps_done += self.env.phase.statechange
                 self.env.phase.statechangecount += self.env.phase.statechange
                 self.env.phase.statechange = 0
                 self.game.random_action_made = 0
-                self.env.phase.reward = 0
             self.add_epsiode_data(i_episode)
             self.game.average_time.insert(0, time.time() - time_new_start)
             if len(self.game.average_time) > 10:
@@ -535,11 +544,11 @@ def main(TRAINING_LOOPS,EPISODES_PER_LOOP,GAMES_PER_BENCHMARK,MEMORY,MODEL_SELEC
         for i in range(TRAINING_LOOPS):
             training.train(PRINT_ACTIONS)
             if STOCHASTIC:
-                Experiment_name = f'{REWARD_FUNCTION}_{MODEL_SELECT}_Stochastic'
+                Experiment_name = f'Episode_{training.total_episodes}_{REWARD_FUNCTION}_{MODEL_SELECT}_Stochastic'
             else:
-                Experiment_name = f'{REWARD_FUNCTION}_{MODEL_SELECT}_deteministic'
+                Experiment_name = f'Episode_{training.total_episodes}_{REWARD_FUNCTION}_{MODEL_SELECT}_deteministic'
             PushArtifacts(Experiment_name,param_dict,training.agent_policy_net,training.EpisodeData,MLFLOW_ADDRESS,RunName = None, TrainingData=True,TestingData=False)
-            training.min_win_rate = 0.0
+            training.min_win_rate = 0.05
             should_break_training = training.benchmark(PRINT_ACTIONS)
             PushArtifacts(Experiment_name,param_dict,model,training.EpisodeData,MLFLOW_ADDRESS,RunName = None, TrainingData=False,TestingData=True)
             if should_break_training:

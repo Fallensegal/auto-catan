@@ -1238,13 +1238,15 @@ class Catan_Env:
                 return 0 #game not over
         if self.RewardFunction == 'Incremental_VP':
             if(self.game.placement_phase_pending ==0):
-                if cur_player == 0:
                     #everytime the player gains victory points, get a reward the size of the victory point
                     #if the player loses longest road or largest army, then they would lose victory points and get negative reward
                     #DQN implicity tracks discounted reward using Q function
-                    if self.players[cur_player].victorypoints != self.players[cur_player].victorypoints_before:
-                        self.phase.reward += (self.players[cur_player].victorypoints - self.players[cur_player].victorypoints_before)*.1
-                        #print(self.phase.reward)
+                if self.players[0].victorypoints != self.players[0].victorypoints_before:
+                    self.phase.reward += (self.players[cur_player].victorypoints - self.players[cur_player].victorypoints_before)*.1
+                    # give a negative reward if the player lets the opponent gain victory points, andd a positive reward if the player 
+                    # makes the opponent lose victory points
+                if self.players[1].victorypoints != self.players[1].victorypoints_before:
+                    self.phase.reward -= (self.players[1].victorypoints - self.players[1].victorypoints_before)*.1
                 if self.players[cur_player].victorypoints >= 10:
                     if cur_player ==0: 
                         self.phase.reward+=1
