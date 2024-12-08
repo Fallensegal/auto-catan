@@ -51,3 +51,28 @@
 }
 
 ```
+
+## Config - Testing
+
+```json
+{
+  "LR_START": 0.0000003,
+  "LR_END": 0.0000001,
+  "LR_DECAY": 2000000,
+  "EPS_START": 1,
+  "EPS_END": 0.05,
+  "EPS_DECAY": 200000,
+  "GAMMA": 0.99,
+  "BATCH_SIZE": 64,
+  "REWARD_FUNCTION": "Incremental_All",
+  "MODEL_SELECT": "Small",
+  "STOCHASTIC": false,
+  "TRAINING_LOOPS": 2,
+  "EPISODES_PER_LOOP": 5,
+  "GAMES_PER_BENCHMARK": 10,
+  "MEMORY": 1000,
+  "TOTAL_ACTIONS": 960,
+  "MLFLOW_ADDRESS": "http://mlflow:8250",
+  "PRINT_ACTIONS": false
+}
+```
