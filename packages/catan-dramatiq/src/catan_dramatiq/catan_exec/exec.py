@@ -151,8 +151,7 @@ class Catan_Training:
                 'player_1_num_trades': self.env.player1_log.average_resources_traded[0],
                 'player_0_victory_points': self.env.player0.victorypoints,
                 'player_1_victory_points': self.env.player1.victorypoints,
-                'average_model_loss': np.mean(self.game.average_q_value_loss),
-                'Reward_over_episode':   sum(R*(self.gamma**T) for R,T in zip(self.log.episodeRewardTracker,self.log.episodeRewardStep))
+                'average_model_loss': np.mean(self.game.average_q_value_loss)
                 }
         else:
             dict = {
@@ -179,7 +178,6 @@ class Catan_Training:
                 'player_1_victory_points': self.env.player1.victorypoints,
             }
         self.EpisodeData.append(dict)
-        self.log.clear()
 
 
 
@@ -213,7 +211,6 @@ class Catan_Training:
                         position_y = (int(policy_action) - ((action_type-1)*11*21))//21
                         position_x = int(policy_action) % 21 
                     action_selecter(self.env, action_type, position_x, position_y)
-                    self.log.action_counts[policy_action] += 1
                     if self.env.phase.actionstarted >= 5:
                         action_selecter(self.env,5,0,0)
                 
@@ -224,7 +221,6 @@ class Catan_Training:
                 policy_action = action_type + 4*11*21 - 5
             else:
                 policy_action = (action_type-1)*11*21 + position_y*21 + position_x 
-            self.log.random_action_counts[policy_action] += 1
             self.game.random_action_made = 1
         action_tensor = torch.tensor([[policy_action]], device=self.device, dtype=torch.long)
         return action_tensor, action_was_random
@@ -236,7 +232,6 @@ class Catan_Training:
             action = final_action + 4*11*21 - 5
         else:
             action = (final_action-1)*11*21 + position_y*21 + position_x 
-        self.log.random_action_counts[action] += 1
         action = torch.tensor([[action]], device=self.device, dtype=torch.long)
         self.game.random_action_made = 1
         return action
@@ -346,7 +341,6 @@ class Catan_Training:
             self.new_game()
             winner = self.simulate_match(PRINT_ACTIONS)
             self.add_epsiode_data(game_number)
-            self.log.clear()
             if winner == 0:
                 trained_policy_wins += 1
             elif winner == 1:
@@ -383,9 +377,6 @@ class Catan_Training:
                             cur_vectorstate = self.cur_vectorstate.clone().detach().unsqueeze(0).to(self.device).float()
                             next_board_state, next_vector_state, reward, done = state_changer(self.env)[0], state_changer(self.env)[1], self.env.phase.reward, self.game.is_finished
                             ##add a sanity check on rewards. 
-                            if reward != 0:
-                                self.log.episodeRewardTracker.append(reward)
-                                self.log.episodeRewardStep.append(t)
                             reward = torch.tensor([reward], device=self.device)
                             next_board_state = next_board_state.clone().detach().unsqueeze(0).to(self.device).float()
                             next_vector_state = next_vector_state.clone().detach().unsqueeze(0).to(self.device).float()
@@ -411,9 +402,6 @@ class Catan_Training:
                     action, action_was_random = self.select_action_using_policy(cur_boardstate, cur_vectorstate) #player 0 uses trained policy
                     if self.env.phase.statechange == 1:
                         next_board_state, next_vector_state, reward, done = state_changer(self.env)[0], state_changer(self.env)[1], self.env.phase.reward, self.game.is_finished
-                        if reward != 0:
-                            self.log.episodeRewardTracker.append(reward)
-                            self.log.episodeRewardStep.append(t)
                         reward = torch.tensor([reward], device=self.device)
                         next_board_state = next_board_state.clone().detach().unsqueeze(0).to(self.device).float()
                         next_vector_state = next_vector_state.clone().detach().unsqueeze(0).to(self.device).float()
