@@ -13,14 +13,16 @@ if [ -f $USER_CONFIG ]; then
   fi
 fi
 
+mkdir -p $HOME/.kube/
+
 if [ -f $RANCHER_CONFIG ]; then
   echo "Rancher Config Found...."
   sudo cp $RANCHER_CONFIG $HOME/.kube/config
   sudo chown $USER:$USER $HOME/.kube/config
   sudo chmod 644 $HOME/.kube/config
 else
-  echo "K3s kubeconfig not found, is the cluster up?...."
-  echo "Check status with "sudo systemctl status k3s"
+  echo "K3s kubeconfig not found, is the cluster up?"
+  echo "Check status with 'sudo systemctl status k3s'"
   exit 1
 fi
 

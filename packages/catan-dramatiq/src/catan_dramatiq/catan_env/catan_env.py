@@ -1,17 +1,21 @@
 import numpy as np
-import math 
+import torch
+import math
 import random
 
-from Catan_Env.player import Player
-from Catan_Env.randomtesting import Random_Testing
-from Catan_Env.distribution import Distribution
-from Catan_Env.game import Game
-from Catan_Env.phase import Phase
-from Catan_Env.board import Board
-from Catan_Env.distribution import Distribution
+from catan_dramatiq.catan_env.player import Player
+from catan_dramatiq.catan_env.randomtesting import Random_Testing
+from catan_dramatiq.catan_env.distribution import Distribution
+from catan_dramatiq.catan_env.game import Game, Phase
+from catan_dramatiq.catan_env.board import Board
+
+
 
 _NUM_ROWS = 11
 _NUM_COLS = 21
+
+
+
 
 def create_env():
     """
@@ -21,6 +25,84 @@ def create_env():
         Catan_Env: The Catan environment.
     """
     return Catan_Env()
+
+def state_changer(env):
+    players = env.players
+    game = env.game
+    board = env.board
+    player0 = players[0]
+    player1 = players[1]
+
+    phase = env.phase
+
+    player = players[game.cur_player]
+    opponent = players[1 - game.cur_player]
+    #23
+    np_board_tensor = np.stack((
+        board.rober_position,
+        board.tiles_lumber,
+        board.tiles_wool,
+        board.tiles_grain,
+        board.tiles_brick,
+        board.tiles_ore,
+        board.tiles_probability_1,
+        board.tiles_probability_2,
+        board.tiles_probability_3,
+        board.tiles_probability_4,
+        board.tiles_probability_5,
+        board.harbor_three_one,
+        board.harbor_lumber,
+        board.harbor_wool,
+        board.harbor_grain,
+        board.harbor_brick,
+        board.harbor_ore,
+        player0.settlements,
+        player1.settlements,
+        player0.cities,
+        player1.cities,
+        player0.roads,
+        player1.roads,
+    ))
+    #35
+    np_vector_tensor = np.stack((
+        player.victorypoints,
+        player.resource_lumber,
+        player.resource_wool,
+        player.resource_grain,
+        player.resource_brick,
+        player.resource_ore,
+        player.roads_left,
+        player.settlements_left,
+        player.cities_left,
+        player.army_size,
+        player.roads_connected,
+        player.knight_cards_old,
+        player.yearofplenty_cards_old,
+        player.monopoly_cards_old,
+        player.roadbuilding_cards_old,
+        player.victorypoints_cards_old,
+        player.knight_cards_new,
+        player.yearofplenty_cards_new,
+        player.monopoly_cards_new,
+        player.roadbuilding_cards_new,
+        player.victorypoints_cards_new,
+        opponent.resource_lumber,
+        opponent.resource_wool,
+        opponent.resource_grain,
+        opponent.resource_brick,
+        opponent.resource_ore,
+        opponent.victorypoints_cards_old + opponent.victorypoints_cards_new + opponent.knight_cards_old + opponent.knight_cards_new + opponent.yearofplenty_cards_old + opponent.yearofplenty_cards_new + opponent.monopoly_cards_old + opponent.monopoly_cards_new + opponent.roadbuilding_cards_old + opponent.roadbuilding_cards_new,
+        opponent.army_size,
+        opponent.roads_connected,
+        phase.development_card_played,
+        player.knight_move_pending,
+        player.monopoly_move_pending,
+        player.roadbuilding_move_pending,
+        player.yearofplenty_move_pending,
+    ))
+    torch_board_tensor = torch.from_numpy(np_board_tensor[None,:]).float()
+    torch_vector_tensor = torch.from_numpy(np_vector_tensor[None,:]).float()
+    return torch_board_tensor, torch_vector_tensor
 
 class Catan_Env:
     def __init__(self,RewardFunction='Basic'):
@@ -1052,7 +1134,7 @@ class Catan_Env:
             elif get == 4:
                 player.resource_brick += 1
         else:
-            a = 1
+            a = 1  # noqa: F841
         if self.phase.statechange == 1:
             player_log[game.cur_player].total_resources_traded += 1
 
@@ -1347,7 +1429,7 @@ class Catan_Env:
         random_testing = self.random_testing
         player = self.players[self.game.cur_player]
         game = self.game
-        players = self.players
+        players = self.players  # noqa: F841
 
         player0_log = self.player0_log
         player1_log = self.player1_log
@@ -1662,7 +1744,7 @@ class Catan_Env:
         if player.resource_brick > 0 and player.resource_lumber > 0 and player.resource_grain > 0 and player.resource_wool > 0:
             random_testing.resources_buy_settlement += 1
         if c == 7:
-            total_resources = player.resource_lumber + player.resource_wool + player.resource_grain + player.resource_brick + player.resource_ore
+            total_resources = player.resource_lumber + player.resource_wool + player.resource_grain + player.resource_brick + player.resource_ore  # noqa: F841
             #if total_resources >= 7:
                 #phase.reward = -0.0002*total_resources/2
             self.game.seven_rolled = 1
@@ -2118,4 +2200,3 @@ class Catan_Env:
             
 
         return self.legal_actions
-

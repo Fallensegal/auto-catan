@@ -2,10 +2,12 @@ from fastapi import FastAPI
 from fastapi import APIRouter
 from catan_dramatiq.tasks import tasks
 from catan_dramatiq.broker import redis_broker
+from catan_dramatiq.orm.config import TrainingInput
 
 # Define App
 app = FastAPI()
 s3_router = APIRouter(prefix="/s3", tags=["s3"])
+inference_router = APIRouter(prefix="/inf", tags=["inf"])
 
 # Server Routes
 @app.get("/healthz")
@@ -29,6 +31,17 @@ def flush_broker() -> bool:
         return True
     except Exception:
         return False
+    
+# Inference Routes
+@inference_router.post("/training")
+def run_benchmark(training_config: TrainingInput) -> dict[str, str]:
+    msg = tasks.receive_pydantic_model.send(config=training_config.model_dump(mode='json'))
+    return {'Server:': msg.get_result(timeout=100_000, block=True)}
+
+@inference_router.post("/test_pydantic")
+def run_test(training_config: TrainingInput) -> dict[str, str]:
+    msg = tasks.execute_rl_benchmark.send(config=training_config.model_dump(mode='json'))
+    return {'Server:': msg.get_result(timeout=21600000, block=True)}
 
 # Storage Routes
 
@@ -38,3 +51,4 @@ def create_s3_bucket(s3_name: str) -> dict[str, str]:
     return {'Server:': msg.get_result(timeout=100_000, block=True)}
 
 app.include_router(s3_router)
+app.include_router(inference_router)
