@@ -41,14 +41,14 @@ def run_benchmark(training_config: TrainingInput) -> dict[str, str]:
 @inference_router.post("/test_pydantic")
 def run_test(training_config: TrainingInput) -> dict[str, str]:
     msg = tasks.execute_rl_benchmark.send(config=training_config.model_dump(mode='json'))
-    return {'Server:': msg.get_result(timeout=100_000, block=True)}
+    return {'Server:': msg.get_result(timeout=21600000, block=True)}
 
 # Storage Routes
 
 @s3_router.post("/creat_bucket")
 def create_s3_bucket(s3_name: str) -> dict[str, str]:
     msg = tasks.create_s3_bucket.send(bucket_name=s3_name)
-    return {'Server:': msg.get_result(timeout=21600000, block=True)}
+    return {'Server:': msg.get_result(timeout=100_000, block=True)}
 
 app.include_router(s3_router)
 app.include_router(inference_router)
