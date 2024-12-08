@@ -9,7 +9,7 @@ def PushArtifacts(experiment_name:str,
                   Model, 
                   Results, 
                   MLFLOW_ADDRESS:str,
-                  RunName:str, 
+                  RunName: str | None, 
                   TrainingData: bool = False,
                   TestingData: bool = False) -> bool:
     """Given model runtime parameters, upload metrics to MlFlow tracking server"""

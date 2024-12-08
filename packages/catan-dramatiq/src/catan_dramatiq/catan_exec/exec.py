@@ -111,9 +111,6 @@ class Catan_Training:
         self.gamma = GAMMA
         self.cur_boardstate = None
         self.cur_vectorstate = None
-
-        self.log = Log()
-        self.log_file = LOG_FILE
         self.checkpoint = CHECKPOINT
         self.total_episodes = 0
         self.steps_done = self.agent.steps_done
@@ -350,17 +347,14 @@ class Catan_Training:
         trained_policy_wins = 0
         random_policy_wins = 0
         for game_number in range(self.benchmark_games):
-            self.log_file.write(f"\nStarting Game {game_number}")
             self.new_game()
             winner = self.simulate_match(PRINT_ACTIONS)
             self.add_epsiode_data(game_number)
             self.log.clear()
             if winner == 0:
                 trained_policy_wins += 1
-                self.log_file.write("\nTrained Policy Wins")
             elif winner == 1:
                 random_policy_wins += 1
-                self.log_file.write("\nRandom Policy Wins")
         trained_policy_win_rate = trained_policy_wins / self.benchmark_games
         random_policy_win_rate = random_policy_wins / self.benchmark_games
         print(f"benchmark finished in {time.time() - start_time} seconds")
@@ -380,7 +374,6 @@ class Catan_Training:
             if (i_episode%100) ==0:
                 self.agent_target_net.load_state_dict(self.agent_policy_net.state_dict())
             self.new_game()
-            self.log_file.write("\n\n\nNew Game\n\n")
             for t in count():
                 if self.game.cur_player == 1:
                     action = self.select_action_randomly() #player 1 uses random policy
@@ -404,7 +397,6 @@ class Catan_Training:
                             next_vector_state = next_vector_state.clone().detach().unsqueeze(0).to(self.device).float()
                             if done == 1:
                                 self.env.phase.gamemoves = t
-                                self.log_file.write("\ndone0")
                                 next_board_state = None
                                 next_vector_state = None
                             self.memory.push(cur_boardstate, cur_vectorstate,action,next_board_state, next_vector_state,reward)
@@ -415,7 +407,6 @@ class Catan_Training:
                             next_vector_state = None
                         if self.game.is_finished == 1:
                             self.env.phase.gamemoves = t
-                            self.log_file.write("\ndone1")
                             self.game.is_finished = 0
                             break
                 elif self.game.cur_player == 0:
@@ -436,7 +427,6 @@ class Catan_Training:
                         next_vector_state = next_vector_state.clone().detach().unsqueeze(0).to(self.device).float()
                         if done == 1:
                             self.env.phase.gamemoves = t
-                            self.log_file.write("\ndone0")
                             next_board_state = None
                             next_vector_state = None
                         self.memory.push(cur_boardstate, cur_vectorstate,action,next_board_state, next_vector_state,reward)

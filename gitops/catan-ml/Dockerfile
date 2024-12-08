@@ -15,4 +15,4 @@ WORKDIR /opt/app/packages/catan-ml
 
 RUN uv sync
 
-CMD ["uv", "run", "dramatiq", "catan_ml:redis_broker", "--threads=2", "--processes=1"]
+CMD ["uv", "run", "dramatiq", "catan_ml:redis_broker", "--threads=2", "--processes=2"]
