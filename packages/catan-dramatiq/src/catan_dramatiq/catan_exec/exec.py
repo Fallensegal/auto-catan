@@ -14,7 +14,6 @@ from catan_dramatiq.catan_env.catan_env import state_changer
 from catan_dramatiq.memory.core import ReplayMemory
 from catan_dramatiq.catan_env.catan_env import Catan_Env
 from catan_dramatiq.catan_env.action_selection import action_selecter, random_assignment
-from catan_dramatiq.catan_env.interpreter import InterpretActions
 
 class Log:
     def __init__(self):
@@ -321,13 +320,10 @@ class Catan_Training:
                         action_selecter(self.env, action_type, position_x, position_y)
                         random_action = False
                         action_tensor = torch.tensor([[policy_action]], device=self.device, dtype=torch.long)
-                if PRINT_ACTIONS:
-                    InterpretActions(0,action_tensor, self.env, action_was_random=random_action, log_file=self.log_file)
             else:#Random AI takes turn
                 self.env.phase.actionstarted = 0
                 action = self.select_action_randomly()
-                if PRINT_ACTIONS:
-                    InterpretActions(1,action, self.env, action_was_random=True, log_file=self.log_file)
+                
             
             self.env.phase.statechange = 0
             self.env.phase.reward = 0
@@ -377,8 +373,6 @@ class Catan_Training:
             for t in count():
                 if self.game.cur_player == 1:
                     action = self.select_action_randomly() #player 1 uses random policy
-                    if PRINT_ACTIONS:
-                        InterpretActions(1,action, self.env, True, self.log_file)
                     self.env.phase.actionstarted = 0
                     if self.env.phase.statechange == 1:
                         if self.game.is_finished == 1:
@@ -415,8 +409,6 @@ class Catan_Training:
                     cur_boardstate = self.cur_boardstate.clone().detach().unsqueeze(0).to(self.device).float()
                     cur_vectorstate = self.cur_vectorstate.clone().detach().unsqueeze(0).to(self.device).float()
                     action, action_was_random = self.select_action_using_policy(cur_boardstate, cur_vectorstate) #player 0 uses trained policy
-                    if PRINT_ACTIONS:
-                        InterpretActions(0, action, self.env, action_was_random, self.log_file)
                     if self.env.phase.statechange == 1:
                         next_board_state, next_vector_state, reward, done = state_changer(self.env)[0], state_changer(self.env)[1], self.env.phase.reward, self.game.is_finished
                         if reward != 0:
