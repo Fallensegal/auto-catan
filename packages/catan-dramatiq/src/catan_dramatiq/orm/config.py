@@ -26,7 +26,7 @@ class TrainingInput(BaseModel):
     # Model Settings
 
     """Training Batch Size"""
-    BATCH_SIZE: float
+    BATCH_SIZE: int
     """Model Reward Function"""
     REWARD_FUNCTION: str
     """Q-Function Approximating Model"""
