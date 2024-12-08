@@ -14,6 +14,5 @@ spec:
       metadata:
         address: chart-redis-master.catan.svc.cluster.local:6379
         passwordFromEnv: REDIS_PASSWORD
-        listName: "dramatiq:queue:default"
+        listName: "dramatiq:default.msgs"
         listLength: 2
-        
