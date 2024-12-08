@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import mlflow
 import torch
+from pathlib import Path
 
 def PushArtifacts(experiment_name:str, 
                   params:dict,
@@ -9,16 +10,23 @@ def PushArtifacts(experiment_name:str,
                   Results, 
                   MLFLOW_ADDRESS:str,
                   RunName:str, 
-                  TrainingData:bool=False,
-                  TestingData:bool = False) -> bool:
+                  TrainingData: bool = False,
+                  TestingData: bool = False) -> bool:
     """Given model runtime parameters, upload metrics to MlFlow tracking server"""
-    if (TrainingData == False and TestingData == False) or (TrainingData == True and TestingData == True):
+
+    # Validate Existance of Training Data
+    if (TrainingData is False and TestingData is False) or (TrainingData is True and TestingData is True):
         print("Error: Either TrainingData or TestingData must be True, but not both.")
         return False
-    os.makedirs("Artifacts", exist_ok=True)
+    
+    # Define Working Directory
+    directory = Path("Artifacts")
+    directory.mkdir(parents=True, exist_ok=True)
+
     DF = pd.DataFrame(Results)
     DF.to_csv('Artifacts/Results.csv')
     torch.save(Model.state_dict(),'Artifacts/Model_Parameters.pth')
+
     if MLFLOW_ADDRESS is None: 
         print('not pushing to ML Flow. Returned artifacts in Artifacts directory')
         return True

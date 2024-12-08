@@ -82,4 +82,3 @@ class Distribution:
                     elif board.tiles_dice_probabilities[i][j] == 5:
                         board.tiles_probability_5[i][j] = 1
                     a += 1
-

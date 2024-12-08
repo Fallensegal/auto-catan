@@ -1,4 +1,4 @@
-import math 
+
 def InterpretActions(player, selected_action, env, action_was_random = True, log_file = None, gameStatePrintLevel = 0):
     selected_action = selected_action.item()
     if selected_action >= 4*11*21:
@@ -65,19 +65,19 @@ def InterpretActions(player, selected_action, env, action_was_random = True, log
         log_file.write(f"Player: {player}, {message}\nReward for the agent: {env.phase.reward}\n")
         if final_action == 5:
             if gameStatePrintLevel == 1:
-                log_file.write(f"\nPlayer 0 Stats:")
+                log_file.write("\nPlayer 0 Stats:")
                 log_file.write(env.player0)
-                log_file.write(f"\nPlayer 1 Stats:")
+                log_file.write("\nPlayer 1 Stats:")
                 log_file.write(env.player1)
             elif gameStatePrintLevel == 2:
-                log_file.write(f"\nBoard state:")
+                log_file.write("\nBoard state:")
                 log_file.write(env.board)
             elif gameStatePrintLevel == 3:
-                log_file.write(f"\nPlayer 0 Stats:")
+                log_file.write("\nPlayer 0 Stats:")
                 log_file.write(env.player0)
-                log_file.write(f"\nPlayer 1 Stats:")
+                log_file.write("\nPlayer 1 Stats:")
                 log_file.write(env.player1)
-                log_file.write(f"\nBoard state:")
+                log_file.write("\nBoard state:")
                 log_file.write(env.board)
 
 

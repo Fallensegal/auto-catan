@@ -210,4 +210,3 @@ class Player:
             self.old_total_self_development_cards_used   = self.total_development_cards_used
             self.old_total_self_resources_traded         = self.total_resources_traded
             self.old_total_self_knights_played           = self.total_knights_played
-    
