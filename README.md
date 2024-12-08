@@ -3,36 +3,46 @@ Academic technical demonstration of agentic RL implementation of game AI playing
 
 ## Table of Content
 1. [Installation](#install)
+    - [Pre-requisites](#prereq)
     - [Install and Start Cluster](#cluster-start)
     - [Install Application Helm Chart](#app-helm)
     - [Health Check](#health)
 
-2. [Installation Troubleshooting](#bugs)
-3. [Dev Dependencies](#deps)
+3. [Installation Troubleshooting](#bugs)
+4. [Dev Dependencies](#deps)
 
 ## <a name="install"></a> Installation
 
-> *NOTE: Currently, the installation of the cluster using defined IAC only supports Linux (Tested on Ubuntu 24.04 Server). YES YOU WILL NEED ROOT ACCESS TO YOUR MACHINE* 
+> *NOTE: Currently, the installation of the cluster using defined IAC only supports Linux (Tested on Ubuntu 24.04 Server). YES YOU WILL NEED ROOT ACCESS TO YOUR MACHINE*
+
+### <a name="prereq"></a> Pre-requisites
+For effective reproduction, please setup a `linux/amd64` VM with `NAT` networking and with `Ubuntu 24.04` Server. Perform a minimal install with SSH server (no additional packages selected from snap) and install the following packages:
+
+```bash
+apt-get install git build-essential curl ca-certificates
+```
+
+Following that, clone the `main` branch onto the home directory of your VM
 
 ### <a name="cluster-start"></a> Install and Start Cluster
 
 1. Create Local Executable Directory
 
 ```bash
-$ mkdir -p $HOME/.local/bin
+mkdir -p $HOME/.local/bin
 ```
 
 2. Add the above directory to path
 
 ```bash
-$ echo "export PATH=$PATH:$HOME/.local/bin" >> $HOME/.bashrc
-$ source $HOME/.bashrc
+echo "export PATH=$PATH:$HOME/.local/bin" >> $HOME/.bashrc
+source $HOME/.bashrc
 ```
 3. Run the scripts in `iac` to bootstrap cluster
 
 ```bash
-$ ./1-install-kubectl.sh
-$ ./2-install-k3s.sh
+./1-install-kubectl.sh
+./2-install-k3s.sh
 ...
 ...
 ```
@@ -40,30 +50,37 @@ $ ./2-install-k3s.sh
 4. Refresh your terminal to realize system changes
 
 ```bash
-$ source $HOME/.bashrc
+source $HOME/.bashrc
 ```
 
 5. Check status of Cluster: *Cluster status should be active*
 
 ```bash
-$ sudo systemctl status k3s
+sudo systemctl status k3s
 ```
 
 The more comprehensive way of checking if the cluster is healthy is to check deployment and pod status under the `kube-system` namespace. For K3s, `coredns`, `local-path-provisioner`, `metrics-server`, and `traefik` should be all running and ready.
 
 ```bash
-$ kubectl get all -A
+kubectl get all -A
 ```
 We want to see the **non-installer** pods to be `Running` and `Ready`. The **installer** pods should not be running, and should be shown as `Completed`.
+
+6. Create the `catan` namespace for the deployment, and set it as the default namespace
+
+```bash
+kubectl create namespace catan
+kubectl kubectl config set-context --current --namespace=catan
+```
 
 ### <a name="app-helm"></a> Install Application Helm Chart
 
 1. Once the cluster is running and cluster health can be verified, we can start deploying our application. Start by changing directories to root of the project and executing the following commands
 
 ```bash
-$ helm repo add bitnami https://charts.bitnami.com/bitnami
-$ helm repo add kedacore https://kedacore.github.io/charts
-$ helm dependency build ./deploy
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo add kedacore https://kedacore.github.io/charts
+helm dependency build ./deploy
 ```
 
 This will install our custom helm chart that contain RL specific applications and its dependencies.
@@ -71,7 +88,7 @@ This will install our custom helm chart that contain RL specific applications an
 2. Once the helm dependencies are installed you can bring up the deployment using `tilt`
 
 ```bash
-$ tilt up --host 0.0.0.0
+tilt up --host 0.0.0.0
 ```  
 3. You can check if the deployment is properly working by looking at the `Tilt` status and navigating to `Minio`
 
