@@ -5,6 +5,7 @@ WORKDIR /opt/app
 
 RUN apt-get update && apt-get install -y \
     libgl1 \
+    git \
     libglib2.0-0 \
     curl \
     ca-certificates
@@ -15,4 +16,4 @@ WORKDIR /opt/app/packages/catan-ml
 
 RUN uv sync
 
-CMD ["uv", "run", "dramatiq", "catan_ml:redis_broker", "--threads=2", "--processes=2"]
+CMD ["uv", "run", "dramatiq", "catan_ml:redis_broker", "--threads=1", "--processes=2"]
