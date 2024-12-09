@@ -1,0 +1,19 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: {{ index .Values "catan-ml" "name" }}-scaledobject
+  namespace: catan
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ index .Values "catan-ml" "name" }}
+  pollingInterval: 30
+  minReplicaCount: 1
+  triggers:
+    - type: redis
+      metadata:
+        address: chart-redis-master.catan.svc.cluster.local:6379
+        passwordFromEnv: REDIS_PASSWORD
+        listName: "dramatiq:default.msgs"
+        listLength: "2"
