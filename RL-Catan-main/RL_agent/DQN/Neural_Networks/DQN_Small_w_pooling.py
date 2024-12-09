@@ -64,7 +64,7 @@ class DQN(nn.Module):
             
         )
 
-        self.initialize_weights()
+        #self.initialize_weights()
 
 
         # adding the outputs of self.denselayer and self.ConvScalar

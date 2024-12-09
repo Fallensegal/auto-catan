@@ -18,7 +18,7 @@ def PushArtifacts(experiment_name:str, params:dict,Model,Results,MLFLOW_ADDRESS:
     else:
         mlflow.set_tracking_uri(uri=MLFLOW_ADDRESS)
         mlflow.set_experiment(experiment_name)
-        with mlflow.start_run(RunName):
+        with mlflow.start_run(run_name=RunName):
             mlflow.log_params(params)
             mlflow.log_artifact('Artifacts/Results.csv')
             mlflow.log_artifact('Artifacts/Model_Parameters.pth')

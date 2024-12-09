@@ -1,11 +1,11 @@
 # Starting learning rate for the optimizer
-LR_START = 0.0000003
+LR_START = 0.0001
 
 # Ending learning rate for the optimizer
-LR_END = 0.0000001
+LR_END = 0.00001
 
 # Decay rate for the learning rate
-LR_DECAY = 2000000
+LR_DECAY = 500000
 
 # Starting value for the exploration rate (epsilon) in the epsilon-greedy policy
 EPS_START = 1
@@ -14,16 +14,16 @@ EPS_START = 1
 EPS_END = 0.05
 
 # Decay rate for the exploration rate (epsilon) in the epsilon-greedy policy
-EPS_DECAY = 200000
+EPS_DECAY = 25000
 
 # Discount factor for future rewards in the Q-learning algorithm
-GAMMA = 0.99
+GAMMA = 0.9995
 
 # Batch size for training the DQN model
-BATCH_SIZE = 64
+BATCH_SIZE = 32
 
 #Reward Functions
-REWARD_FUNCTION = 'Incremental_All'
+REWARD_FUNCTION = 'Basic'
 '''
         There are several Reward Functions that can be called: 
         1. 'Basic'
@@ -41,14 +41,14 @@ MODEL_SELECT = 'Small'
         3. 'Small_Pooling'
 '''
 
-STOCHASTIC = False #true if you want to use a stochastic policy instead of a deterministic one
+STOCHASTIC = True #true if you want to use a stochastic policy instead of a deterministic one
 
 #number of episodes
-TRAINING_LOOPS = 2      
-EPISODES_PER_LOOP = 5
-GAMES_PER_BENCHMARK = 10
+TRAINING_LOOPS = 50     
+EPISODES_PER_LOOP = 30
+GAMES_PER_BENCHMARK = 100
 
-MEMORY = 1000
+MEMORY = 10000
 
 # Total number of possible actions in the environment
 TOTAL_ACTIONS = 21*11*4 + 36
@@ -57,7 +57,7 @@ TOTAL_ACTIONS = 21*11*4 + 36
 MLFLOW Address is so you can easily push your artifacts to MLFLOW/Minio. 
 If you want to store things locally, just use "None." But note that it won't increment or add numbers to your local artifacts
 '''
-MLFLOW_ADDRESS = None
+MLFLOW_ADDRESS = 'http://192.168.161.128:8250'
 
 # debugging options
 PRINT_ACTIONS = False

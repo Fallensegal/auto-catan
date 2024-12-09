@@ -203,10 +203,10 @@ class Catan_Training:
     def select_action_using_policy(self, boardstate, vectorstate):
         sample = random.random()
         eps_threshold = self.agent.EPS_END + (self.agent.EPS_START - self.agent.EPS_END)*math.exp(-1. * self.steps_done / self.agent.EPS_DECAY)
-        lr = self.agent.LR_END + (self.agent.LR_START - self.agent.LR_END) * math.exp(-1. * self.steps_done / self.agent.LR_DECAY)
+        #lr = self.agent.LR_END + (self.agent.LR_START - self.agent.LR_END) * math.exp(-1. * self.steps_done / self.agent.LR_DECAY)
         # Update the learning rate
-        for param_group in self.optimizer.param_groups:
-            param_group['lr'] = lr
+        #for param_group in self.optimizer.param_groups:
+        #    param_group['lr'] = lr
         if sample > eps_threshold:  # use epsilon greedy policy, select action from policy
             action_was_random = False
             with torch.no_grad():
@@ -384,7 +384,7 @@ class Catan_Training:
             self.total_episodes += 1   
             time_new_start = time.time()
             print(f"Starting Episode {self.total_episodes}")
-            if (i_episode%100) ==0:
+            if ((self.total_episodes-1)%100) ==0:
                 self.agent_target_net.load_state_dict(self.agent_policy_net.state_dict())
             self.new_game()
             self.log_file.write(f"\n\n\nNew Game\n\n")
@@ -533,14 +533,15 @@ def main(TRAINING_LOOPS,EPISODES_PER_LOOP,GAMES_PER_BENCHMARK,MEMORY,MODEL_SELEC
         start_time = time.time()
   
         for i in range(TRAINING_LOOPS):
+            #training.agent_target_net.load_state_dict(training.agent_policy_net.state_dict()) #adding this here just to load every loop
             training.train(PRINT_ACTIONS)
             if STOCHASTIC:
-                Experiment_name = f'{REWARD_FUNCTION}_{MODEL_SELECT}_Stochastic'
+                Experiment_name = f'{REWARD_FUNCTION}_{MODEL_SELECT}_Stochastic_schedule_disabled'
             else:
-                Experiment_name = f'{REWARD_FUNCTION}_{MODEL_SELECT}_deteministic'
+                Experiment_name = f'{REWARD_FUNCTION}_{MODEL_SELECT}_deteministic_schedule_disabled'
             run = Experiment_name + '_'+str(f'StartPoint_{i*EPISODES_PER_LOOP}_episodes_traing_{EPISODES_PER_LOOP}_episodes')
             PushArtifacts(Experiment_name,param_dict,training.agent_policy_net,training.EpisodeData,MLFLOW_ADDRESS,RunName = run, TrainingData=True,TestingData=False)
-            training.min_win_rate = 0.0
+            training.min_win_rate = 0.01
             should_break_training = training.benchmark(PRINT_ACTIONS)
             run = Experiment_name + '_'+str(f'Completed {(i+1)*EPISODES_PER_LOOP}_testing_{GAMES_PER_BENCHMARK}_games')
             PushArtifacts(Experiment_name,param_dict,model,training.EpisodeData,MLFLOW_ADDRESS,RunName = run, TrainingData=False,TestingData=True)
