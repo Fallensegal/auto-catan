@@ -11,6 +11,7 @@ catan-dramatiq = { workspace = true }
 
 [tool.uv.workspace]
 members = ["packages/catan-dramatiq", "packages/catan-web", "packages/catan-ml"]
+exclude = ["rl_catan"]
 
 [dependency-groups]
 dev = [

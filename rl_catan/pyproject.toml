@@ -1,0 +1,11 @@
+[project]
+name = "rl-catan"
+version = "0.1.0"
+description = "Non containerized version of the auto-catan training workflow"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "mlflow>=2.18.0",
+    "numpy>=2.2.0",
+    "torch>=2.5.1",
+]
