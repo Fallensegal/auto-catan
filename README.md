@@ -201,3 +201,16 @@ In order to assist in reducing reproducability issues, a list of the following d
 ### Some Comments Regarding the Repo
 - If you use this, and you are experiencing issues, you are largerly on your own. If you email me I can possibly try to help out (islamwasif3@gmail.com)
 - Yes, the steps to get it up is bad/redundant/buggy. I apologize as the project was made in a pinch with some classmates
+
+## Authors:
+
+1. Wasif Islam
+    - islam25@purdue.edu
+    - w.islam@obscuritylabs.com
+    - islamwasif3@gmail.com
+
+2. John Michael Van Treek
+    - jvantree@purdue.edu
+
+3. Diege Reyes Olmos
+    - dreyesol@purdue.edu
