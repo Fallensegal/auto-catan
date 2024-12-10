@@ -2,9 +2,9 @@ import mlflow
 import os
 import pandas
 
-def Pull_MLFLOW_Data_to_Folder(experiment_name):
+def Pull_MLFLOW_Data_to_Folder(experiment_name,mlflow_address):
     # Set experiment ID or name
-    mlflow.set_tracking_uri(uri='http://192.168.161.128:8250')
+    mlflow.set_tracking_uri(uri=mlflow_address)
     experiment = mlflow.get_experiment_by_name(experiment_name)
 
     # Ensure experiment exists

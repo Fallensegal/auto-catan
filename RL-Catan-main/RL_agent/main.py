@@ -556,7 +556,9 @@ def main(TRAINING_LOOPS,EPISODES_PER_LOOP,GAMES_PER_BENCHMARK,MEMORY,MODEL_SELEC
         print(f'Elapsed time: {elapsed_time}')
         print(f'Optimizer steps: {len(training.game.average_q_value_loss)}')
         print(f'Optimizer Loss avg: {np.mean(training.game.average_q_value_loss)}')
-        Pull_MLFLOW_Data_to_Folder(Experiment_name)
+        if MLFLOW_ADDRESS is not None:
+            Pull_MLFLOW_Data_to_Folder(Experiment_name,MLFLOW_ADDRESS)
+        
 
 
 
