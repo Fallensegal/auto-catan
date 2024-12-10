@@ -209,7 +209,7 @@ In order to assist in reducing reproducability issues, a list of the following d
     - w.islam@obscuritylabs.com
     - islamwasif3@gmail.com
 
-2. John Michael Van Treek
+2. John Michael Van Treeck
     - jvantree@purdue.edu
 
 3. Diege Reyes Olmos
