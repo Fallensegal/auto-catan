@@ -21,6 +21,7 @@ from Catan_Env.game import Game
 from Catan_Env.Interpreter import InterpretActions
 from Configurations import *
 from Artifacts import PushArtifacts
+from Pull_ML_Data import Pull_MLFLOW_Data_to_Folder
 
 #different types of reward shaping: Immidiate rewards vps, immidiate rewards legal/illegal, immidiate rewards ressources produced, rewards at the end for winning/losing (+vps +legal/illegal)
 class Log:
@@ -555,6 +556,7 @@ def main(TRAINING_LOOPS,EPISODES_PER_LOOP,GAMES_PER_BENCHMARK,MEMORY,MODEL_SELEC
         print(f'Elapsed time: {elapsed_time}')
         print(f'Optimizer steps: {len(training.game.average_q_value_loss)}')
         print(f'Optimizer Loss avg: {np.mean(training.game.average_q_value_loss)}')
+        Pull_MLFLOW_Data_to_Folder(Experiment_name)
 
 
 
