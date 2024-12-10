@@ -6,12 +6,13 @@ Academic technical demonstration of agentic RL implementation of game AI playing
     - [Pre-requisites](#prereq)
     - [Install and Start Cluster](#cluster-start)
     - [Install Application Helm Chart](#app-helm)
-    - [Health Check](#health)
+    - [Running Parallel Trainings (*NO UI*)](#curl)
+    - [Alternative Execution](#exec)
 
-3. [Installation Troubleshooting](#bugs)
-4. [Dev Dependencies](#deps)
+2. [Installation Troubleshooting](#bugs)
+3. [Dev Dependencies](#deps)
 
-## <a name="install"></a> Installation
+## <a name="install"></a>Installation
 
 > *NOTE: Currently, the installation of the cluster using defined IAC only supports Linux (Tested on Ubuntu 24.04 Server). YES YOU WILL NEED ROOT ACCESS TO YOUR MACHINE*
 
@@ -99,6 +100,23 @@ tilt up --host 0.0.0.0
 <img src="./docs/minio_screenshot.png" alt="Minio" width=600 height=400>
 
 > *Splash Screen for Minio*
+
+### <a name="curl"></a>Running Parallel Trainings (*NO UI*)
+
+Unfortunately, (*as of the current release*), we do not have asynchronous handling of client requests to the web server or a UI. As a result, the requests can be sent to the backend using `curl` or the swagger UI at `<ip-address>:8251/docs`. The `config.md` document contain valid hyper-parameters to submit to the backend.
+
+> *Example `curl` command*:
+
+```bash
+curl -X POST <vm-ip-address>:8251/inf/run_experiment \
+-H "Content-Type: application/json" \
+-d <json-object-from-config.md>
+```
+
+If using the Swagger UI, then multiple tabs will need to be opened in order to submit multiple jobs, since asynchronous handling of requests, or a client side application capable of handling asynchronous requests are not implemented yet.
+
+### <a name="exec"></a>Alternative Execution
+If you do not feel like going through all of the steps and troubleshooting and just want to run the model training experiment, go to the `rl_catan` folder, and just run `main.py`. If you would like to change the hyper-parameters, change the constant definitions under `Configurations.py`
 
 ## <a name="bugs"></a>Installation Troubleshooting
 

@@ -8,6 +8,7 @@ __pycache__/
 
 # Adding K8s and Helm Related Stuff
 **/charts/
+**/*.pdf
 
 
 # Distribution / packaging

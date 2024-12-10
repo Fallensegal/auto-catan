@@ -38,8 +38,8 @@ def run_benchmark(training_config: TrainingInput) -> dict[str, str]:
     msg = tasks.receive_pydantic_model.send(config=training_config.model_dump(mode='json'))
     return {'Server:': msg.get_result(timeout=100_000, block=True)}
 
-@inference_router.post("/test_pydantic")
-def run_test(training_config: TrainingInput) -> dict[str, str]:
+@inference_router.post("/run_experiment")
+def run_experiment(training_config: TrainingInput) -> dict[str, str]:
     msg = tasks.execute_rl_benchmark.send(config=training_config.model_dump(mode='json'))
     return {'Server:': msg.get_result(timeout=21600000, block=True)}
 
