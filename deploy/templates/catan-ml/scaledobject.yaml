@@ -10,10 +10,11 @@ spec:
     name: {{ index .Values "catan-ml" "name" }}
   pollingInterval: 30
   minReplicaCount: 1
+  maxReplicaCount: 4
   triggers:
     - type: redis
       metadata:
         address: chart-redis-master.catan.svc.cluster.local:6379
         passwordFromEnv: REDIS_PASSWORD
         listName: "dramatiq:default.msgs"
-        listLength: "2"
+        listLength: "1"
